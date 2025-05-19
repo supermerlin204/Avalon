@@ -1,32 +1,18 @@
 package com.merlin204.avalon.util;
 
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
-import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.collider.Collider;
-import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
-import yesman.epicfight.world.damagesource.StunType;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class AnimationUtils {
+public class AvalonAnimationUtils {
 
     public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint) {
         return getJointWorldPos(entityPatch,joint,Vec3f.ZERO);

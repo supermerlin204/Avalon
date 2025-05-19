@@ -18,7 +18,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventUtils {
+public class AvalonEventUtils {
     public static AnimationEvent.InTimeEvent simpleGroundSplit(int startFrame, double viewOffset, double xOffset, double yOffset, double zOffset, float radius) {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
@@ -41,8 +41,6 @@ public class EventUtils {
         if (entity.level() instanceof ServerLevel level) {
             LevelUtil.circleSlamFracture(entity, level, target, radius, false);
             dealAreaDamage(level, damagetarget, entity, damage, radius, StunType.LONG);
-        }else {
-
         }
     }
 
