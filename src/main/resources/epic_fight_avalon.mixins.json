@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "com.merlin204.avalon.mixin",
+  "client": [
+    "ClientPacketListenerMixin"
+  ],
+  "mixins": [
+
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "epic_fight_avalon.mixins.mixin-refmap.json"
+}
