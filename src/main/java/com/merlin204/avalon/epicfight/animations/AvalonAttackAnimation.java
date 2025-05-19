@@ -318,6 +318,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
 
 
+
+
         @Override
         public List<Entity> getCollidingEntities(LivingEntityPatch<?> entitypatch, AttackAnimation animation, float prevElapsedTime, float elapsedTime, float attackSpeed) {
             Set<Entity> entities = Sets.newHashSet();

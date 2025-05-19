@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TargetInGirdCondition implements Condition<LivingEntityPatch> {
+public class TargetInGirdCondition<T extends LivingEntityPatch> implements Condition<T> {
 
     public static class Rectangle {
         public final int xMin, xMax;
@@ -62,7 +62,7 @@ public class TargetInGirdCondition implements Condition<LivingEntityPatch> {
     }
 
     @Override
-    public boolean predicate(LivingEntityPatch livingEntityPatch) {
+    public boolean predicate(T livingEntityPatch) {
         Vec3 Pos = livingEntityPatch.getOriginal().position();
         Level world = livingEntityPatch.getOriginal().level();
 
@@ -110,7 +110,7 @@ public class TargetInGirdCondition implements Condition<LivingEntityPatch> {
         return false;
     }
 
-    private void drawAllRectangles(LivingEntityPatch livingEntityPatch) {
+    private void drawAllRectangles(T livingEntityPatch) {
         Vec3 Pos = livingEntityPatch.getOriginal().position();
         float yRot = livingEntityPatch.getOriginal().getYRot();
         LivingEntity livingEntity = (LivingEntity) livingEntityPatch.getOriginal();
@@ -180,7 +180,7 @@ public class TargetInGirdCondition implements Condition<LivingEntityPatch> {
 
 
     @Override
-    public Condition<LivingEntityPatch> read(CompoundTag compoundTag) throws IllegalArgumentException {
+    public Condition<T> read(CompoundTag compoundTag) throws IllegalArgumentException {
         return null;
     }
 

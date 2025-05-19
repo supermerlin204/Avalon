@@ -7,6 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -50,6 +51,15 @@ public class AvalonAnimationUtils {
         float wait = waitFrame / 60F;
         return new AvalonAttackAnimation.AvalonPhase(0, start, start, end, wait, Float.MAX_VALUE, interactionHand, joint,collider);
     }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand, AttackAnimation.JointColliderPair... colliders) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0F, start, start, end, wait, Float.MAX_VALUE,interactionHand,colliders);
+    }
+
+
 
 
 
