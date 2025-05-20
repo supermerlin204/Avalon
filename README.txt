@@ -22,3 +22,22 @@ TEST = builder.nextAccessor("test", accessor -> new AvalonAttackAnimation(0.15F,
 
 
 ---
+
+✨ A lightweight animation extension framework designed for the Epic Fight mod | Streamlines addon development, making animation registration unprecedentedly elegant
+
+---
+
+## 🚀 Features
+
+- **Smooth Animation Registration API** - Bid farewell to cumbersome configurations
+- **Optimized Animation Classes** - Ready-to-use animation classes like `AvalonAttackAnimation`/`AvalonMovementAnimation`
+- **Common Animation Utilities** - Available in `AvalonAnimationUtils`/`AvalonEventUtils`
+
+Example:
+TEST = builder.nextAccessor("test", accessor -> new AvalonAttackAnimation(0.15F, accessor, armature, play_speed, damage_modifier,
+        // Add a simple Phase with three integers indicating frame indices
+                AvalonAnimationUtils.createSimplePhase(35, 40, 55),
+        // Add another simple Phase
+                AvalonAnimationUtils.createSimplePhase(35, 40, 55))
+        // Add a simple GroundSplit event, first int is trigger frame
+                .addEvents(AvalonEventUtils.simpleGroundSplit(39, 2.5, 0, 0, 0, 4, true)));
