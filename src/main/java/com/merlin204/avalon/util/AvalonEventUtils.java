@@ -35,6 +35,7 @@ public class AvalonEventUtils {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
             Vec3 startPos = AvalonAnimationUtils.getJointWorldPos(entityPatch,startJoint);
+            entityPatch.rotateTo(entityPatch.getTarget(),90F,true);
 
             Vec3 toTarget = entityPatch.getTarget().getEyePosition().subtract(startPos);
             Vec3 direction = toTarget.normalize();
@@ -92,7 +93,7 @@ public class AvalonEventUtils {
 
     public static void groundSplit(LivingEntityPatch<?> entityPatch, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
         LivingEntity entity = entityPatch.getOriginal();
-        float damage = getTotalAttackDamage(entityPatch);
+        float damage = getTotalAttackDamage(entityPatch) * 0.5F;
         Vec3 pos = entity.position();
 
         float yaw = entityPatch.getYRot();
@@ -120,15 +121,37 @@ public class AvalonEventUtils {
     private static void dealAreaDamage(ServerLevel level, Vec3 center, LivingEntity source, float damage, float radius, StunType stunType,boolean teamProtect) {
         if (radius <= 0) return;
         AABB area = new AABB(center.x() - radius, center.y() - radius, center.z() - radius, center.x() + radius, center.y() + radius, center.z() + radius);
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, area, entity ->
-                entity.isAlive()
-                        && entity.distanceToSqr(center) <= radius * radius
-                        && entity.getType().getCategory() != source.getType().getCategory()
-                        && entity != source);
-        for (LivingEntity entity : new ArrayList<>(entities)) {
-            if (entity.invulnerableTime >= 0 && source != null) {
-                LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(source, LivingEntityPatch.class);
-                if (entityPatch != null) {
+        if (teamProtect){
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, area, entity ->
+                    entity.isAlive()
+                            && entity.distanceToSqr(center) <= radius * radius
+                            && entity.getType().getCategory() != source.getType().getCategory()
+                            && entity != source);
+            for (LivingEntity entity : new ArrayList<>(entities)) {
+                if (entity.invulnerableTime >= 0 && source != null) {
+
+
+                    entity.invulnerableTime = 0;
+                    EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
+                    entity.hurt(damageSources.shockwave(source)
+                                    .setAnimation(Animations.EMPTY_ANIMATION)
+                                    .setInitialPosition(center)
+                                    .setStunType(stunType).setImpact(damage / 5.0F)
+                                    .addRuntimeTag(DamageTypes.EXPLOSION)
+                                , damage);
+                    }
+                    entity.invulnerableTime = 0;
+                }
+            }
+        else {
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, area, entity ->
+                    entity.isAlive()
+                            && entity.distanceToSqr(center) <= radius * radius
+                            && entity.getType() != source.getType()
+                            && entity != source);
+            for (LivingEntity entity : new ArrayList<>(entities)) {
+                if (entity.invulnerableTime >= 0 && source != null) {
+
                     entity.invulnerableTime = 0;
                     EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
                     entity.hurt(damageSources.shockwave(source)
@@ -137,10 +160,11 @@ public class AvalonEventUtils {
                                     .setStunType(stunType).setImpact(damage / 5.0F)
                                     .addRuntimeTag(DamageTypes.EXPLOSION)
                             , damage);
+                    entity.invulnerableTime = 0;
                 }
-                entity.invulnerableTime = 0;
             }
         }
+
     }
 
     public static float getTotalAttackDamage(LivingEntityPatch<?> entityPatch) {
