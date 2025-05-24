@@ -1,13 +1,17 @@
 package com.merlin204.avalon.util;
 
 
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.gameasset.Animations;
@@ -27,11 +31,46 @@ public class AvalonEventUtils {
         }, AnimationEvent.Side.BOTH);
     }
 
+    public static AnimationEvent.InTimeEvent simpleSonicBoom(int startFrame, Joint startJoint,float damage) {
+        float start = startFrame / 60F;
+        return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
+            Vec3 startPos = AvalonAnimationUtils.getJointWorldPos(entityPatch,startJoint);
+
+            Vec3 toTarget = entityPatch.getTarget().getEyePosition().subtract(startPos);
+            Vec3 direction = toTarget.normalize();
+            for(int step = 1; step < Mth.floor(toTarget.length()) + 7; ++step) {
+                Vec3 particlePos = startPos.add(direction.scale(step));
+                if (entityPatch.getOriginal().level() instanceof ServerLevel serverLevel){
+                    serverLevel.sendParticles(
+                            ParticleTypes.SONIC_BOOM,
+                            particlePos.x, particlePos.y, particlePos.z,
+                            1,
+                            0.0, 0.0, 0.0, 0.0
+                    );
+                }
+
+            }
+            entityPatch.getOriginal().playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
+            entityPatch.getTarget().hurt(
+                    entityPatch.getOriginal().level().damageSources().sonicBoom(entityPatch.getOriginal()),
+                    damage
+            );
+            double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+            double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+
+            entityPatch.getTarget().push(
+                    direction.x() * horizontalKnockback,
+                    direction.y() * verticalKnockback,
+                    direction.z() * horizontalKnockback
+            );
+        }, AnimationEvent.Side.SERVER);
+    }
+
     public static AnimationEvent.InTimeEvent simpleSound(int startFrame, SoundEvent soundEvent,float volume,float pitch ) {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
            entityPatch.getOriginal().playSound(soundEvent,volume,pitch);
-        }, AnimationEvent.Side.CLIENT);
+        }, AnimationEvent.Side.SERVER);
     }
 
 
