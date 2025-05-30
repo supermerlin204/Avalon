@@ -2,6 +2,7 @@ package com.merlin204.avalon.client;
 
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -9,6 +10,8 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 
@@ -23,10 +26,18 @@ public class CameraShake {
 
     private static @Nullable Vec3 center;
     private static float radius;             // 影响半径
-    private static float minIntensity = 0.4f;// 最小强度阈值
+    private static float minIntensity;
 
-    public static void shake(int duration, float intensity, float frequency,
-                             Vec3 center, float radius) {
+
+
+    /**
+     * duration 持续时间（tick）
+     * intensity 强度
+     * frequency 频率
+     * center 中心
+     * radius 半径
+     */
+    public static void shake(int duration, float intensity, float frequency, Vec3 center, float radius) {
         if (intensity > baseIntensity) {
             shakeDuration = duration;
             baseIntensity = intensity;
@@ -60,8 +71,6 @@ public class CameraShake {
         double distanceToCenter = playerPos.distanceTo(center);
         float distanceFactor = (float) Math.max(0, 1 - (distanceToCenter / radius));
         float attenuatedIntensity = currentIntensity * distanceFactor;
-
-        if(attenuatedIntensity < minIntensity) return;
 
         float time = (player.tickCount + partialTicks) * frequency;
         float progress = 1.0f - (float)shakeDuration / (shakeDuration + partialTicks);

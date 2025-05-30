@@ -1,6 +1,10 @@
 package com.merlin204.avalon.util;
 
 
+import com.merlin204.avalon.client.CameraShake;
+import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
+import com.merlin204.avalon.entity.vfx.shakewave.ShakeWaveEntity;
+import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -52,10 +56,14 @@ public class AvalonEventUtils {
 
             }
             entityPatch.getOriginal().playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
-            entityPatch.getTarget().hurt(
-                    entityPatch.getOriginal().level().damageSources().sonicBoom(entityPatch.getOriginal()),
-                    damage
-            );
+
+            entityPatch.getTarget().invulnerableTime = 0;
+            EpicFightDamageSources damageSources = EpicFightDamageSources.of(entityPatch.getOriginal().level());
+
+
+            entityPatch.getTarget().hurt(damageSources.shockwave(entityPatch.getOriginal())
+                            .setAnimation(Animations.EMPTY_ANIMATION)
+                            .setImpact(damage*10F), damage);
             double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
             double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 
@@ -73,6 +81,28 @@ public class AvalonEventUtils {
            entityPatch.getOriginal().playSound(soundEvent,volume,pitch);
         }, AnimationEvent.Side.SERVER);
     }
+
+
+    /**
+     * duration:持续tick
+     * intensity:强度
+     * frequency:频率
+     * radius:半径
+     */
+    public static AnimationEvent.InTimeEvent simpleCameraShake(int startFrame,int duration, float intensity, float frequency, float radius) {
+        float start = startFrame / 60F;
+        return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
+            CameraShake.shake(duration,intensity,frequency,entityPatch.getOriginal().position(),radius);
+        }, AnimationEvent.Side.CLIENT);
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -112,7 +142,12 @@ public class AvalonEventUtils {
         Vec3 target = pos.add(totalOffset.x, -1 + totalOffset.y, totalOffset.z);
         Vec3 damagetarget = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);
 
-        if (entity.level() instanceof ServerLevel level) {
+        if (entity.level() instanceof ServerLevel level && target !=null) {
+//            ShakeWaveEntity shakeWaveEntity = new ShakeWaveEntity(entity,radius);
+//            level.addFreshEntity(shakeWaveEntity);
+//            shakeWaveEntity.setPos(damagetarget.add(0 ,0.5F,0));
+//            EpicFightCapabilities.getEntityPatch(shakeWaveEntity, VFXEntityPatch.class).playAnimationSynchronized(VFXAnimations.SHAKEWAVE_1,0F);
+
             LevelUtil.circleSlamFracture(entity, level, target, radius, false);
             dealAreaDamage(level, damagetarget, entity, damage, radius, StunType.LONG,teamProtect);
         }
