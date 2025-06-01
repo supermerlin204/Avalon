@@ -29,6 +29,11 @@ public class ShakeWaveEntity extends VFXEntity {
     @Nullable
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getIdleAnimation() {
+        return VFXAnimations.SHAKEWAVE_IDLE;
+    }
+
+    @Override
+    public @Nullable AnimationManager.AnimationAccessor<? extends StaticAnimation> getDefaultAnimation() {
         return VFXAnimations.SHAKEWAVE_1;
     }
 

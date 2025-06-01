@@ -2,6 +2,7 @@ package com.merlin204.avalon.main;
 
 
 import com.merlin204.avalon.entity.AvalonEntities;
+import com.merlin204.avalon.item.AvalonItems;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -20,6 +21,7 @@ public class AvalonMOD {
 
         IEventBus bus = context.getModEventBus();
         AvalonEntities.ENTITIES.register(bus);
+        AvalonItems.ITEMS.register(bus);
 
 
     }

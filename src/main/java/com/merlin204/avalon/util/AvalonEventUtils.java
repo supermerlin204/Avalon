@@ -39,39 +39,42 @@ public class AvalonEventUtils {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
             Vec3 startPos = AvalonAnimationUtils.getJointWorldPos(entityPatch,startJoint);
-            entityPatch.rotateTo(entityPatch.getTarget(),90F,true);
+            if (entityPatch.getTarget() != null){
+                entityPatch.rotateTo(entityPatch.getTarget(),90F,true);
 
-            Vec3 toTarget = entityPatch.getTarget().getEyePosition().subtract(startPos);
-            Vec3 direction = toTarget.normalize();
-            for(int step = 1; step < Mth.floor(toTarget.length()) + 7; ++step) {
-                Vec3 particlePos = startPos.add(direction.scale(step));
-                if (entityPatch.getOriginal().level() instanceof ServerLevel serverLevel){
-                    serverLevel.sendParticles(
-                            ParticleTypes.SONIC_BOOM,
-                            particlePos.x, particlePos.y, particlePos.z,
-                            1,
-                            0.0, 0.0, 0.0, 0.0
-                    );
+                Vec3 toTarget = entityPatch.getTarget().getEyePosition().subtract(startPos);
+                Vec3 direction = toTarget.normalize();
+                for(int step = 1; step < Mth.floor(toTarget.length()) + 7; ++step) {
+                    Vec3 particlePos = startPos.add(direction.scale(step));
+                    if (entityPatch.getOriginal().level() instanceof ServerLevel serverLevel){
+                        serverLevel.sendParticles(
+                                ParticleTypes.SONIC_BOOM,
+                                particlePos.x, particlePos.y, particlePos.z,
+                                1,
+                                0.0, 0.0, 0.0, 0.0
+                        );
+                    }
+
                 }
+                entityPatch.getOriginal().playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
 
+                entityPatch.getTarget().invulnerableTime = 0;
+                EpicFightDamageSources damageSources = EpicFightDamageSources.of(entityPatch.getOriginal().level());
+
+
+                entityPatch.getTarget().hurt(damageSources.shockwave(entityPatch.getOriginal())
+                        .setAnimation(Animations.EMPTY_ANIMATION)
+                        .setImpact(damage*10F), damage);
+                double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+                double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+
+                entityPatch.getTarget().push(
+                        direction.x() * horizontalKnockback,
+                        direction.y() * verticalKnockback,
+                        direction.z() * horizontalKnockback
+                );
             }
-            entityPatch.getOriginal().playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
 
-            entityPatch.getTarget().invulnerableTime = 0;
-            EpicFightDamageSources damageSources = EpicFightDamageSources.of(entityPatch.getOriginal().level());
-
-
-            entityPatch.getTarget().hurt(damageSources.shockwave(entityPatch.getOriginal())
-                            .setAnimation(Animations.EMPTY_ANIMATION)
-                            .setImpact(damage*10F), damage);
-            double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
-            double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
-
-            entityPatch.getTarget().push(
-                    direction.x() * horizontalKnockback,
-                    direction.y() * verticalKnockback,
-                    direction.z() * horizontalKnockback
-            );
         }, AnimationEvent.Side.SERVER);
     }
 
@@ -143,10 +146,9 @@ public class AvalonEventUtils {
         Vec3 damagetarget = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);
 
         if (entity.level() instanceof ServerLevel level && target !=null) {
-//            ShakeWaveEntity shakeWaveEntity = new ShakeWaveEntity(entity,radius);
-//            level.addFreshEntity(shakeWaveEntity);
-//            shakeWaveEntity.setPos(damagetarget.add(0 ,0.5F,0));
-//            EpicFightCapabilities.getEntityPatch(shakeWaveEntity, VFXEntityPatch.class).playAnimationSynchronized(VFXAnimations.SHAKEWAVE_1,0F);
+            ShakeWaveEntity shakeWaveEntity = new ShakeWaveEntity(entity,radius);
+            level.addFreshEntity(shakeWaveEntity);
+            shakeWaveEntity.setPos(damagetarget.add(0 ,0.9F,0));
 
             LevelUtil.circleSlamFracture(entity, level, target, radius, false);
             dealAreaDamage(level, damagetarget, entity, damage, radius, StunType.LONG,teamProtect);

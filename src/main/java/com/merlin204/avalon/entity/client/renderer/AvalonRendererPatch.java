@@ -35,11 +35,12 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
 
 
         if (entity instanceof AvalonMeshEntity avalonMeshEntity){
-            Armature armature = avalonMeshEntity.getArmature();
+            Armature armature = entitypatch.getArmature();
             SkinnedMesh mesh = avalonMeshEntity.getMesh().get();
             ResourceLocation texture = avalonMeshEntity.getTexture();
 
             RenderType renderType = RenderType.entityTranslucent(texture);
+
 
 
             poseStack.pushPose();
@@ -47,6 +48,10 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
             this.setArmaturePose(entitypatch, armature, partialTicks);
 
             mesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+
+
+            this.renderLayer(renderer, entitypatch, entity, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
+
 
             if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
                 entitypatch.getClientAnimator().renderDebuggingInfoForAllLayers(poseStack, buffer, partialTicks);

@@ -6,6 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -32,6 +33,16 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         super();
     }
 
+    @Override
+    public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
+        super.onJoinWorld(entity, event);
+        if(this.isLogicalClient()){
+            this.getClientAnimator().playAnimation(original.getDefaultAnimation(), 0.0F);
+        }else {
+            playAnimationSynchronized(original.getDefaultAnimation(),0F);
+        }
+    }
+
     public VFXEntityPatch(Faction faction) {
         super(faction);
     }
@@ -51,7 +62,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
     @Override
     public void updateMotion(boolean considerInaction) {
-        if(this.state.inaction() && considerInaction){
+        if(considerInaction){
             this.currentLivingMotion = LivingMotions.IDLE;
         }
     }
@@ -94,7 +105,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
-        animator.addLivingAnimation(LivingMotions.IDLE, VFXAnimations.SHAKEWAVE_IDLE);
+        animator.addLivingAnimation(LivingMotions.IDLE, original.getIdleAnimation());
     }
 
     @Nullable

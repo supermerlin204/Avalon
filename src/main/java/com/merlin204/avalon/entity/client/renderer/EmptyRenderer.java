@@ -21,7 +21,7 @@ public class EmptyRenderer extends LivingEntityRenderer {
 
     @Override
     public boolean shouldRender(Entity pLivingEntity, Frustum pCamera, double pCamX, double pCamY, double pCamZ) {
-        return pLivingEntity.tickCount>2;
+        return true;
     }
 
     @Override

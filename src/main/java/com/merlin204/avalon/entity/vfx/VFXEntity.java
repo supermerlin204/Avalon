@@ -19,6 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
@@ -54,7 +56,6 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
     }
 
 
-
     @Nullable
     @Override
     public Armature getArmature() {
@@ -75,6 +76,11 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
 
     public float getScale(){
         return this.entityData.get(SCALE);
+    }
+
+    @Nullable
+    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getDefaultAnimation() {
+        return null;
     }
 
     /**
