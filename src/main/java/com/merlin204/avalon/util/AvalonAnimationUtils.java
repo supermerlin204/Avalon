@@ -52,12 +52,56 @@ public class AvalonAnimationUtils {
         return new AvalonAttackAnimation.AvalonPhase(0, start, start, end, wait, Float.MAX_VALUE, interactionHand, joint,collider);
     }
 
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand ,float damageMulti, Joint joint, Collider collider) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0, start, start, end, wait, Float.MAX_VALUE, interactionHand,damageMulti,joint,collider);
+    }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand ,float damageMulti,float impactDamageMulti, Joint joint, Collider collider) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0, start, start, end, wait, Float.MAX_VALUE, interactionHand,damageMulti,impactDamageMulti,joint,collider);
+    }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand ,float damageMulti,float impactDamageMulti,float phaseArmorNegationMulti ,Joint joint, Collider collider) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0, start, start, end, wait, Float.MAX_VALUE, interactionHand,damageMulti,impactDamageMulti,phaseArmorNegationMulti,joint,collider);
+    }
+
     public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand, AttackAnimation.JointColliderPair... colliders) {
         float start = startFrame / 60F;
         float end = endFrame / 60F;
         float wait = waitFrame / 60F;
         return new AvalonAttackAnimation.AvalonPhase(0F, start, start, end, wait, Float.MAX_VALUE,interactionHand,colliders);
     }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand,float damageMulti, AttackAnimation.JointColliderPair... colliders) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0F, start, start, end, wait, Float.MAX_VALUE,interactionHand,damageMulti,colliders);
+    }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand,float damageMulti,float impactDamageMulti, AttackAnimation.JointColliderPair... colliders) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0F, start, start, end, wait, Float.MAX_VALUE,interactionHand,damageMulti,impactDamageMulti,colliders);
+    }
+
+    public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand,float damageMulti,float impactDamageMulti, float phaseArmorNegationMulti,AttackAnimation.JointColliderPair... colliders) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        float wait = waitFrame / 60F;
+        return new AvalonAttackAnimation.AvalonPhase(0F, start, start, end, wait, Float.MAX_VALUE,interactionHand,damageMulti,impactDamageMulti,phaseArmorNegationMulti,colliders);
+    }
+
+
 
 
 

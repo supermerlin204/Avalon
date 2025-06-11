@@ -59,11 +59,6 @@ public class AvalonEntityEventHandler {
                     ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "mesh_item"),
                     RenderMeshItem::new
             );
-
-
-
-
-
     }
 
     @SubscribeEvent
