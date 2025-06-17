@@ -12,13 +12,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class AvalonEntities {
+
+    //注册实体
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, AvalonMOD.MOD_ID);
-//    public static final RegistryObject<EntityType<BladeWaveEntity>> BLADEWAVE = register("blade_wave",
-//            EntityType.Builder.<BladeWaveEntity>of(BladeWaveEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
 
     public static final RegistryObject<EntityType<ShakeWaveEntity>> SHAKE_WAVE = register("shake_wave",
             EntityType.Builder.<ShakeWaveEntity>of(ShakeWaveEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
-
 
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {

@@ -33,6 +33,15 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         super();
     }
 
+    public void onConstructed(T entityIn) {
+        super.onConstructed(entityIn);
+        this.armature = entityIn.getArmature();
+        Animator animator = EpicFightSharedConstants.getAnimator(this);
+        this.animator = animator;
+        this.initAnimator(animator);
+        animator.postInit();
+    }
+
     @Override
     public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
         super.onJoinWorld(entity, event);
@@ -49,6 +58,8 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
     @Nullable
     private PlayerPatch<?> ownerPatch;
+
+
 
     @Override
     public OpenMatrix4f getModelMatrix(float partialTicks) {
