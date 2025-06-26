@@ -17,6 +17,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -77,6 +78,8 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
     public float getScale(){
         return this.entityData.get(SCALE);
     }
+
+
 
     @Nullable
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getDefaultAnimation() {

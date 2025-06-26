@@ -1,3 +1,6 @@
+
+
+
 plugins {
     id 'eclipse'
     id 'idea'
@@ -69,6 +72,9 @@ mixin {
     add sourceSets.main, "${mod_id}" + '.mixin-refmap.json'
     config "${mod_id}" + '.mixins.json'
 }
+jar {
+    manifest.attributes('FMLAT': 'accesstransformer.cfg')
+}
 
 repositories {
     maven {
@@ -94,6 +100,8 @@ dependencies {
     implementation fg.deobf("curse.maven:oculus-581495:6020952")
     implementation fg.deobf("curse.maven:photon-871522:6373238")
     implementation fg.deobf("curse.maven:ldlib-626676:6417175")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
 }
 

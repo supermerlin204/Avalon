@@ -34,16 +34,32 @@ public class AvalonAnimationUtils {
         return pos;
     }
 
+    public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint,Vec3f offset,float partialTicks) {
+
+        LivingEntity entity = entityPatch.getOriginal();
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(entityPatch.getAnimator().getPose(partialTicks), joint);
+        transformMatrix.translate(offset);
+        OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
+        OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
+        Vec3 pos = new Vec3(transformMatrix.m30 + (float) entity.getX(), transformMatrix.m31 + (float) entity.getY(), transformMatrix.m32 + (float) entity.getZ());
+
+        return pos;
+    }
+
     public static Vec3 getJointWorldRawPos(LivingEntityPatch<?> entityPatch, Joint joint,float time,Vec3f offset) {
         Animator animator = entityPatch.getAnimator();
+        LivingEntity entity = entityPatch.getOriginal();
         Pose pose = animator.getPlayerFor(null).getAnimation().get().getRawPose(time);
-        Vec3 pos = entityPatch.getOriginal().position();
-        OpenMatrix4f modelTf = OpenMatrix4f.createTranslation((float) pos.x, (float) pos.y, (float) pos.z)
-                .mulBack(OpenMatrix4f.createRotatorDeg(0, Vec3f.Y_AXIS)
-                        .mulBack(entityPatch.getModelMatrix(1)));
-        OpenMatrix4f JointTf = new OpenMatrix4f(entityPatch.getArmature().getBindedTransformFor(pose, joint)).mulFront(modelTf);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(pose, joint);
+        transformMatrix.translate(offset);
+        OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
+        OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
+        Vec3 pos = new Vec3(transformMatrix.m30 + (float) entity.getX(), transformMatrix.m31 + (float) entity.getY(), transformMatrix.m32 + (float) entity.getZ());
 
-        return OpenMatrix4f.transform(JointTf, Vec3.ZERO);}
+        return pos;
+    }
+
+
 
     public static AvalonAttackAnimation.AvalonPhase createSimplePhase(int startFrame, int endFrame, int waitFrame, InteractionHand interactionHand, Joint joint, Collider collider) {
         float start = startFrame / 60F;

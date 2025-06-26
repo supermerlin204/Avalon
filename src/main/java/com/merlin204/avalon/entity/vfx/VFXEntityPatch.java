@@ -1,5 +1,6 @@
 package com.merlin204.avalon.entity.vfx;
 
+import com.merlin204.avalon.epicfight.AvalonFctions;
 import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -33,8 +34,14 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         super();
     }
 
+
+    @Override
+    public Faction getFaction() {
+        return AvalonFctions.EMPTY;
+    }
+
     public void onConstructed(T entityIn) {
-        super.onConstructed(entityIn);
+        this.original = entityIn;
         this.armature = entityIn.getArmature();
         Animator animator = EpicFightSharedConstants.getAnimator(this);
         this.animator = animator;

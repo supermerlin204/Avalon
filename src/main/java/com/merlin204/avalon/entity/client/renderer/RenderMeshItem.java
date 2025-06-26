@@ -1,6 +1,7 @@
 package com.merlin204.avalon.entity.client.renderer;
 
 import com.google.gson.JsonElement;
+import com.merlin204.avalon.main.AvalonMOD;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +15,7 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class RenderMeshItem extends RenderItemBase {
@@ -22,9 +24,21 @@ public class RenderMeshItem extends RenderItemBase {
     private final ResourceLocation texture;
     private final AssetAccessor<? extends SkinnedMesh> mesh_main;
     private final AssetAccessor<? extends SkinnedMesh> mesh_off;
+    public final Armatures.ArmatureAccessor<? extends Armature> armatureAccessor;
 
     public RenderMeshItem(JsonElement jsonElement) {
         super(jsonElement);
+
+        if (jsonElement.getAsJsonObject().has("armature")) {
+            String meshLoc = jsonElement.getAsJsonObject().get("armature").getAsString();
+            ResourceLocation resLoc = ResourceLocation.parse(meshLoc);
+            this.armatureAccessor = Armatures.ArmatureAccessor.create(
+                    resLoc.getNamespace(),
+                    resLoc.getPath(),
+                    Armature::new);
+        } else {
+            this.armatureAccessor = null;
+        }
 
         if (jsonElement.getAsJsonObject().has("texture")) {
 
@@ -69,6 +83,8 @@ public class RenderMeshItem extends RenderItemBase {
         }else if (hand == InteractionHand.OFF_HAND){
             renderMesh = mesh_off.get();
         }
+
+
 
         Armature armature = entitypatch.getArmature();
         poseStack.pushPose();

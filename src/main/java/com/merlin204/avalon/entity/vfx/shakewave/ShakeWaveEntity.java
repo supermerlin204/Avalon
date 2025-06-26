@@ -21,9 +21,13 @@ import yesman.epicfight.gameasset.Armatures;
 public class ShakeWaveEntity extends VFXEntity {
     public ShakeWaveEntity(LivingEntity owner,float scale) {
         super(AvalonEntities.SHAKE_WAVE.get(), owner, scale);
+        this.noPhysics = false;
+        setNoGravity(false);
     }
     public ShakeWaveEntity(EntityType<? extends VFXEntity> entityType, Level level) {
         super(entityType, level);
+        this.noPhysics = false;
+        setNoGravity(false);
     }
 
     @Nullable
