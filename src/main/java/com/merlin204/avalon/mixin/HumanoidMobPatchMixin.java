@@ -1,5 +1,6 @@
 package com.merlin204.avalon.mixin;
 
+import com.merlin204.avalon.entity.client.renderer.RenderChangeMeshItem;
 import com.merlin204.avalon.entity.client.renderer.RenderMeshItem;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.PathfinderMob;
@@ -20,11 +21,9 @@ public abstract class HumanoidMobPatchMixin<T extends PathfinderMob> extends Mob
     private void avalon$getArmature(CallbackInfoReturnable<Armature> cir) {
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(this.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
         if (renderItemBase instanceof RenderMeshItem renderMeshItem) {
-            {
-                if (renderMeshItem.armatureAccessor != null) {
-                    cir.setReturnValue(renderMeshItem.armatureAccessor.get());
-                }
-            }
+            if (renderMeshItem.armatureAccessor != null) {cir.setReturnValue(renderMeshItem.armatureAccessor.get());}
+        }else if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem){
+            if (renderChangeMeshItem.armatureAccessor != null) {cir.setReturnValue(renderChangeMeshItem.armatureAccessor.get());}
         }
     }
 }

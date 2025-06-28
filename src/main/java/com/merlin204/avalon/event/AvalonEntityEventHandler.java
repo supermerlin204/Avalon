@@ -3,6 +3,7 @@ package com.merlin204.avalon.event;
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.entity.client.renderer.AvalonRendererPatch;
 import com.merlin204.avalon.entity.client.renderer.EmptyRenderer;
+import com.merlin204.avalon.entity.client.renderer.RenderChangeMeshItem;
 import com.merlin204.avalon.entity.client.renderer.RenderMeshItem;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
@@ -53,10 +54,13 @@ public class AvalonEntityEventHandler {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void registerRenderers(PatchedRenderersEvent.RegisterItemRenderer event) {
-
         event.addItemRenderer(
                 ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "mesh_item"),
                 RenderMeshItem::new
+        );
+        event.addItemRenderer(
+                ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "change_mesh_item"),
+                RenderChangeMeshItem::new
         );
     }
 }

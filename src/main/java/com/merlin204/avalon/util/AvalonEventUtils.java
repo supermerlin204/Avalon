@@ -91,6 +91,51 @@ public class AvalonEventUtils {
         return particleTrail(startFrame,endFrame,hand,timeInterpolation,particleCount,particleOptions,0);
     }
 
+    public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,int particleCount ,ParticleOptions particleOptions) {
+        return particleTrail(startFrame,endFrame,hand,startOffset,endOffset,timeInterpolation,particleCount,particleOptions,0);
+    }
+
+    public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,int particleCount, ParticleOptions particleOptions,float random) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        Joint joint = null;
+        switch (hand){
+            case MAIN_HAND -> joint = Armatures.BIPED.get().toolR;
+            case OFF_HAND -> joint = Armatures.BIPED.get().toolL;
+        }
+        Joint finalJoint = joint;
+        return AnimationEvent.InPeriodEvent.create(start, end, (entityPatch, self, params) -> {
+
+            AnimationPlayer player = entityPatch.getAnimator().getPlayerFor(null);
+            float prevElapsedTime = player.getPrevElapsedTime();
+            float elapsedTime = player.getElapsedTime();
+            float step = (elapsedTime - prevElapsedTime) / timeInterpolation;
+
+
+            Vec3 trailStartOffset = startOffset;
+            Vec3 trailEndOffset = endOffset;
+            Vec3f trailDirection = new Vec3f((float)(trailEndOffset.x - trailStartOffset.x), (float)(trailEndOffset.y - trailStartOffset.y), (float)(trailEndOffset.z - trailStartOffset.z));
+            for (float f = prevElapsedTime; f <= elapsedTime; f += step) {
+                for (int i = 0; i <= particleCount; i++) {
+                    float ratio = i / (float)particleCount;
+                    Vec3f pointOffset = new Vec3f(
+                            (float)(trailStartOffset.x + trailDirection.x * ratio),
+                            (float)(trailStartOffset.y + trailDirection.y * ratio),
+                            (float)(trailStartOffset.z + trailDirection.z * ratio));
+
+                    double randX = (Math.random() - 0.5) * random;
+                    double randY = (Math.random() - 0.5) * random;
+                    double randZ = (Math.random() - 0.5) * random;
+
+                    Vec3 worldPos = AvalonAnimationUtils.getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
+                    if (entityPatch.getOriginal().level().isClientSide){
+                        entityPatch.getOriginal().level().addParticle(particleOptions, worldPos.x + randX, worldPos.y +randY, worldPos.z + randZ, 0, 0, 0);
+                    }
+                }
+            }
+        }, AnimationEvent.Side.CLIENT);
+    }
+
 
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,float timeInterpolation,int particleCount, ParticleOptions particleOptions,float random) {
         float start = startFrame / 60F;
@@ -110,6 +155,10 @@ public class AvalonEventUtils {
 
             ItemStack stack = entityPatch.getOriginal().getItemInHand(hand);
             RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
+
+            if (renderItemBase == null){
+                return;
+            }
 
             Vec3 trailStartOffset = renderItemBase.trailInfo().start();
             Vec3 trailEndOffset = renderItemBase.trailInfo().end();
@@ -132,7 +181,7 @@ public class AvalonEventUtils {
                     }
                 }
             }
-        }, AnimationEvent.Side.BOTH);
+        }, AnimationEvent.Side.CLIENT);
     }
 
     public static AnimationEvent.InTimeEvent simpleSound(int startFrame, SoundEvent soundEvent,float volume,float pitch ) {
