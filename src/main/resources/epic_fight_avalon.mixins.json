@@ -3,17 +3,18 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "package": "com.merlin204.avalon.mixin",
+
+  "mixins": [
+    "HumanoidMobPatchMixin"
+
+  ],
   "client": [
     "PLivingEntityRendererMixin",
     "PPlayerRendererMixin",
     "LivingEntityRendererMixin"
   ],
-  "mixins": [
-    "HumanoidMobPatchMixin"
-
-  ],
   "injectors": {
     "defaultRequire": 1
   },
-  "refmap": "epic_fight_avalon.mixins.mixin-refmap.json"
+  "refmap": "epic_fight_avalon.mixin-refmap.json"
 }

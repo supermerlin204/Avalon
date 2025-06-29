@@ -20,40 +20,51 @@ import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
-@Mixin(value = LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
-
-    /**
-     * 取自EFMM by P1nero
-     */
+@Mixin(value = LivingEntityRenderer.class, remap = true)
+public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>>
+        extends EntityRenderer<T>
+        implements RenderLayerParent<T, M> {
 
     @Shadow
     protected M model;
 
-    protected LivingEntityRendererMixin(EntityRendererProvider.Context p_174008_) {
-        super(p_174008_);
+    protected LivingEntityRendererMixin(EntityRendererProvider.Context context) {
+        super(context);
     }
 
-    @Inject(method = "getRenderType", at = @At("HEAD"), cancellable = true)
-    private void avalon$replaceTexture(T livingEntity, boolean p_115323_, boolean p_115324_, boolean p_115325_, CallbackInfoReturnable<RenderType> cir){
-        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(livingEntity, PlayerPatch.class);
-        if (playerPatch == null){
-            return;
-        }
-        RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(playerPatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
-        if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem){
-            ResourceLocation resourcelocation = this.getTextureLocation(livingEntity);
-            if(renderChangeMeshItem.texture != null){
-                resourcelocation = renderChangeMeshItem.texture;
+    @Inject(
+            method = "getRenderType(Lnet/minecraft/world/entity/LivingEntity;ZZZ)Lnet/minecraft/client/renderer/RenderType;",
+            at = @At("HEAD"),
+            cancellable = true,
+            remap = true
+    )
+    private void avalon$replaceTexture(T livingEntity, boolean bodyVisible, boolean translucent, boolean glowing, CallbackInfoReturnable<RenderType> cir
+    ) {
+        if (this.model == null) {return;}
+
+        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(livingEntity, PlayerPatch.class);if (playerPatch == null) {return;}
+
+        if (playerPatch.getOriginal() == null) {return;}
+
+        RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(
+                playerPatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND)
+        );
+
+        if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem) {
+            ResourceLocation textureLocation = this.getTextureLocation(livingEntity);
+
+            if (renderChangeMeshItem.texture != null) {
+                textureLocation = renderChangeMeshItem.texture;
             }
 
-            if (p_115324_) {
-                cir.setReturnValue(RenderType.itemEntityTranslucentCull(resourcelocation));
-            } else if (p_115323_) {
-                cir.setReturnValue(this.model.renderType(resourcelocation));
+            if (translucent) {
+                cir.setReturnValue(RenderType.itemEntityTranslucentCull(textureLocation));
+            } else if (bodyVisible) {
+                cir.setReturnValue(this.model.renderType(textureLocation));
             } else {
-                cir.setReturnValue(p_115325_ ? RenderType.outline(resourcelocation) : null);
+                cir.setReturnValue(glowing ? RenderType.outline(textureLocation) : null);
             }
+            cir.cancel();
         }
     }
 }
