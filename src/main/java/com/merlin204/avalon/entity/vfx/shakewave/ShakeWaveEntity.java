@@ -59,4 +59,9 @@ public class ShakeWaveEntity extends VFXEntity {
         return ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/entity/shakewave.png");
     }
 
+    @Nullable
+    @Override
+    public ResourceLocation getLitTexture() {
+        return ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/entity/shakewave_av.png");
+    }
 }

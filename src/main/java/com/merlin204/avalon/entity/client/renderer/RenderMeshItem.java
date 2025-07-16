@@ -22,6 +22,7 @@ public class RenderMeshItem extends RenderItemBase {
 
 
     private final ResourceLocation texture;
+    private final ResourceLocation texture_l;
     private final AssetAccessor<? extends SkinnedMesh> mesh_main;
     private final AssetAccessor<? extends SkinnedMesh> mesh_off;
     public final Armatures.ArmatureAccessor<? extends Armature> armatureAccessor;
@@ -45,6 +46,13 @@ public class RenderMeshItem extends RenderItemBase {
             this.texture = ResourceLocation.parse(jsonElement.getAsJsonObject().get("texture").getAsString());
         } else {
             this.texture = null;
+        }
+
+        if (jsonElement.getAsJsonObject().has("texture_l")) {
+
+            this.texture_l = ResourceLocation.parse(jsonElement.getAsJsonObject().get("texture_l").getAsString());
+        } else {
+            this.texture_l = null;
         }
 
         if (jsonElement.getAsJsonObject().has("mesh_main")) {
@@ -91,6 +99,9 @@ public class RenderMeshItem extends RenderItemBase {
 
         if (renderMesh != null) {
             renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+            if (texture_l != null){
+                renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+            }
         }
 
         poseStack.popPose();

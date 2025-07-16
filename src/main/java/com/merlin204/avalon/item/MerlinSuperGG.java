@@ -3,9 +3,12 @@ package com.merlin204.avalon.item;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.entity.vfx.shakewave.ShakeWaveEntity;
 import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
+import com.merlin204.avalon.particle.AvalonParticles;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,14 +30,16 @@ public class MerlinSuperGG extends Item {
         ItemStack stack = player.getItemInHand(pUsedHand);
         Level world = player.level();
 
-            ShakeWaveEntity shakeWaveEntity = new ShakeWaveEntity(player,5);
-            world.addFreshEntity(shakeWaveEntity);
-            shakeWaveEntity.setPos(player.position());
+        if (!world.isClientSide)return super.use(pLevel, player, pUsedHand);
 
-
-
-
-
+        player.level().addParticle(AvalonParticles.AVALON_ENTITY_AFTER_IMAGE.get()
+                , player.getX()
+                , player.getY()
+                , player.getZ()
+                , Double.longBitsToDouble(player.getId()), 0.05, 0.05);
+        ;
+        Entity entity = world.getEntity((int)Double.doubleToLongBits(Double.longBitsToDouble(player.getId())));
+        System.out.println(entity);
             player.getCooldowns().addCooldown(stack.getItem(), 20);
         return super.use(pLevel, player, pUsedHand);
     }

@@ -5,13 +5,13 @@
   "package": "com.merlin204.avalon.mixin",
 
   "mixins": [
-    "HumanoidMobPatchMixin"
 
   ],
   "client": [
     "PLivingEntityRendererMixin",
     "PPlayerRendererMixin",
-    "LivingEntityRendererMixin"
+    "LivingEntityRendererMixin",
+    "HumanoidMobPatchMixin"
   ],
   "injectors": {
     "defaultRequire": 1

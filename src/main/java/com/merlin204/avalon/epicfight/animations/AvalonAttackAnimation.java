@@ -50,7 +50,6 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-
     public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.play_speed = play_speed;
@@ -69,7 +68,6 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-
     public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.damageMulti = 1;
@@ -77,8 +75,6 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         this.addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, null);
         this.addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false);
     }
-
-
 
 
     public AvalonAttackAnimation(float convertTime, String path, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
@@ -93,6 +89,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     @Override
     public void begin(LivingEntityPatch<?> entitypatch) {
         super.begin(entitypatch);
+        entitypatch.getCurrenltyAttackedEntities().clear();
+        entitypatch.getCurrenltyHurtEntities().clear();
+
         for (Phase phase : phases) {
             if (phase instanceof AvalonPhase avalonPhase) {
                 avalonPhase.resetAttackRecord(entitypatch);
@@ -101,13 +100,14 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
     @Override
-    protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+    protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
+        AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
         float prevElapsedTime = player.getPrevElapsedTime();
         float elapsedTime = player.getElapsedTime();
 
 
-        EntityState prevState = ((DynamicAnimation)animation.get()).getState(entitypatch, prevElapsedTime);
-        EntityState state = ((DynamicAnimation)animation.get()).getState(entitypatch, elapsedTime);
+        EntityState prevState = ((DynamicAnimation) animation.get()).getState(entitypatch, prevElapsedTime);
+        EntityState state = ((DynamicAnimation) animation.get()).getState(entitypatch, elapsedTime);
 
         List<Phase> activePhases = getActivePhases(elapsedTime);
         for (Phase phase : activePhases) {
@@ -119,7 +119,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             if (state.getLevel() == 1 && !state.turningLocked() && entitypatch instanceof MobPatch<?> mobpatch) {
 
                 (mobpatch.getOriginal()).getNavigation().stop();
-                ((LivingEntity)entitypatch.getOriginal()).attackAnim = 2.0F;
+                ((LivingEntity) entitypatch.getOriginal()).attackAnim = 2.0F;
                 LivingEntity target = entitypatch.getTarget();
                 if (target != null) {
                     entitypatch.rotateTo(target, entitypatch.getYRotLimit(), false);
@@ -138,8 +138,18 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
     @Override
-    protected void hurtCollidingEntities(LivingEntityPatch<?> entitypatch, float prevElapsedTime, float elapsedTime, EntityState prevState, EntityState state, Phase phase) {
+    protected void hurtCollidingEntities(LivingEntityPatch<?> entitypatch, float prevElapsedTime, float elapsedTime,
+                                         EntityState prevState, EntityState state, Phase phase) {
         LivingEntity entity = (LivingEntity) entitypatch.getOriginal();
+
+        if (prevElapsedTime < phase.start && elapsedTime >= phase.start) {
+            entitypatch.getCurrenltyAttackedEntities().clear();
+            entitypatch.getCurrenltyHurtEntities().clear();
+            if (phase instanceof AvalonPhase avalonPhase) {
+                avalonPhase.resetAttackRecord(entitypatch);
+            }
+        }
+
         float phasePrevTime = Math.max(prevElapsedTime, phase.start);
         float phaseCurrentTime = Math.min(elapsedTime, phase.end);
 
@@ -150,9 +160,12 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             return;
         }
 
-        List<Entity> list = phase.getCollidingEntities(entitypatch, this, phasePrevTime, phaseCurrentTime, this.getPlaySpeed(entitypatch, this));
+        List<Entity> list = phase.getCollidingEntities(entitypatch, this, phasePrevTime, phaseCurrentTime,
+                this.getPlaySpeed(entitypatch, this));
         if (!list.isEmpty()) {
-            HitEntityList hitEntities = new HitEntityList(entitypatch, list, phase.getProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY).orElse(HitEntityList.Priority.DISTANCE));
+            HitEntityList hitEntities = new HitEntityList(entitypatch, list,
+                    phase.getProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY)
+                            .orElse(HitEntityList.Priority.DISTANCE));
             int maxStrikes = 10;
 
             while (hitEntities.next()) {
@@ -176,7 +189,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                         target.invulnerableTime = prevInvulTime;
 
                         if (attackResult.resultType.dealtDamage()) {
-                            target.level().playSound(null, target.getX(), target.getY(), target.getZ(), this.getHitSound(entitypatch, phase), target.getSoundSource(), 1.0F, 1.0F);
+                            target.level().playSound(null, target.getX(), target.getY(), target.getZ(),
+                                    this.getHitSound(entitypatch, phase), target.getSoundSource(), 1.0F, 1.0F);
                             this.spawnHitParticle((ServerLevel) target.level(), entitypatch, target, phase);
                         }
 
@@ -191,8 +205,6 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-
-
     @Override
     public float getPlaySpeed(LivingEntityPatch<?> entitypatch, DynamicAnimation animation) {
         if (entitypatch instanceof PlayerPatch<?> playerpatch) {
@@ -203,14 +215,12 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
     }
 
-
-
     @Override
     protected void bindPhaseState(Phase phase) {
         float preDelay = phase.preDelay;
         this.stateSpectrumBlueprint.newTimePair(0, preDelay).addState(EntityState.PHASE_LEVEL, 1)
                 .newTimePair(phase.start, phase.recovery).addState(EntityState.CAN_SKILL_EXECUTION, false)
-                .newTimePair(phase.start, phase.recovery+0.1F).addState(EntityState.MOVEMENT_LOCKED, true)
+                .newTimePair(phase.start, phase.recovery + 0.1F).addState(EntityState.MOVEMENT_LOCKED, true)
                 .addState(EntityState.UPDATE_LIVING_MOTION, false)
                 .newTimePair(phase.start, phase.recovery)
                 .addState(EntityState.CAN_BASIC_ATTACK, false)
@@ -235,13 +245,13 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         float phaseDamageMulti = 1;
         float phaseImpactMulti = 1;
         float phaseArmorNegationMulti = 1;
-        if (phase instanceof  AvalonPhase avalonPhase){
+        if (phase instanceof AvalonPhase avalonPhase) {
             phaseDamageMulti = avalonPhase.phaseDamageMulti;
             phaseImpactMulti = avalonPhase.phaseImpactMulti;
             phaseArmorNegationMulti = avalonPhase.phaseArmorNegationMulti;
         }
 
-        ValueModifier damageModifier =  ValueModifier.multiplier(damageMulti * phaseDamageMulti);
+        ValueModifier damageModifier = ValueModifier.multiplier(damageMulti * phaseDamageMulti);
         extendedSource.setDamageModifier(damageModifier);
 
         extendedSource.setImpact(extendedSource.getImpact() * phaseImpactMulti);
@@ -261,12 +271,12 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             opt.forEach(extendedSource::addExtraDamage);
         });
         phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresent((opt) -> {
-            extendedSource.setInitialPosition((Vec3)opt.apply(entitypatch));
+            extendedSource.setInitialPosition((Vec3) opt.apply(entitypatch));
         });
         phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse((opt) -> {
-            extendedSource.setInitialPosition((Vec3)opt.apply(entitypatch));
+            extendedSource.setInitialPosition((Vec3) opt.apply(entitypatch));
         }, () -> {
-            extendedSource.setInitialPosition(((LivingEntity)entitypatch.getOriginal()).position());
+            extendedSource.setInitialPosition(((LivingEntity) entitypatch.getOriginal()).position());
         });
         return extendedSource;
     }
@@ -304,7 +314,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public static class AvalonPhase extends Phase{
+    public static class AvalonPhase extends Phase {
         public final float phaseDamageMulti;
         public final float phaseImpactMulti;
         public final float phaseArmorNegationMulti;
@@ -313,26 +323,24 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         private WeakReference<LivingEntityPatch<?>> currentEntityPatch;
         private Set<Entity> attackedEntities;
 
-
         public void resetAttackRecord(LivingEntityPatch<?> entitypatch) {
             if (currentEntityPatch == null || currentEntityPatch.get() != entitypatch) {
                 currentEntityPatch = new WeakReference<>(entitypatch);
                 attackedEntities = new HashSet<>();
+            } else {
+                attackedEntities.clear();
             }
         }
 
         public boolean tryAttack(Entity entity) {
-            if (attackedEntities == null) return false;
-            if (!attackedEntities.contains(entity)) {
-                attackedEntities.add(entity);
-                return true;
+            if (attackedEntities == null) {
+                return false;
             }
-            return false;
+            return attackedEntities.add(entity);
         }
 
 
-
-        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand,float damageMulti, Joint joint, Collider collider) {
+        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, Joint joint, Collider collider) {
             super(start, antic, preDelay, contact, recovery, end, hand, joint, collider);
             this.phaseDamageMulti = damageMulti;
             this.phaseImpactMulti = 1;
@@ -346,7 +354,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             this.phaseArmorNegationMulti = 1;
         }
 
-        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, float phaseImpactMulti,float phaseArmorNegationMulti, Joint joint, Collider collider) {
+        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, float phaseImpactMulti, float phaseArmorNegationMulti, Joint joint, Collider collider) {
             super(start, antic, preDelay, contact, recovery, end, hand, joint, collider);
             this.phaseDamageMulti = damageMulti;
             this.phaseImpactMulti = phaseImpactMulti;
@@ -367,7 +375,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             this.phaseArmorNegationMulti = 1;
         }
 
-        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand,float damageMulti, JointColliderPair... colliders) {
+        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, JointColliderPair... colliders) {
             super(start, antic, preDelay, contact, recovery, end, hand, colliders);
             this.phaseDamageMulti = damageMulti;
             this.phaseImpactMulti = 1;
@@ -381,7 +389,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             this.phaseArmorNegationMulti = 1;
         }
 
-        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, float phaseImpactMulti,float phaseArmorNegationMulti, JointColliderPair... colliders) {
+        public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, float phaseImpactMulti, float phaseArmorNegationMulti, JointColliderPair... colliders) {
             super(start, antic, preDelay, contact, recovery, end, hand, colliders);
             this.phaseDamageMulti = damageMulti;
             this.phaseImpactMulti = phaseImpactMulti;
@@ -394,8 +402,6 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             this.phaseImpactMulti = 1;
             this.phaseArmorNegationMulti = 1;
         }
-
-
 
 
         @Override
@@ -412,11 +418,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             }
             return new ArrayList<>(entities);
         }
-
-
     }
-
-
 
     public List<Phase> getActivePhases(float elapsedTime) {
         List<Phase> activePhases = new ArrayList<>();
@@ -427,7 +429,4 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
         return activePhases;
     }
-
-
-
 }

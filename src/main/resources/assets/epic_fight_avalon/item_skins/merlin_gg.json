@@ -1,5 +1,7 @@
 {
-  "renderer": "epic_fight_avalon:change_mesh_item",
+  "renderer": "epic_fight_avalon:mesh_item",
   "texture": "epic_fight_avalon:textures/item/merlin_gg.png",
-  "mesh": "epic_fight_avalon:merlin_gg"
+  "texture_l": "epic_fight_avalon:textures/item/merlin_gg.png",
+  "mesh_main": "epic_fight_avalon:merlin_gg",
+  "mesh_off": "epic_fight_avalon:merlin_gg"
 }

@@ -41,13 +41,21 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
 
             RenderType renderType = RenderType.entityTranslucent(texture);
 
-
+            ResourceLocation litTexture = avalonMeshEntity.getLitTexture();
 
             poseStack.pushPose();
             this.mulPoseStack(poseStack, armature, entity, entitypatch, partialTicks);
             this.setArmaturePose(entitypatch, armature, partialTicks);
 
+
             mesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+
+            if (litTexture != null){
+                mesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(litTexture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+            }
+
+
+
 
 
             this.renderLayer(renderer, entitypatch, entity, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);

@@ -28,6 +28,11 @@ public interface AvalonMeshEntity {
     }
 
     @Nullable
+    default ResourceLocation getLitTexture() {
+        return null;
+    }
+
+    @Nullable
     default AnimationManager.AnimationAccessor<? extends StaticAnimation> getIdleAnimation(){
         return null;
     }
