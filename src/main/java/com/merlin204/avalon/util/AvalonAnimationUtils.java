@@ -25,7 +25,7 @@ public class AvalonAnimationUtils {
     public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint,Vec3f offset) {
 
         LivingEntity entity = entityPatch.getOriginal();
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(entityPatch.getAnimator().getPose(0.1f), joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(entityPatch.getAnimator().getPose(0.1f), joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
@@ -37,7 +37,7 @@ public class AvalonAnimationUtils {
     public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint,Vec3f offset,float partialTicks) {
 
         LivingEntity entity = entityPatch.getOriginal();
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(entityPatch.getAnimator().getPose(partialTicks), joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(entityPatch.getAnimator().getPose(partialTicks), joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
@@ -50,7 +50,7 @@ public class AvalonAnimationUtils {
         Animator animator = entityPatch.getAnimator();
         LivingEntity entity = entityPatch.getOriginal();
         Pose pose = animator.getPlayerFor(null).getAnimation().get().getRawPose(time);
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(pose, joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(pose, joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);

@@ -160,7 +160,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 LivingEntity trueEntity = this.getTrueEntity(target);
 
                 boolean canAttack = trueEntity != null && trueEntity.isAlive() &&
-                        !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) &&
+                        !entitypatch.getCurrentlyAttackTriedEntities().contains(trueEntity) &&
                         !entitypatch.isTargetInvulnerable(target);
 
                 if (phase instanceof AvalonPhase avalonPhase) {
@@ -180,9 +180,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                             this.spawnHitParticle((ServerLevel) target.level(), entitypatch, target, phase);
                         }
 
-                        entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
+                        entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
                         if (attackResult.resultType.shouldCount()) {
-                            entitypatch.getCurrenltyHurtEntities().add(trueEntity);
+                            entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
                         }
                     }
                 }
@@ -230,7 +230,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         if (originalSource instanceof EpicFightDamageSource epicfightDamageSource) {
             extendedSource = epicfightDamageSource;
         } else {
-            extendedSource = EpicFightDamageSources.copy(originalSource).setAnimation(this.getAccessor());
+            extendedSource = EpicFightDamageSources.fromVanillaDamageSource(originalSource).setAnimation(this.getAccessor());
         }
         float phaseDamageMulti = 1;
         float phaseImpactMulti = 1;
@@ -242,16 +242,14 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
 
         ValueModifier damageModifier =  ValueModifier.multiplier(damageMulti * phaseDamageMulti);
-        extendedSource.setDamageModifier(damageModifier);
+        extendedSource.attachDamageModifier(damageModifier);
 
-        extendedSource.setImpact(extendedSource.getImpact() * phaseImpactMulti);
+        extendedSource.setBaseImpact(extendedSource.getBaseImpact(1) * phaseImpactMulti);//TODO 这个1在后续版本可以去掉
 
-        extendedSource.setArmorNegation(extendedSource.getArmorNegation() * phaseArmorNegationMulti);
+        extendedSource.setBaseArmorNegation(extendedSource.getBaseArmorNegation(1) * phaseArmorNegationMulti);//TODO 这个1在后续版本可以去掉
 
 
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent((opt) -> {
-            extendedSource.setStunType(opt);
-        });
+        phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent(extendedSource::setStunType);
         phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG).ifPresent((opt) -> {
             Objects.requireNonNull(extendedSource);
             opt.forEach(extendedSource::addRuntimeTag);
@@ -274,6 +272,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     @OnlyIn(Dist.CLIENT)
     public void renderDebugging(PoseStack poseStack, MultiBufferSource buffer, LivingEntityPatch<?> entitypatch, float playbackTime, float partialTicks) {
         AnimationPlayer animPlayer = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+        if(animPlayer == null) {
+            return;
+        }
         float prevElapsedTime = animPlayer.getPrevElapsedTime();
         float elapsedTime = animPlayer.getElapsedTime();
 
