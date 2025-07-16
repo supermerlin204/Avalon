@@ -92,8 +92,9 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    implementation fg.deobf("libs:EpicFight:20.11.8")
-    implementation fg.deobf("libs:invincible:20.11.1")
+    implementation fg.deobf("libs:epicfight:20.12.0.3")
+    implementation fg.deobf("libs:epicskilltree:20.1.0.2")
+    implementation fg.deobf("libs:invincible:20.12.0.0")
     implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6237015")
     implementation fg.deobf("curse.maven:selene-499980:6283242")
     implementation fg.deobf("curse.maven:embeddium-908741:5681725")

@@ -74,9 +74,9 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(this.owner.getModelMatrix(1.0F));
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
 
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -161,9 +161,9 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(curModelMatrix);
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
         Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
