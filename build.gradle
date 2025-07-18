@@ -99,9 +99,6 @@ dependencies {
     implementation fg.deobf("curse.maven:selene-499980:6283242")
     implementation fg.deobf("curse.maven:embeddium-908741:5681725")
     implementation fg.deobf("curse.maven:oculus-581495:6020952")
-    implementation fg.deobf("curse.maven:photon-871522:6373238")
-    implementation fg.deobf("curse.maven:ldlib-626676:6417175")
-
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
 }
