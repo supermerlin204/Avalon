@@ -244,9 +244,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         ValueModifier damageModifier =  ValueModifier.multiplier(damageMulti * phaseDamageMulti);
         extendedSource.attachDamageModifier(damageModifier);
 
-        extendedSource.setBaseImpact(extendedSource.getBaseImpact(1) * phaseImpactMulti);//TODO 这个1在后续版本可以去掉
+        extendedSource.setBaseImpact(extendedSource.getBaseImpact() * phaseImpactMulti);
 
-        extendedSource.setBaseArmorNegation(extendedSource.getBaseArmorNegation(1) * phaseArmorNegationMulti);//TODO 这个1在后续版本可以去掉
+        extendedSource.setBaseArmorNegation(extendedSource.getBaseArmorNegation() * phaseArmorNegationMulti);
 
 
         phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent(extendedSource::setStunType);
