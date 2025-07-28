@@ -4,7 +4,9 @@ package com.merlin204.avalon.main;
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.item.AvalonItems;
 import com.merlin204.avalon.particle.AvalonParticles;
+import com.merlin204.avalon.shaderpass.RenderEventHandler;
 import com.mojang.logging.LogUtils;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -24,6 +26,7 @@ public class AvalonMOD {
         AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);
+        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
 
 
     }

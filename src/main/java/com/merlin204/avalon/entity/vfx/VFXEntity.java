@@ -37,6 +37,7 @@ import java.util.UUID;
 
 public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntity {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    protected static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
 
 
@@ -99,6 +100,7 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_OWNER_UUID, Optional.empty());
+        this.entityData.define(DATA_OWNER_ID, 0);
         this.entityData.define(SCALE,1F);
     }
 
@@ -111,8 +113,18 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
         this.entityData.set(DATA_OWNER_UUID, Optional.ofNullable(pUuid));
     }
 
+
+    public int getOwnerID() {
+        return this.entityData.get(DATA_OWNER_ID);
+    }
+
+    public void setOwnerID(int id) {
+        this.entityData.set(DATA_OWNER_ID,id);
+    }
+
     public void tame(LivingEntity livingEntity) {
         this.setOwnerUUID(livingEntity.getUUID());
+        this.setOwnerID(livingEntity.getId());
     }
 
     @Nullable
@@ -124,6 +136,8 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
             if (player == null) {
                 if (this.level() instanceof ServerLevel serverLevel) {
                     return serverLevel.getEntity(uuid) instanceof LivingEntity livingEntity ? livingEntity : null;
+                }else {
+                    return this.level().getEntity(getOwnerID()) instanceof LivingEntity livingEntity ? livingEntity : null;
                 }
             } else {
                 return player;

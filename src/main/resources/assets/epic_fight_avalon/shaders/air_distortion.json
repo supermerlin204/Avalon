@@ -1,0 +1,58 @@
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "air_distortion",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+
+      "blend": {
+        "func": "add",
+        "srcrgb": "one",
+        "dstrgb": "one_minus_src_alpha"
+      },
+
+      "vertex": "epic_fight_avalon:air_distortion",
+      "fragment": "epic_fight_avalon:air_distortion",
+
+      "attributes": [
+        "Position",
+        "UV0"
+      ],
+
+      "samplers": [
+        { "name": "DiffuseSampler" }
+      ],
+
+      "uniforms": [
+        {
+          "name": "ProjMat",
+          "type": "matrix4x4",
+          "count": 16,
+          "values": [
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+          ]
+        },
+        { "name": "ScreenSize", "type": "float", "count": 2, "values": [1.0, 1.0] },
+        { "name": "Time", "type": "float", "count": 1, "values": [0.0] },
+        { "name": "ParticleCount", "type": "int", "count": 1, "values": [0] },
+        {
+          "name": "ParticleData",
+          "type": "float",
+          "count": 40,
+          "values": [
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+          ]
+        }
+      ]
+    }
+  ]
+}

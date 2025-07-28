@@ -100,7 +100,7 @@ public class RenderMeshItem extends RenderItemBase {
         if (renderMesh != null) {
             renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
             if (texture_l != null){
-                renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+                renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture_l), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
             }
         }
 
