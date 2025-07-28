@@ -74,9 +74,9 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(this.owner.getModelMatrix(1.0F));
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
 
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -102,6 +102,7 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
             RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         }
     }
+
 
     @Override
     protected boolean canContinue() {
@@ -161,9 +162,9 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(curModelMatrix);
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
         Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
@@ -260,22 +261,21 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 return null;
             }
 
-
             TrailInfo result = trailInfo.get().get(idx);
-            TrailInfo fInfo = TrailInfo.builder().time(result.startTime()/60F, result.endTime()/60F).create();
-            fInfo = result.overwrite(fInfo);
 
             if (result.hand() != null) {
                 ItemStack stack = entitypatch.getOriginal().getItemInHand(result.hand());
                 RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
 
                 if (renderItemBase != null && renderItemBase.trailInfo() != null) {
-                    fInfo = renderItemBase.trailInfo().overwrite(fInfo);
+                    result = renderItemBase.trailInfo().overwrite(result);
                 }
             }
+            TrailInfo timeChange = TrailInfo.builder().time(result.startTime()/60F, result.endTime()/60F).create();
+            result = result.overwrite(timeChange);
 
-            if (fInfo.playable()) {
-                return new AvalonAnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, fInfo);
+            if (result.playable()) {
+                return new AvalonAnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, result);
             } else {
                 return null;
             }

@@ -25,21 +25,9 @@ public class RenderMeshItem extends RenderItemBase {
     private final ResourceLocation texture_l;
     private final AssetAccessor<? extends SkinnedMesh> mesh_main;
     private final AssetAccessor<? extends SkinnedMesh> mesh_off;
-    public final Armatures.ArmatureAccessor<? extends Armature> armatureAccessor;
 
     public RenderMeshItem(JsonElement jsonElement) {
         super(jsonElement);
-
-        if (jsonElement.getAsJsonObject().has("armature")) {
-            String meshLoc = jsonElement.getAsJsonObject().get("armature").getAsString();
-            ResourceLocation resLoc = ResourceLocation.parse(meshLoc);
-            this.armatureAccessor = Armatures.ArmatureAccessor.create(
-                    resLoc.getNamespace(),
-                    resLoc.getPath(),
-                    Armature::new);
-        } else {
-            this.armatureAccessor = null;
-        }
 
         if (jsonElement.getAsJsonObject().has("texture")) {
 

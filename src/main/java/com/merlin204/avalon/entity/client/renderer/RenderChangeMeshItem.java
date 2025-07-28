@@ -21,9 +21,39 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 public class RenderChangeMeshItem extends RenderItemBase {
 
 
+    public final ResourceLocation texture;
+    public final ResourceLocation texture_l;
+    public final AssetAccessor<? extends SkinnedMesh> mesh;
 
     public RenderChangeMeshItem(JsonElement jsonElement) {
         super(jsonElement);
+        if (jsonElement.getAsJsonObject().has("texture")) {
+
+            this.texture = ResourceLocation.parse(jsonElement.getAsJsonObject().get("texture").getAsString());
+        } else {
+            this.texture = null;
+        }
+
+        if (jsonElement.getAsJsonObject().has("texture_l")) {
+
+            this.texture_l = ResourceLocation.parse(jsonElement.getAsJsonObject().get("texture_l").getAsString());
+        } else {
+            this.texture_l = null;
+        }
+
+        if (jsonElement.getAsJsonObject().has("mesh")) {
+            String meshLoc = jsonElement.getAsJsonObject().get("mesh").getAsString();
+            ResourceLocation resLoc = ResourceLocation.parse(meshLoc);
+            this.mesh = Meshes.MeshAccessor.create(
+                    resLoc.getNamespace(),
+                    resLoc.getPath(),
+                    loader -> loader.loadSkinnedMesh(SkinnedMesh::new)
+            );
+        } else {
+            this.mesh = null;
+        }
+
+
 
     }
 

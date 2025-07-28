@@ -6,12 +6,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,10 +17,9 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.gameasset.Armatures;
 
-public class MerlinSuperGG extends Item implements ChangeMeshItem{
+public class MerlinSuperGG extends Item implements ChangeArmatureItem {
 
 
     public MerlinSuperGG(Properties pProperties) {
@@ -35,21 +32,6 @@ public class MerlinSuperGG extends Item implements ChangeMeshItem{
         return Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "entity/vfx/shakewave", Armature::new);
     }
 
-    @Override
-    public AssetAccessor<SkinnedMesh> getMesh() {
-        return Meshes.MeshAccessor.create(AvalonMOD.MOD_ID, "entity/vfx/shakewave", (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-    }
-
-    @Nullable
-    @Override
-    public ResourceLocation getTexture() {
-        return ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/entity/shakewave.png");
-    }
-
-    @Override
-    public ResourceLocation getLightTexture() {
-        return ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/entity/shakewave_av.png");
-    }
 
 
     @Override

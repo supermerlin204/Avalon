@@ -7,8 +7,12 @@ import com.merlin204.avalon.main.AvalonMOD;
 import com.merlin204.avalon.particle.AvalonParticles;
 
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +29,7 @@ public class ClientModEvents {
 
 
     }
+
 
 
 

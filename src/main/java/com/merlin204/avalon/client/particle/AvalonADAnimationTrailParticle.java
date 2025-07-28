@@ -3,10 +3,12 @@ package com.merlin204.avalon.client.particle;
 import java.util.List;
 import java.util.Optional;
 
-import com.merlin204.avalon.shaderpass.AirDistortionPost;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -236,30 +238,6 @@ public class AvalonADAnimationTrailParticle extends AbstractTrailParticle<Living
         this.lastPos = posCur;
         this.lastPose = currentPose;
         this.lastTransform = currentTransform;
-    }
-
-
-    @Override
-    public void render(VertexConsumer vertexConsumer, Camera camera, float partialTick) {
-        super.render(vertexConsumer, camera, partialTick);
-
-        if (!trailEdges.isEmpty()) {
-            int step = Math.max(1, trailEdges.size() / 5);
-            for (int i = 0; i < trailEdges.size(); i += step) {
-                TrailEdge edge = trailEdges.get(i);
-                Vec3 center = edge.start.add(edge.end).scale(0.5);
-
-                // 计算强度 (中间最强，两端减弱)
-                float intensity = 1.0F - Math.abs(0.5F - (float)i / trailEdges.size()) * 2.0F;
-                intensity = Mth.clamp(intensity, 0.1F, 1.0F);
-
-                AirDistortionPost.getInstance().addParticlePosition(
-                        center,
-                        this.alpha * intensity * 1.5F
-                );
-            }
-        }
-
     }
 
 
