@@ -1,6 +1,6 @@
 package com.merlin204.avalon.entity.client.renderer;
 
-import com.merlin204.avalon.entity.AvalonMeshEntity;
+import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
         Minecraft mc = Minecraft.getInstance();
 
 
-        if (entity instanceof AvalonMeshEntity avalonMeshEntity){
+        if (entity instanceof IAvalonMeshEntity avalonMeshEntity){
             Armature armature = entitypatch.getArmature();
             SkinnedMesh mesh = avalonMeshEntity.getMesh().get();
             ResourceLocation texture = avalonMeshEntity.getTexture();

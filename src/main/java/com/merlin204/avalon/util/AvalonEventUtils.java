@@ -13,6 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -33,7 +34,36 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.merlin204.avalon.util.AvalonAnimationUtils.getJointWorldRawPos;
+
 public class AvalonEventUtils {
+
+    public static AnimationEvent.InPeriodEvent rotateToTarget(int startFrame,int endFrame,float step) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        return AnimationEvent.InPeriodEvent.create(start,end ,(entityPatch, self, params) -> {
+            if (entityPatch.getTarget() != null){
+                entityPatch.rotateTo(entityPatch.getTarget(),step,true);
+            }
+        }, AnimationEvent.Side.SERVER);
+    }
+
+    public static AnimationEvent.InPeriodEvent chaseToTarget(int startFrame,int endFrame,float speed,float distance) {
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+        return AnimationEvent.InPeriodEvent.create(start,end ,(entityPatch, self, params) -> {
+            if (entityPatch.getTarget() != null){
+                Vec3 playerPosition = entityPatch.getOriginal().position();
+                Vec3 targetPosition = entityPatch.getTarget().position();
+                if (entityPatch.getOriginal().position().distanceTo(entityPatch.getTarget().position()) > distance){
+                    Vec3 dir = entityPatch.getTarget().position().subtract(entityPatch.getOriginal().position()).normalize().scale(speed);
+                    entityPatch.getOriginal().move(MoverType.SELF, new Vec3(dir.x, 0, dir.z));
+                }
+                entityPatch.rotateTo(entityPatch.getTarget(), 5, true);
+            }
+        }, AnimationEvent.Side.SERVER);
+    }
+
     public static AnimationEvent.InTimeEvent simpleGroundSplit(int startFrame, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
@@ -65,12 +95,10 @@ public class AvalonEventUtils {
                 entityPatch.getOriginal().playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
 
                 entityPatch.getTarget().invulnerableTime = 0;
-                EpicFightDamageSources damageSources = EpicFightDamageSources.of(entityPatch.getOriginal().level());
 
-
-                entityPatch.getTarget().hurt(damageSources.shockwave(entityPatch.getOriginal())
+                entityPatch.getTarget().hurt(EpicFightDamageSources.shockwave(entityPatch.getOriginal())
                         .setAnimation(Animations.EMPTY_ANIMATION)
-                        .setImpact(damage*10F), damage);
+                        .setBaseImpact(damage*10F), damage);
                 double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
                 double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 
@@ -82,6 +110,46 @@ public class AvalonEventUtils {
             }
 
         }, AnimationEvent.Side.SERVER);
+    }
+
+    public static AnimationEvent.InPeriodEvent groundSplitAtk(int startFrame,int endFrame,Joint joint,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,float radius){
+        return groundSplitAtk(startFrame,endFrame,joint,startOffset,endOffset,timeInterpolation,radius,false);
+    }
+
+    public static AnimationEvent.InPeriodEvent groundSplitAtk(int startFrame,int endFrame,Joint joint,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,float radius,boolean test){
+        float start = startFrame / 60F;
+        float end = endFrame / 60F;
+
+        Joint finalJoint = joint;
+        return AnimationEvent.InPeriodEvent.create(start, end, (entityPatch, self, params) -> {
+
+            AnimationPlayer player = entityPatch.getAnimator().getPlayerFor(null);
+            float prevElapsedTime = player.getPrevElapsedTime();
+            float elapsedTime = player.getElapsedTime();
+            float step = (elapsedTime - prevElapsedTime) / timeInterpolation;
+
+
+            Vec3 trailStartOffset = startOffset;
+            Vec3 trailEndOffset = endOffset;
+            Vec3f trailDirection = new Vec3f((float)(trailEndOffset.x - trailStartOffset.x), (float)(trailEndOffset.y - trailStartOffset.y), (float)(trailEndOffset.z - trailStartOffset.z));
+            for (float f = prevElapsedTime; f <= elapsedTime; f += step) {
+                int particleCount = 10;
+                for (int i = 0; i <= particleCount; i++) {
+                    float ratio = i / (float)particleCount;
+                    Vec3f pointOffset = new Vec3f(
+                            (float)(trailStartOffset.x + trailDirection.x * ratio),
+                            (float)(trailStartOffset.y + trailDirection.y * ratio),
+                            (float)(trailStartOffset.z + trailDirection.z * ratio));
+
+                    Vec3 worldPos = getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
+                    if (entityPatch.getOriginal().level().isClientSide && test){
+                        entityPatch.getOriginal().level().addParticle(ParticleTypes.END_ROD, worldPos.x, worldPos.y, worldPos.z, 0, 0, 0);
+                    }else {
+                        LevelUtil.circleSlamFracture(entityPatch.getOriginal(), entityPatch.getOriginal().level(), worldPos, radius, false);
+                    }
+                }
+            }
+        }, AnimationEvent.Side.BOTH);
     }
 
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,float timeInterpolation,int particleCount ,ParticleOptions particleOptions) {
@@ -124,7 +192,7 @@ public class AvalonEventUtils {
                     double randY = (Math.random() - 0.5) * random;
                     double randZ = (Math.random() - 0.5) * random;
 
-                    Vec3 worldPos = AvalonAnimationUtils.getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
+                    Vec3 worldPos = getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
                     if (entityPatch.getOriginal().level().isClientSide){
                         entityPatch.getOriginal().level().addParticle(particleOptions, worldPos.x + randX, worldPos.y +randY, worldPos.z + randZ, 0, 0, 0);
                     }
@@ -172,7 +240,7 @@ public class AvalonEventUtils {
                     double randY = (Math.random() - 0.5) * random;
                     double randZ = (Math.random() - 0.5) * random;
 
-                    Vec3 worldPos = AvalonAnimationUtils.getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
+                    Vec3 worldPos = getJointWorldRawPos(entityPatch, finalJoint, f + step, pointOffset);
                     if (entityPatch.getOriginal().level().isClientSide){
                         entityPatch.getOriginal().level().addParticle(particleOptions, worldPos.x + randX, worldPos.y +randY, worldPos.z + randZ, 0, 0, 0);
                     }
@@ -226,9 +294,6 @@ public class AvalonEventUtils {
         Vec3 damagetarget = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);
 
         if (entity.level() instanceof ServerLevel level && target !=null) {
-            ShakeWaveEntity shakeWaveEntity = new ShakeWaveEntity(entity,radius);
-            level.addFreshEntity(shakeWaveEntity);
-            shakeWaveEntity.setPos(damagetarget.add(0 ,0.9F,0));
 
             LevelUtil.circleSlamFracture(entity, level, target, radius, false);
             dealAreaDamage(level, damagetarget, entity, damage, radius, StunType.LONG,teamProtect);
@@ -249,12 +314,12 @@ public class AvalonEventUtils {
 
 
                     entity.invulnerableTime = 0;
-                    EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
-                    entity.hurt(damageSources.shockwave(source)
+
+                    entity.hurt(EpicFightDamageSources.shockwave(source)
                                     .setAnimation(Animations.EMPTY_ANIMATION)
                                     .setInitialPosition(center)
-                                    .setStunType(stunType).setImpact(damage / 5.0F)
-                                    .addRuntimeTag(DamageTypes.EXPLOSION)
+                                    .setStunType(stunType).setBaseImpact(damage / 5.0F)
+
                             , damage);
                 }
                 entity.invulnerableTime = 0;
@@ -270,12 +335,10 @@ public class AvalonEventUtils {
                 if (entity.invulnerableTime >= 0 && source != null) {
 
                     entity.invulnerableTime = 0;
-                    EpicFightDamageSources damageSources = EpicFightDamageSources.of(entity.level());
-                    entity.hurt(damageSources.shockwave(source)
+                    entity.hurt(EpicFightDamageSources.shockwave(source)
                                     .setAnimation(Animations.EMPTY_ANIMATION)
                                     .setInitialPosition(center)
-                                    .setStunType(stunType).setImpact(damage / 5.0F)
-                                    .addRuntimeTag(DamageTypes.EXPLOSION)
+                                    .setStunType(stunType).setBaseImpact(damage / 5.0F)
                             , damage);
                     entity.invulnerableTime = 0;
                 }

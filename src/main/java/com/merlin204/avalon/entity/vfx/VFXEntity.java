@@ -1,6 +1,6 @@
 package com.merlin204.avalon.entity.vfx;
 
-import com.merlin204.avalon.entity.AvalonMeshEntity;
+import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -17,7 +17,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -35,7 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntity {
+public abstract class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     protected static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
@@ -61,19 +60,19 @@ public abstract class VFXEntity extends PathfinderMob implements AvalonMeshEntit
     @Nullable
     @Override
     public Armature getArmature() {
-        return AvalonMeshEntity.super.getArmature();
+        return IAvalonMeshEntity.super.getArmature();
     }
 
     @Nullable
     @Override
     public AssetAccessor<? extends SkinnedMesh> getMesh() {
-        return AvalonMeshEntity.super.getMesh();
+        return IAvalonMeshEntity.super.getMesh();
     }
 
     @Nullable
     @Override
     public ResourceLocation getTexture() {
-        return AvalonMeshEntity.super.getTexture();
+        return IAvalonMeshEntity.super.getTexture();
     }
 
     public float getScale(){

@@ -1,6 +1,6 @@
 package com.merlin204.avalon.entity.client.renderer;
 
-import com.merlin204.avalon.entity.AvalonMeshEntity;
+import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.NotNull;
 
 public class EmptyRenderer extends LivingEntityRenderer {
     public EmptyRenderer(EntityRendererProvider.Context pContext, EntityModel pModel, float pShadowRadius) {
@@ -26,7 +25,7 @@ public class EmptyRenderer extends LivingEntityRenderer {
 
     @Override
     public ResourceLocation getTextureLocation(Entity entity) {
-        if (entity instanceof AvalonMeshEntity avalonMeshEntity){
+        if (entity instanceof IAvalonMeshEntity avalonMeshEntity){
             return avalonMeshEntity.getTexture();
         }
         return null;

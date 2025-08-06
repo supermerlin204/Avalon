@@ -1,7 +1,7 @@
 package com.merlin204.avalon.entity.client.renderer;
 
 import com.google.gson.JsonElement;
-import com.merlin204.avalon.main.AvalonMOD;
+import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -15,7 +15,6 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class RenderMeshItem extends RenderItemBase {
@@ -84,11 +83,14 @@ public class RenderMeshItem extends RenderItemBase {
 
         Armature armature = entitypatch.getArmature();
         poseStack.pushPose();
-
+        if (stack.getItem() instanceof IAvalonAnimationItem){
+            poseStack.popPose();
+            return;
+        }
         if (renderMesh != null) {
-            renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+            renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
             if (texture_l != null){
-                renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture_l), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, entitypatch.getArmature(), armature.getPoseMatrices());
+                renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture_l), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
             }
         }
 

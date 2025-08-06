@@ -1,6 +1,6 @@
 package com.merlin204.avalon.entity.example;
 
-import com.merlin204.avalon.entity.AvalonMeshEntity;
+import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -13,7 +13,7 @@ import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.gameasset.Armatures;
 
-public class BOSS extends PathfinderMob implements AvalonMeshEntity {
+public class BOSS extends PathfinderMob implements IAvalonMeshEntity {
     protected BOSS(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }

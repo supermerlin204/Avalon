@@ -1,10 +1,7 @@
 package com.merlin204.avalon.event;
 
 import com.merlin204.avalon.entity.AvalonEntities;
-import com.merlin204.avalon.entity.client.renderer.AvalonRendererPatch;
-import com.merlin204.avalon.entity.client.renderer.EmptyRenderer;
-import com.merlin204.avalon.entity.client.renderer.RenderChangeMeshItem;
-import com.merlin204.avalon.entity.client.renderer.RenderMeshItem;
+import com.merlin204.avalon.entity.client.renderer.*;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.main.AvalonMOD;
@@ -61,6 +58,10 @@ public class AvalonEntityEventHandler {
         event.addItemRenderer(
                 ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "change_mesh_item"),
                 RenderChangeMeshItem::new
+        );
+        event.addItemRenderer(
+                ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "animation_item"),
+                RenderAnimationItem::new
         );
     }
 }

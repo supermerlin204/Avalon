@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -25,6 +26,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.client.ClientEngine;
@@ -38,26 +40,20 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
 public class AvalonEntityAfterImageParticle extends CustomModelParticle<SkinnedMesh> {
-    public static final ResourceLocation WHITE = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "textures/particle/white.png");
+    protected final EntitySnapshot<?> entitySnapshot;
+    protected float alphaO;
+    public AvalonEntityAfterImageParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd,EntitySnapshot<?> entitySnapshot ) {
+        super(level, x, y, z, xd, yd, zd, null);
 
-    private final OpenMatrix4f[] poseMatrices;
-    private final Matrix4f modelMatrix;
-    private float alphaO;
-    private Armature armature;
-    private final Entity entity;
-
-    public AvalonEntityAfterImageParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, AssetAccessor<SkinnedMesh> particleMesh, OpenMatrix4f[] matrices, Matrix4f modelMatrix, Armature armature,Entity entity) {
-        super(level, x, y, z, xd, yd, zd, particleMesh);
-        this.poseMatrices = matrices;
-        this.modelMatrix = modelMatrix;
         this.lifetime = 20;
         this.rCol = 1.0F;
         this.gCol = 1.0F;
         this.bCol = 1.0F;
         this.alphaO = 0.3F;
         this.alpha = 0.3F;
-        this.armature = armature;
-        this.entity = entity;
+        this.entitySnapshot = entitySnapshot;
+        this.yawO = entitySnapshot.getYRot();
+        this.yaw = entitySnapshot.getYRot();
     }
 
     @Override
@@ -70,49 +66,57 @@ public class AvalonEntityAfterImageParticle extends CustomModelParticle<SkinnedM
 
     @Override
     public void render(VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
-        PoseStack poseStack = new PoseStack();
-
-
-
-        poseStack.mulPoseMatrix(RenderSystem.getModelViewMatrix());
-
-        this.setupPoseStack(poseStack, camera, partialTicks);
-        poseStack.mulPoseMatrix(this.modelMatrix);
-
         float alpha = (this.alphaO + (this.alpha - this.alphaO) * partialTicks);
-        RenderSystem.setShaderTexture(0, WHITE);
-        var bufferSources = Minecraft.getInstance().renderBuffers().bufferSource();
-        var renderType = RenderType.entityTranslucent(Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity).getTextureLocation(entity));
-        this.particleMeshProvider.get().drawPosed(poseStack, bufferSources.getBuffer(EpicFightRenderTypes.getTriangulated(renderType)), Mesh.DrawingFunction.NEW_ENTITY, this.getLightColor(partialTicks), this.rCol, this.gCol, this.bCol, alpha,
-                OverlayTexture.NO_OVERLAY,null , this.poseMatrices);
+        int lightColor = this.getLightColor(partialTicks);
+        PoseStack poseStack = new PoseStack();
+        this.setupPoseStack(poseStack, camera, partialTicks);
+        MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+        this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageStencil, Mesh.DrawingFunction.POSITION_TEX, 0, 0.0F, 0.0F, 0.0F, 1.0F);
+        this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageStencil(), Mesh.DrawingFunction.POSITION_TEX, lightColor, 1.0F);
+        buffers.endLastBatch();
+        this.entitySnapshot.renderTextured(poseStack, buffers, EpicFightRenderTypes::entityAfterimageTranslucent, Mesh.DrawingFunction.NEW_ENTITY, lightColor, this.rCol, this.gCol, this.bCol, alpha);
+        this.entitySnapshot.renderItems(poseStack, buffers, EpicFightRenderTypes.itemAfterimageTranslucent(), Mesh.DrawingFunction.NEW_ENTITY, lightColor, alpha);
+        buffers.endLastBatch();
+        this.revert(poseStack);
 
 
     }
 
-    @Override
+
     protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTicks) {
+        poseStack.pushPose();
+        poseStack.mulPoseMatrix(RenderSystem.getModelViewStack().last().pose());
+        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().setIdentity();
+        RenderSystem.applyModelViewMatrix();
+        Vec3 cameraPosition = camera.getPosition();
+        float x = (float)(Mth.lerp((double)partialTicks, this.xo, this.x) - cameraPosition.x());
+        float y = (float)(Mth.lerp((double)partialTicks, this.yo, this.y) - cameraPosition.y());
+        float z = (float)(Mth.lerp((double)partialTicks, this.zo, this.z) - cameraPosition.z());
+        poseStack.translate(x, y, z);
         Quaternionf rotation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
-        float roll = Mth.lerp(partialTicks, this.oRoll, this.roll);
-        float pitch = Mth.lerp(partialTicks, this.pitchO, this.pitch);
-        float yaw = Mth.lerp(partialTicks, this.yawO, this.yaw);
-        rotation.mul(QuaternionUtils.YP.rotationDegrees(yaw));
+        float roll = Mth.rotLerp(partialTicks, this.oRoll, this.roll);
+        float pitch = Mth.rotLerp(partialTicks, this.pitchO, this.pitch);
+        float yaw = Mth.rotLerp(partialTicks, this.yawO, this.yaw);
+        rotation.mul(QuaternionUtils.YP.rotationDegrees(180.0F - yaw));
         rotation.mul(QuaternionUtils.XP.rotationDegrees(pitch));
         rotation.mul(QuaternionUtils.ZP.rotationDegrees(roll));
-
-        Vec3 vec3 = camera.getPosition();
-        float x = (float)(Mth.lerp(partialTicks, this.xo, this.x) - vec3.x());
-        float y = (float)(Mth.lerp(partialTicks, this.yo, this.y) - vec3.y());
-        float z = (float)(Mth.lerp(partialTicks, this.zo, this.z) - vec3.z());
-        float scale = (float)Mth.lerp((double)partialTicks, this.scaleO, this.scale);
-
-        poseStack.translate(x, y, z);
         poseStack.mulPose(rotation);
+        float scale = Mth.lerp(partialTicks, this.scaleO, this.scale);
+        poseStack.translate(0.0F, this.entitySnapshot.getHeightHalf(), 0.0F);
         poseStack.scale(scale, scale, scale);
+        poseStack.translate(0.0F, -this.entitySnapshot.getHeightHalf(), 0.0F);
+    }
+
+    protected void revert(PoseStack poseStack) {
+        poseStack.popPose();
+        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     @Override
     public ParticleRenderType getRenderType() {
-        return EpicFightParticleRenderTypes.PARTICLE_MODEL_NO_NORMAL;
+        return EpicFightParticleRenderTypes.ENTITY_PARTICLE;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -124,19 +128,10 @@ public class AvalonEntityAfterImageParticle extends CustomModelParticle<SkinnedM
             LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
             if (entitypatch != null && ClientEngine.getInstance().renderEngine.hasRendererFor(entitypatch.getOriginal())) {
-                PatchedEntityRenderer renderer = ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal());
-                Armature armature = entitypatch.getArmature();
-                PoseStack poseStack = new PoseStack();
-                renderer.mulPoseStack(poseStack, armature, entitypatch.getOriginal(), entitypatch, 1.0F);
-
-                Pose pose = entitypatch.getAnimator().getPose(1.0F);
-                renderer.setJointTransforms(entitypatch, armature, pose, 1.0F);
-                OpenMatrix4f[] matrices = armature.getPoseAsTransformMatrix(pose, true);
-
-                AssetAccessor<SkinnedMesh> meshProvider = ClientEngine.getInstance().renderEngine.getEntityRenderer(entitypatch.getOriginal()).getMeshProvider(entitypatch);
-                AvalonEntityAfterImageParticle particle = new AvalonEntityAfterImageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, meshProvider, matrices, poseStack.last().pose(),armature,entity);
-
-                return particle;
+                EntitySnapshot<?> entitySnapshot = entitypatch.captureEntitySnapshot();
+                if (entitySnapshot != null){
+                    return  new AvalonEntityAfterImageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed,entitySnapshot);
+                }
             }
 
             return null;

@@ -102,7 +102,7 @@ public class TargetInGirdCondition<T extends LivingEntityPatch> implements Condi
                 if (gridX >= rect.xMin &&
                         gridX <= rect.xMax &&
                         gridZ >= rect.zMin &&
-                        gridZ <= rect.zMax) {
+                        gridZ <= rect.zMax && entity == livingEntityPatch.getTarget()) {
                     return true;
                 }
             }

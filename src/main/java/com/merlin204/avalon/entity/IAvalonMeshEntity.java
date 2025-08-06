@@ -9,7 +9,7 @@ import yesman.epicfight.api.model.Armature;
 
 import javax.annotation.Nullable;
 
-public interface AvalonMeshEntity {
+public interface IAvalonMeshEntity {
 
 
     @Nullable

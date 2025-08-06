@@ -89,8 +89,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     @Override
     public void begin(LivingEntityPatch<?> entitypatch) {
         super.begin(entitypatch);
-        entitypatch.getCurrenltyAttackedEntities().clear();
-        entitypatch.getCurrenltyHurtEntities().clear();
+        entitypatch.getCurrentlyActuallyHitEntities().clear();
+        entitypatch.getCurrentlyAttackTriedEntities().clear();
 
         for (Phase phase : phases) {
             if (phase instanceof AvalonPhase avalonPhase) {
@@ -143,8 +143,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         LivingEntity entity = (LivingEntity) entitypatch.getOriginal();
 
         if (prevElapsedTime < phase.start && elapsedTime >= phase.start) {
-            entitypatch.getCurrenltyAttackedEntities().clear();
-            entitypatch.getCurrenltyHurtEntities().clear();
+            entitypatch.getCurrentlyActuallyHitEntities().clear();
+            entitypatch.getCurrentlyAttackTriedEntities().clear();
             if (phase instanceof AvalonPhase avalonPhase) {
                 avalonPhase.resetAttackRecord(entitypatch);
             }
@@ -173,7 +173,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 LivingEntity trueEntity = this.getTrueEntity(target);
 
                 boolean canAttack = trueEntity != null && trueEntity.isAlive() &&
-                        !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) &&
+                        !entitypatch.getCurrentlyActuallyHitEntities().contains(trueEntity) &&
                         !entitypatch.isTargetInvulnerable(target);
 
                 if (phase instanceof AvalonPhase avalonPhase) {
@@ -194,9 +194,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                             this.spawnHitParticle((ServerLevel) target.level(), entitypatch, target, phase);
                         }
 
-                        entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
+                        entitypatch.getCurrentlyActuallyHitEntities().add(trueEntity);
                         if (attackResult.resultType.shouldCount()) {
-                            entitypatch.getCurrenltyHurtEntities().add(trueEntity);
+                            entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
                         }
                     }
                 }
@@ -240,7 +240,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         if (originalSource instanceof EpicFightDamageSource epicfightDamageSource) {
             extendedSource = epicfightDamageSource;
         } else {
-            extendedSource = EpicFightDamageSources.copy(originalSource).setAnimation(this.getAccessor());
+            extendedSource = EpicFightDamageSources.fromVanillaDamageSource(originalSource).setAnimation(this.getAccessor());
         }
         float phaseDamageMulti = 1;
         float phaseImpactMulti = 1;
@@ -252,11 +252,11 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
 
         ValueModifier damageModifier = ValueModifier.multiplier(damageMulti * phaseDamageMulti);
-        extendedSource.setDamageModifier(damageModifier);
+        extendedSource.attachDamageModifier(damageModifier);
 
-        extendedSource.setImpact(extendedSource.getImpact() * phaseImpactMulti);
+        extendedSource.setBaseImpact(extendedSource.getBaseImpact() * phaseImpactMulti);
 
-        extendedSource.setArmorNegation(extendedSource.getArmorNegation() * phaseArmorNegationMulti);
+        extendedSource.setBaseArmorNegation(extendedSource.getBaseArmorNegation() * phaseArmorNegationMulti);
 
 
         phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent((opt) -> {

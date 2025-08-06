@@ -3,6 +3,7 @@ package com.merlin204.avalon.main;
 
 import com.merlin204.avalon.entity.AvalonEntities;
 
+import com.merlin204.avalon.epicfight.gameassets.AvalonCategories;
 import com.merlin204.avalon.item.AvalonItems;
 import com.merlin204.avalon.particle.AvalonParticles;
 import com.mojang.logging.LogUtils;
@@ -13,6 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 import java.io.IOException;
 
@@ -30,6 +32,7 @@ public class AvalonMOD {
         AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);
+        CapabilityItem.WeaponCategories.ENUM_MANAGER.registerEnumCls(AvalonMOD.MOD_ID, AvalonCategories.class);
 
     }
 

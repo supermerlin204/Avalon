@@ -1,8 +1,10 @@
 package com.merlin204.avalon.mixin;
 
 
+import com.merlin204.avalon.entity.client.renderer.RenderAnimationItem;
 import com.merlin204.avalon.entity.client.renderer.RenderChangeMeshItem;
-import com.merlin204.avalon.item.ChangeArmatureItem;
+import com.merlin204.avalon.item.IChangeArmatureItem;
+import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -23,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
@@ -46,18 +49,70 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
     @Final
     protected List<PatchedLayer<E, T, M, ? extends RenderLayer<E, M>>> customLayers;
 
+    @Shadow
+    protected abstract void prepareModel(AM mesh, E entity, T entitypatch, R renderer);
+    @Shadow
+    protected abstract void renderLayer(LivingEntityRenderer<E, M> renderer, T entitypatch, E entity, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks);
+
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;Lyesman/epicfight/world/capabilities/entitypatch/LivingEntityPatch;Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/PoseStack;IF)V", at = @At("HEAD"), cancellable = true, remap = false)
-    private void avalon$replaceMesh(E entity, T entitypatch, R renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks, CallbackInfo ci){
+    private void avalon$replaceMesh(E entity, T entitypatch, R renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks, CallbackInfo ci) {
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
-        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof ChangeArmatureItem changeMeshItem ) {
-            if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem) {
+        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IAvalonAnimationItem avalonAnimationItem) {
+            Minecraft mc = Minecraft.getInstance();
+            MixinLivingEntityRenderer livingEntityRendererAccessor = (MixinLivingEntityRenderer) renderer;
+            boolean isVisible = livingEntityRendererAccessor.invokeIsBodyVisible(entity);
+            boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(mc.player);
+            boolean isGlowing = mc.shouldEntityAppearGlowing(entity);
+            RenderType renderType = livingEntityRendererAccessor.invokeGetRenderType(entity, isVisible, isVisibleToPlayer, isGlowing);
+            Armature armature = avalonAnimationItem.BIPED;
+            AM mesh = this.getMeshProvider(entitypatch).get();
+
+            poseStack.pushPose();
+            this.mulPoseStack(poseStack, armature, entity, entitypatch, partialTicks);
+            this.setArmaturePose(entitypatch, armature, partialTicks);
+            this.prepareModel(mesh, entity, entitypatch, renderer);
+
+            PrepareModelEvent prepareModelEvent = new PrepareModelEvent(this, mesh, entitypatch, buffer, poseStack, packedLight, partialTicks);
+            if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
+                mesh.draw(poseStack, buffer, renderType, packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
+            }
+
+            if (!entity.isSpectator()) {
+                this.renderLayer(renderer, entitypatch, entity, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
+            }
+
+            if (renderType != null && Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
+                entitypatch.getClientAnimator().renderDebuggingInfoForAllLayers(poseStack, buffer, partialTicks);
+            }
+
+            if (renderItemBase instanceof RenderAnimationItem renderAnimationItem) {
+                Armature realArmature = entitypatch.getArmature();
+                SkinnedMesh itemMesh = renderAnimationItem.mesh.get();
+
+                this.setArmaturePose(entitypatch, realArmature, partialTicks);
+
+                itemMesh.draw(poseStack, buffer,RenderType.entityTranslucent(renderAnimationItem.texture), packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, OverlayTexture.NO_OVERLAY, realArmature, realArmature.getPoseMatrices());
+
+                if (renderAnimationItem.texture_l != null) {
+                    itemMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(renderAnimationItem.texture_l), packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, OverlayTexture.NO_OVERLAY, realArmature, realArmature.getPoseMatrices());
+                }
+            }
+
+            poseStack.popPose();
+            ci.cancel();
+        }
+
+        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IChangeArmatureItem changeArmatureItem) {
+             if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem) {
+
                 Minecraft mc = Minecraft.getInstance();
                 MixinLivingEntityRenderer livingEntityRendererAccessor = (MixinLivingEntityRenderer) renderer;
                 boolean isVisible = livingEntityRendererAccessor.invokeIsBodyVisible(entity);
                 boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(mc.player);
                 RenderType renderType = RenderType.entityTranslucent(renderChangeMeshItem.texture);
-                Armature armature = changeMeshItem.getArmature().get();
+                Armature armature = changeArmatureItem.getArmature().get();
                 SkinnedMesh mesh = renderChangeMeshItem.mesh.get();
+
                 poseStack.pushPose();
                 this.mulPoseStack(poseStack, armature, entity, entitypatch, partialTicks);
                 this.setArmaturePose(entitypatch, armature, partialTicks);
@@ -65,6 +120,7 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
                 PrepareModelEvent prepareModelEvent = new PrepareModelEvent(this, mesh, entitypatch, buffer, poseStack, packedLight, partialTicks);
                 if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
                     mesh.draw(poseStack, buffer, renderType, packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
+
                     if (renderChangeMeshItem.texture_l != null) {
                         mesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(renderChangeMeshItem.texture_l), packedLight, 1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
                     }
@@ -76,10 +132,11 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
 
                 poseStack.popPose();
                 ci.cancel();
-
             }
         }
     }
+
+
 
 
 

@@ -1,7 +1,6 @@
 package com.merlin204.avalon.entity.vfx.shakewave;
 
 import com.merlin204.avalon.entity.AvalonEntities;
-import com.merlin204.avalon.entity.AvalonMeshEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
 import com.merlin204.avalon.main.AvalonMOD;
