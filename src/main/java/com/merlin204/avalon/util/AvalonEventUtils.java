@@ -145,7 +145,7 @@ public class AvalonEventUtils {
                     if (entityPatch.getOriginal().level().isClientSide && test){
                         entityPatch.getOriginal().level().addParticle(ParticleTypes.END_ROD, worldPos.x, worldPos.y, worldPos.z, 0, 0, 0);
                     }else {
-                        LevelUtil.circleSlamFracture(entityPatch.getOriginal(), entityPatch.getOriginal().level(), worldPos, radius, false);
+                        LevelUtil.circleSlamFracture(entityPatch.getOriginal(), entityPatch.getOriginal().level(), worldPos, radius,true ,false);
                     }
                 }
             }

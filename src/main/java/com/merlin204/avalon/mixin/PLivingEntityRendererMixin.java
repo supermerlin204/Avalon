@@ -58,13 +58,14 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
     private void avalon$replaceMesh(E entity, T entitypatch, R renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks, CallbackInfo ci) {
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
         if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IAvalonAnimationItem avalonAnimationItem) {
+            avalonAnimationItem.MANAGER.useAnimationArmature = false;
             Minecraft mc = Minecraft.getInstance();
             MixinLivingEntityRenderer livingEntityRendererAccessor = (MixinLivingEntityRenderer) renderer;
             boolean isVisible = livingEntityRendererAccessor.invokeIsBodyVisible(entity);
             boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(mc.player);
             boolean isGlowing = mc.shouldEntityAppearGlowing(entity);
             RenderType renderType = livingEntityRendererAccessor.invokeGetRenderType(entity, isVisible, isVisibleToPlayer, isGlowing);
-            Armature armature = avalonAnimationItem.BIPED;
+            Armature armature = entitypatch.getArmature();
             AM mesh = this.getMeshProvider(entitypatch).get();
 
             poseStack.pushPose();
@@ -86,6 +87,7 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
             }
 
             if (renderItemBase instanceof RenderAnimationItem renderAnimationItem) {
+                avalonAnimationItem.MANAGER.useAnimationArmature = true;
                 Armature realArmature = entitypatch.getArmature();
                 SkinnedMesh itemMesh = renderAnimationItem.mesh.get();
 

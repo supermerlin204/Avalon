@@ -1,6 +1,6 @@
 {
-  "renderer": "epic_fight_avalon:change_mesh_item",
+  "renderer": "epic_fight_avalon:animation_item",
   "texture": "epic_fight_avalon:textures/item/merlin_gg.png",
   "texture_l": "epic_fight_avalon:textures/item/merlin_gg.png",
-  "mesh": "epic_fight_avalon:nf_claw_000"
+  "mesh": "epic_fight_avalon:test"
 }

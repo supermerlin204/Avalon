@@ -7,6 +7,7 @@ import yesman.epicfight.gameasset.Armatures;
 public interface IAvalonAnimationItem {
 
     Armature BIPED = Armatures.BIPED.get();
+    AvalonAnimationItemManager MANAGER = new AvalonAnimationItemManager();
 
 
 

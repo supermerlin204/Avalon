@@ -27,7 +27,7 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
 
     @Override
     public Armatures.ArmatureAccessor<? extends Armature> getArmature() {
-        return Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "nf_claw_000", Armature::new);
+        return Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new);
     }
 
 
