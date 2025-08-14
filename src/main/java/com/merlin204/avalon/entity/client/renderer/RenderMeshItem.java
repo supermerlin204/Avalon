@@ -87,6 +87,7 @@ public class RenderMeshItem extends RenderItemBase {
             poseStack.popPose();
             return;
         }
+        armature.setPose(entitypatch.getAnimator().getPose(partialTicks));
         if (renderMesh != null) {
             renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
             if (texture_l != null){

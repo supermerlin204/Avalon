@@ -2,9 +2,13 @@ package com.merlin204.avalon.util;
 
 
 import com.merlin204.avalon.client.CameraShake;
+import com.merlin204.avalon.entity.AvalonEntities;
+import com.merlin204.avalon.entity.vfx.VFXEntity;
+import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.entity.vfx.shakewave.ShakeWaveEntity;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -18,25 +22,35 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.merlin204.avalon.util.AvalonAnimationUtils.getJointWorldRawPos;
 
 public class AvalonEventUtils {
+
+
 
     public static AnimationEvent.InPeriodEvent rotateToTarget(int startFrame,int endFrame,float step) {
         float start = startFrame / 60F;
@@ -352,6 +366,8 @@ public class AvalonEventUtils {
         double baseDamage = owner.getAttributeValue(Attributes.ATTACK_DAMAGE);
         return (float) baseDamage;
     }
+
+
 
 
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.collider.Collider;
@@ -57,6 +58,18 @@ public class AvalonAnimationUtils {
         Vec3 pos = new Vec3(transformMatrix.m30 + (float) entity.getX(), transformMatrix.m31 + (float) entity.getY(), transformMatrix.m32 + (float) entity.getZ());
 
         return pos;
+    }
+
+    public static void joinRotationInPose(Pose pose, LivingEntityPatch entityPatch,String joint,float x,float y,float z){
+        if (entityPatch.getArmature() == null){
+            return;
+        }
+        OpenMatrix4f toOriginalRotation = (new OpenMatrix4f(entityPatch.getArmature().getBoundTransformFor(pose, entityPatch.getArmature().searchJointByName(joint)))).removeScale().removeTranslation().invert();
+        Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, (Vec3f)null);
+        Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, (Vec3f)null);
+        Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, (Vec3f)null);
+        OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(y, yAxis).rotateDeg(x, xAxis).rotateDeg(z, zAxis);
+        pose.orElseEmpty(joint).frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
     }
 
 

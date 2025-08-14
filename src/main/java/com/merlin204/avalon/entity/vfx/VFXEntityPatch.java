@@ -2,12 +2,14 @@ package com.merlin204.avalon.entity.vfx;
 
 import com.merlin204.avalon.epicfight.AvalonFctions;
 import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
+import com.merlin204.avalon.util.AvalonAnimationUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -19,6 +21,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -29,6 +32,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
+
 
     public VFXEntityPatch() {
         super();
@@ -42,7 +46,10 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
     public void onConstructed(T entityIn) {
         this.original = entityIn;
-        this.armature = entityIn.getArmature();
+
+        this.armature = getArmature();
+
+
         Animator animator = EpicFightSharedConstants.getAnimator(this);
         this.animator = animator;
         this.initAnimator(animator);
@@ -52,21 +59,48 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     @Override
     public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
         super.onJoinWorld(entity, event);
-        if(this.isLogicalClient()){
-            this.getClientAnimator().playAnimation(original.getDefaultAnimation(), 0.0F);
-        }else {
-            playAnimationSynchronized(original.getDefaultAnimation(),0F);
-        }
+
     }
 
     public VFXEntityPatch(Faction faction) {
         super(faction);
     }
 
+    @Override
+    public void tick(LivingEvent.LivingTickEvent event) {
+        super.tick(event);
+        float ownerYRot = this.original.getStartYRot();
+        boolean playAnimation = this.getOriginal().getPlayAnimation();
+
+
+        if (this.isLogicalClient() && original.getDefaultAnimation() == null && !playAnimation){
+
+        }else if (!playAnimation){
+            if (this.getYRot() != ownerYRot){
+                return;
+            }
+            this.original.setPlayAnimation(true);
+            if(this.isLogicalClient()){
+                this.getClientAnimator().playAnimation(original.getDefaultAnimation(), 0.0F);
+            }else {
+                playAnimationSynchronized(original.getDefaultAnimation(),0F);
+            }
+        }
+    }
+
     @Nullable
     private PlayerPatch<?> ownerPatch;
 
+    @Override
+    public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
 
+        float ownerYRot = this.original.getStartYRot();
+        this.setYRot(ownerYRot);
+        this.original.setYBodyRot(ownerYRot);
+        this.original.setYHeadRot(ownerYRot);
+
+        AvalonAnimationUtils.joinRotationInPose(pose,this,"Root",this.getOriginal().getXRotOffset(),0,0);
+    }
 
     @Override
     public OpenMatrix4f getModelMatrix(float partialTicks) {
@@ -85,7 +119,10 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         }
     }
 
-
+    @Override
+    public Armature getArmature() {
+        return this.getOriginal().getArmature();
+    }
 
     @Override
     public AssetAccessor<? extends StaticAnimation> getHitAnimation(StunType stunType) {
@@ -123,7 +160,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
-        animator.addLivingAnimation(LivingMotions.IDLE, original.getIdleAnimation());
+        animator.addLivingAnimation(LivingMotions.IDLE, Animations.EMPTY_ANIMATION);
     }
 
     @Nullable

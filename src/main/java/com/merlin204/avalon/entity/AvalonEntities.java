@@ -20,6 +20,11 @@ public class AvalonEntities {
             EntityType.Builder.<ShakeWaveEntity>of(ShakeWaveEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
 
 
+    public static final RegistryObject<EntityType<VFXEntity>> VFX = register("vfx",
+            EntityType.Builder.<VFXEntity>of(VFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
+
+
+
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITIES.register(name, () -> entityTypeBuilder.build(ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, name).toString()));
     }

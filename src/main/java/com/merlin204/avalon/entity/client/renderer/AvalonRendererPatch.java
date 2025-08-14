@@ -15,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
@@ -23,6 +24,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 @OnlyIn(Dist.CLIENT)
 public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntity, LivingEntityPatch<LivingEntity>, EmptyEntityModel<LivingEntity>, LivingEntityRenderer<LivingEntity, EmptyEntityModel<LivingEntity>>, SkinnedMesh> {
 
+    private AssetAccessor<? extends SkinnedMesh> meshAssetAccessor = null;
 
     public AvalonRendererPatch(EntityRendererProvider.Context context, EntityType<?> entityType) {
         super(context, entityType);
@@ -36,8 +38,17 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
 
         if (entity instanceof IAvalonMeshEntity avalonMeshEntity){
             Armature armature = entitypatch.getArmature();
+
+            if (avalonMeshEntity.getMesh() == null){
+                return;
+            }else {
+                this.meshAssetAccessor = avalonMeshEntity.getMesh();
+            }
             SkinnedMesh mesh = avalonMeshEntity.getMesh().get();
             ResourceLocation texture = avalonMeshEntity.getTexture();
+            if (armature == null || mesh == null || texture == null){
+                return;
+            }
 
             RenderType renderType = RenderType.entityTranslucent(texture);
 
@@ -75,6 +86,9 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
 
     @Override
     public AssetAccessor<SkinnedMesh> getDefaultMesh() {
-        return null;
+        if (meshAssetAccessor != null && meshAssetAccessor.get() instanceof SkinnedMesh){
+            return (AssetAccessor<SkinnedMesh>) meshAssetAccessor;
+        }
+        return Meshes.BOOTS;
     }
 }
