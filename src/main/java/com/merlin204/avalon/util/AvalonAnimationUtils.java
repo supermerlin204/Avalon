@@ -26,7 +26,7 @@ public class AvalonAnimationUtils {
     public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint,Vec3f offset) {
 
         LivingEntity entity = entityPatch.getOriginal();
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(entityPatch.getAnimator().getPose(0.1f), joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(entityPatch.getAnimator().getPose(0.1f), joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
@@ -38,7 +38,7 @@ public class AvalonAnimationUtils {
     public static Vec3 getJointWorldPos(LivingEntityPatch<?> entityPatch, Joint joint,Vec3f offset,float partialTicks) {
 
         LivingEntity entity = entityPatch.getOriginal();
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(entityPatch.getAnimator().getPose(partialTicks), joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(entityPatch.getAnimator().getPose(partialTicks), joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
@@ -51,7 +51,7 @@ public class AvalonAnimationUtils {
         Animator animator = entityPatch.getAnimator();
         LivingEntity entity = entityPatch.getOriginal();
         Pose pose = animator.getPlayerFor(null).getAnimation().get().getRawPose(time);
-        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBoundTransformFor(pose, joint);
+        OpenMatrix4f transformMatrix = entityPatch.getArmature().getBindedTransformFor(pose, joint);
         transformMatrix.translate(offset);
         OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float) Math.toRadians(entity.yBodyRotO + 180.0F), new Vec3f(0.0F, 1.0F, 0.0F));
         OpenMatrix4f.mul(rotation, transformMatrix, transformMatrix);
@@ -64,7 +64,7 @@ public class AvalonAnimationUtils {
         if (entityPatch.getArmature() == null){
             return;
         }
-        OpenMatrix4f toOriginalRotation = (new OpenMatrix4f(entityPatch.getArmature().getBoundTransformFor(pose, entityPatch.getArmature().searchJointByName(joint)))).removeScale().removeTranslation().invert();
+        OpenMatrix4f toOriginalRotation = (new OpenMatrix4f(entityPatch.getArmature().getBindedTransformFor(pose, entityPatch.getArmature().searchJointByName(joint)))).removeScale().removeTranslation().invert();
         Vec3f xAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.X_AXIS, (Vec3f)null);
         Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, (Vec3f)null);
         Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, (Vec3f)null);

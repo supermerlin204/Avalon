@@ -33,6 +33,7 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
@@ -110,9 +111,9 @@ public class AvalonEventUtils {
 
                 entityPatch.getTarget().invulnerableTime = 0;
 
-                entityPatch.getTarget().hurt(EpicFightDamageSources.shockwave(entityPatch.getOriginal())
+                entityPatch.getTarget().hurt(EpicFightDamageSources.of(entityPatch.getOriginal().level()).shockwave(entityPatch.getOriginal())
                         .setAnimation(Animations.EMPTY_ANIMATION)
-                        .setBaseImpact(damage*10F), damage);
+                        .setImpact(damage*10F), damage);
                 double verticalKnockback = 0.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
                 double horizontalKnockback = 2.5 * (1.0 - entityPatch.getTarget().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 
@@ -233,7 +234,7 @@ public class AvalonEventUtils {
             float step = (elapsedTime - prevElapsedTime) / timeInterpolation;
 
             ItemStack stack = entityPatch.getOriginal().getItemInHand(hand);
-            RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
+            RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
 
             if (renderItemBase == null){
                 return;
@@ -329,10 +330,10 @@ public class AvalonEventUtils {
 
                     entity.invulnerableTime = 0;
 
-                    entity.hurt(EpicFightDamageSources.shockwave(source)
+                    entity.hurt(EpicFightDamageSources.of(source.level()).shockwave(source)
                                     .setAnimation(Animations.EMPTY_ANIMATION)
                                     .setInitialPosition(center)
-                                    .setStunType(stunType).setBaseImpact(damage / 5.0F)
+                                    .setStunType(stunType).setImpact(damage / 5.0F)
 
                             , damage);
                 }
@@ -349,10 +350,10 @@ public class AvalonEventUtils {
                 if (entity.invulnerableTime >= 0 && source != null) {
 
                     entity.invulnerableTime = 0;
-                    entity.hurt(EpicFightDamageSources.shockwave(source)
+                    entity.hurt(EpicFightDamageSources.of(source.level()).shockwave(source)
                                     .setAnimation(Animations.EMPTY_ANIMATION)
                                     .setInitialPosition(center)
-                                    .setStunType(stunType).setBaseImpact(damage / 5.0F)
+                                    .setStunType(stunType).setImpact(damage / 5.0F)
                             , damage);
                     entity.invulnerableTime = 0;
                 }

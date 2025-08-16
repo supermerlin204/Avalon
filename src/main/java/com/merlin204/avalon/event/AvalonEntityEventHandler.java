@@ -11,23 +11,24 @@ import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
+import yesman.epicfight.api.neoforgeevent.EntityPatchRegistryEvent;
 
-@Mod.EventBusSubscriber(modid = AvalonMOD.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+
+@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
 public class AvalonEntityEventHandler {
 
     //绑定Patch
     @SubscribeEvent
     public static void handleEntityPatchRegistry(EntityPatchRegistryEvent event) {
-        event.getTypeEntry().put(AvalonEntities.SHAKE_WAVE.get(), (entity -> VFXEntityPatch::new));
-        event.getTypeEntry().put(AvalonEntities.VFX.get(), (entity -> VFXEntityPatch::new));
+        event.getTypeEntry().put(AvalonEntities.SHAKE_WAVE.get(), (entity -> new VFXEntityPatch<>(entity)));
+        event.getTypeEntry().put(AvalonEntities.VFX.get(), (entity -> new VFXEntityPatch<>(entity)));
     }
     //默认属性
     @SubscribeEvent
@@ -59,6 +60,7 @@ public class AvalonEntityEventHandler {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void registerRenderers(PatchedRenderersEvent.RegisterItemRenderer event) {
+
         event.addItemRenderer(
                 ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "mesh_item"),
                 RenderMeshItem::new

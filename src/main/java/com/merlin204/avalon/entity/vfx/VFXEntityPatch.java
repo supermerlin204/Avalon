@@ -6,10 +6,11 @@ import com.merlin204.avalon.util.AvalonAnimationUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
@@ -34,41 +35,32 @@ import yesman.epicfight.world.damagesource.StunType;
 public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
 
-    public VFXEntityPatch() {
-        super();
+    public VFXEntityPatch(Entity entity) {
+        super((T) entity);
     }
 
+    public VFXEntityPatch(T entity, Faction faction) {
+        super(entity, faction);
+    }
 
     @Override
     public Faction getFaction() {
         return AvalonFctions.EMPTY;
     }
 
-    public void onConstructed(T entityIn) {
-        this.original = entityIn;
-
+    public void onConstructed(EntityEvent.EntityConstructing event) {
         this.armature = getArmature();
-
-
         Animator animator = EpicFightSharedConstants.getAnimator(this);
         this.animator = animator;
         this.initAnimator(animator);
         animator.postInit();
     }
 
-    @Override
-    public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
-        super.onJoinWorld(entity, event);
 
-    }
-
-    public VFXEntityPatch(Faction faction) {
-        super(faction);
-    }
 
     @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public void preTick(EntityTickEvent.Pre event) {
+        super.preTick(event);
         float ownerYRot = this.original.getStartYRot();
         boolean playAnimation = this.getOriginal().getPlayAnimation();
 
@@ -211,10 +203,6 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         return false;
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean flashTargetIndicator(LocalPlayerPatch playerPatch) {
-        return false;
-    }
+
 
 }

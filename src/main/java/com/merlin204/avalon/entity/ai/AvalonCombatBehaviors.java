@@ -10,7 +10,6 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.entity.*;
 import yesman.epicfight.network.server.SPAnimatorControl;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch.ServerAnimationPacketProvider;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.List;
@@ -327,7 +326,6 @@ public class AvalonCombatBehaviors<T extends MobPatch<?>> {
         public static class Builder<T extends MobPatch<?>> {
             private Consumer<T> behavior;
             private final List<Condition<T>> conditions = Lists.newArrayList();
-            private ServerAnimationPacketProvider packetProvider = SPAnimatorControl::new;
 
             public Builder<T> behavior(Consumer<T> behavior) {
                 this.behavior = behavior;
@@ -341,7 +339,7 @@ public class AvalonCombatBehaviors<T extends MobPatch<?>> {
 
             public Builder<T> animationBehavior(AnimationAccessor<? extends StaticAnimation> motion) {
                 this.behavior = (mobpatch) -> {
-                    mobpatch.playAnimationSynchronized(motion, 0.0F, this.packetProvider);
+                    mobpatch.playAnimationSynchronized(motion, 0.0F);
                 };
 
                 return this;
@@ -392,10 +390,6 @@ public class AvalonCombatBehaviors<T extends MobPatch<?>> {
                 return this;
             }
 
-            public Builder<T> packetProvider(ServerAnimationPacketProvider packetProvider) {
-                this.packetProvider = packetProvider;
-                return this;
-            }
 
             public Behavior<T> build() {
                 return new Behavior<T>(this);

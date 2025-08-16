@@ -7,6 +7,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
@@ -25,8 +27,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -42,6 +43,7 @@ import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.particle.AbstractTrailParticle;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -86,9 +88,9 @@ public class AvalonADAnimationTrailParticle extends AbstractTrailParticle<Living
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(this.owner.getModelMatrix(1.0F));
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
 
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -173,9 +175,9 @@ public class AvalonADAnimationTrailParticle extends AbstractTrailParticle<Living
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(curModelMatrix);
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
         Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
@@ -280,7 +282,7 @@ public class AvalonADAnimationTrailParticle extends AbstractTrailParticle<Living
 
             if (result.hand() != null) {
                 ItemStack stack = entitypatch.getOriginal().getItemInHand(result.hand());
-                RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
+                RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
 
                 if (renderItemBase != null && renderItemBase.trailInfo() != null) {
                     result = renderItemBase.trailInfo().overwrite(result);

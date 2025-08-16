@@ -11,6 +11,10 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class BOSSPatch extends LivingEntityPatch<BOSS> {
+    public BOSSPatch(BOSS entity) {
+        super(entity);
+    }
+
     @Override
     public void updateMotion(boolean considerInaction) {
         if(considerInaction){

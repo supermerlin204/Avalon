@@ -26,10 +26,10 @@ import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected ResourceLocation LIGHT_TEXTURE;
     protected AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
 
-    
+
 
 
 
@@ -197,17 +197,17 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
 
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_OWNER_UUID, Optional.empty());
-        this.entityData.define(DATA_OWNER_ID, 0);
-        this.entityData.define(SCALE,1F);
-        this.entityData.define(X_ROT_OFFSET,0F);
-        this.entityData.define(START_Y_ROT,0F);
-        this.entityData.define(PLAY_ANIMATION,false);
-        this.entityData.define(MESH_PATH,"");
-        this.entityData.define(TEXTURE_PATH,"");
-        this.entityData.define(LIGHT_TEXTURE_PATH,"");
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_OWNER_UUID, Optional.empty());
+        builder.define(DATA_OWNER_ID, 0);
+        builder.define(SCALE,1F);
+        builder.define(X_ROT_OFFSET,0F);
+        builder.define(START_Y_ROT,0F);
+        builder.define(PLAY_ANIMATION,false);
+        builder.define(MESH_PATH,"");
+        builder.define(TEXTURE_PATH,"");
+        builder.define(LIGHT_TEXTURE_PATH,"");
     }
 
 
@@ -289,7 +289,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         return Animal.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 19.9F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0f)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 10.0F)
+                .add(EpicFightAttributes.MAX_STRIKES, 10.0F)
                 .build();
     }
 

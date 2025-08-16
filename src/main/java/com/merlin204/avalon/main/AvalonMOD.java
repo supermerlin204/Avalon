@@ -7,12 +7,9 @@ import com.merlin204.avalon.epicfight.gameassets.AvalonCategories;
 import com.merlin204.avalon.item.AvalonItems;
 import com.merlin204.avalon.particle.AvalonParticles;
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
@@ -25,10 +22,9 @@ public class AvalonMOD {
     public static final String MOD_ID = "epic_fight_avalon";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public AvalonMOD(FMLJavaModLoadingContext context){
+    public AvalonMOD(IEventBus bus){
 
 
-        IEventBus bus = context.getModEventBus();
         AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);

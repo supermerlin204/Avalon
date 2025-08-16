@@ -10,15 +10,17 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+
+import yesman.epicfight.api.animation.types.ComboAttackAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -36,12 +38,12 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
-public class AvalonAttackAnimation extends BasicAttackAnimation {
+public class AvalonAttackAnimation extends ComboAttackAnimation {
 
     private final float play_speed;
     private final float damageMulti;
 
-    public AvalonAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti) {
+    public AvalonAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
         this.play_speed = play_speed;
         this.damageMulti = damageMulti;
@@ -50,7 +52,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.play_speed = play_speed;
         this.damageMulti = damageMulti;
@@ -59,7 +61,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float damageMulti, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float damageMulti, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.damageMulti = damageMulti;
         this.play_speed = 1;
@@ -68,7 +70,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.damageMulti = 1;
         this.play_speed = 1;
@@ -89,8 +91,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     @Override
     public void begin(LivingEntityPatch<?> entitypatch) {
         super.begin(entitypatch);
-        entitypatch.getCurrentlyActuallyHitEntities().clear();
-        entitypatch.getCurrentlyAttackTriedEntities().clear();
+        entitypatch.getCurrenltyHurtEntities().clear();
+        entitypatch.getCurrenltyAttackedEntities().clear();
 
         for (Phase phase : phases) {
             if (phase instanceof AvalonPhase avalonPhase) {
@@ -143,8 +145,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         LivingEntity entity = (LivingEntity) entitypatch.getOriginal();
 
         if (prevElapsedTime < phase.start && elapsedTime >= phase.start) {
-            entitypatch.getCurrentlyActuallyHitEntities().clear();
-            entitypatch.getCurrentlyAttackTriedEntities().clear();
+            entitypatch.getCurrenltyHurtEntities().clear();
+            entitypatch.getCurrenltyAttackedEntities().clear();
             if (phase instanceof AvalonPhase avalonPhase) {
                 avalonPhase.resetAttackRecord(entitypatch);
             }
@@ -173,7 +175,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 LivingEntity trueEntity = this.getTrueEntity(target);
 
                 boolean canAttack = trueEntity != null && trueEntity.isAlive() &&
-                        !entitypatch.getCurrentlyActuallyHitEntities().contains(trueEntity) &&
+                        !entitypatch.getCurrenltyHurtEntities().contains(trueEntity) &&
                         !entitypatch.isTargetInvulnerable(target);
 
                 if (phase instanceof AvalonPhase avalonPhase) {
@@ -194,9 +196,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                             this.spawnHitParticle((ServerLevel) target.level(), entitypatch, target, phase);
                         }
 
-                        entitypatch.getCurrentlyActuallyHitEntities().add(trueEntity);
+                        entitypatch.getCurrenltyHurtEntities().add(trueEntity);
                         if (attackResult.resultType.shouldCount()) {
-                            entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
+                            entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
                         }
                     }
                 }
@@ -219,11 +221,11 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     protected void bindPhaseState(Phase phase) {
         float preDelay = phase.preDelay;
         this.stateSpectrumBlueprint.newTimePair(0, preDelay).addState(EntityState.PHASE_LEVEL, 1)
-                .newTimePair(phase.start, phase.recovery).addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .newTimePair(phase.start, phase.recovery).addState(EntityState.SKILL_EXECUTABLE, false)
                 .newTimePair(phase.start, phase.recovery + 0.1F).addState(EntityState.MOVEMENT_LOCKED, true)
                 .addState(EntityState.UPDATE_LIVING_MOTION, false)
                 .newTimePair(phase.start, phase.recovery)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
+                .addState(EntityState.COMBO_ATTACKS_DOABLE, false)
                 .newTimePair(phase.start, phase.end).addState(EntityState.INACTION, true)
                 .newTimePair(phase.antic, phase.end).addState(EntityState.TURNING_LOCKED, true)
                 .newTimePair(preDelay, phase.contact).addState(EntityState.ATTACKING, true).addState(EntityState.PHASE_LEVEL, 2)
@@ -240,7 +242,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         if (originalSource instanceof EpicFightDamageSource epicfightDamageSource) {
             extendedSource = epicfightDamageSource;
         } else {
-            extendedSource = EpicFightDamageSources.fromVanillaDamageSource(originalSource).setAnimation(this.getAccessor());
+            extendedSource = new EpicFightDamageSource(originalSource).setAnimation(this.getAccessor());
         }
         float phaseDamageMulti = 1;
         float phaseImpactMulti = 1;
@@ -252,11 +254,11 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
 
         ValueModifier damageModifier = ValueModifier.multiplier(damageMulti * phaseDamageMulti);
-        extendedSource.attachDamageModifier(damageModifier);
+        extendedSource.setDamageModifier(damageModifier);
 
-        extendedSource.setBaseImpact(extendedSource.getBaseImpact() * phaseImpactMulti);
+        extendedSource.setImpact(extendedSource.getImpact() * phaseImpactMulti);
 
-        extendedSource.setBaseArmorNegation(extendedSource.getBaseArmorNegation() * phaseArmorNegationMulti);
+        extendedSource.setArmorNegation(extendedSource.getArmorNegation() * phaseArmorNegationMulti);
 
 
         phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent((opt) -> {

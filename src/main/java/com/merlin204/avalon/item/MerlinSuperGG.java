@@ -5,6 +5,7 @@ import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +14,8 @@ import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.events.engine.RenderEngine;
+import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -32,6 +35,12 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
     }
 
 
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+//        RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
+//        System.out.println(renderItemBase);
+    }
 
     @Override
     public Vec2 getHitBox() {
