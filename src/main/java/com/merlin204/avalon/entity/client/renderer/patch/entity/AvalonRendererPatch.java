@@ -1,4 +1,4 @@
-package com.merlin204.avalon.entity.client.renderer;
+package com.merlin204.avalon.entity.client.renderer.patch.entity;
 
 import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;

@@ -1,4 +1,4 @@
-package com.merlin204.avalon.entity.client.renderer;
+package com.merlin204.avalon.entity.client.renderer.patch.item;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;

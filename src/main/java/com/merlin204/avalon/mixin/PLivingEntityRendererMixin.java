@@ -1,8 +1,8 @@
 package com.merlin204.avalon.mixin;
 
 
-import com.merlin204.avalon.entity.client.renderer.RenderAnimationItem;
-import com.merlin204.avalon.entity.client.renderer.RenderChangeMeshItem;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderChangeMeshItem;
 import com.merlin204.avalon.item.IChangeArmatureItem;
 import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.mojang.blaze3d.vertex.PoseStack;

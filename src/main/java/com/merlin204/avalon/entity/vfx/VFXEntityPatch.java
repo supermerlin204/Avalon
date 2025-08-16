@@ -86,6 +86,9 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
                 playAnimationSynchronized(original.getDefaultAnimation(),0F);
             }
         }
+        if (!this.animator.getEntityState().inaction() && playAnimation){
+            this.getOriginal().discard();
+        }
     }
 
     @Nullable

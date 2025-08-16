@@ -2,6 +2,10 @@ package com.merlin204.avalon.event;
 
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.entity.client.renderer.*;
+import com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonRendererPatch;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderChangeMeshItem;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderMeshItem;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.main.AvalonMOD;
@@ -13,7 +17,6 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
 

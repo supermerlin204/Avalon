@@ -54,6 +54,8 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected ResourceLocation LIGHT_TEXTURE;
     protected AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
 
+    
+
 
 
     public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner,float scale) {

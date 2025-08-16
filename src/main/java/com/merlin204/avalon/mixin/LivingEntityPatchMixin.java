@@ -49,8 +49,14 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
                     cir.setReturnValue(avalonAnimationItem.getArmature().get());
                     cir.cancel();
                 }else {
-                    cir.setReturnValue(avalonAnimationItem.BIPED);
-                    cir.cancel();
+                    if (((LivingEntityPatch<?>) (Object) this).getOriginal().level().isClientSide){
+                        cir.setReturnValue(avalonAnimationItem.BIPED);
+                        cir.cancel();
+                    }else {
+                        cir.setReturnValue(avalonAnimationItem.getArmature().get());
+                        cir.cancel();
+                    }
+
                 }
 
             }
