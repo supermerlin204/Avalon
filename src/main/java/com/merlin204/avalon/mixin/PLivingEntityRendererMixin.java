@@ -104,7 +104,7 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
             ci.cancel();
         }
 
-        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IChangeArmatureItem changeArmatureItem) {
+        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IChangeArmatureItem changeArmatureItem && changeArmatureItem.change(entitypatch)) {
              if (renderItemBase instanceof RenderChangeMeshItem renderChangeMeshItem) {
 
                 Minecraft mc = Minecraft.getInstance();

@@ -22,7 +22,7 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
         if (((LivingEntityPatch<?>) (Object) this).getOriginal() != null){
             ItemStack mainHandItem = ((LivingEntityPatch<?>) (Object) this).getOriginal().getItemInHand(InteractionHand.MAIN_HAND);
 
-            if (mainHandItem.getItem() instanceof IChangeArmatureItem changeArmatureItem ) {
+            if (mainHandItem.getItem() instanceof IChangeArmatureItem changeArmatureItem && changeArmatureItem.change(((LivingEntityPatch<?>) (Object) this)) ) {
                 if (changeArmatureItem.getHitBox() != null){
                     float width = changeArmatureItem.getHitBox().x;
                     float height = changeArmatureItem.getHitBox().y;

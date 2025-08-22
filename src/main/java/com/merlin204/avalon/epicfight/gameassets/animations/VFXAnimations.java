@@ -17,17 +17,23 @@ public class VFXAnimations {
     public static AnimationManager.AnimationAccessor<AutoDiscardActionAnimation> SHAKEWAVE_1;
 
     public static AnimationManager.AnimationAccessor<ActionAnimation> TEST;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> EMPTY;
 
+    public static AnimationManager.AnimationAccessor<StaticAnimation> OPEN_TEST_DOOR;
 
 
 
     public static void buildVFXAnimations(AnimationManager.AnimationBuilder builder) {
         Armatures.ArmatureAccessor<Armature> shake_wave = Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "entity/vfx/shakewave", Armature::new);
+        Armatures.ArmatureAccessor<Armature> test_door = Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "testdoor", Armature::new);
 
         SHAKEWAVE_IDLE = builder.nextAccessor("vfx/shakewave_idle", accessor -> new StaticAnimation(0.15F,true, accessor, shake_wave));
         SHAKEWAVE_1 = builder.nextAccessor("vfx/shakewave_1", accessor -> new AutoDiscardActionAnimation(0.0F, accessor, shake_wave,1.5F));
+        EMPTY = builder.nextAccessor("vfx/empty", accessor -> new StaticAnimation(0.15F,true, accessor, shake_wave));
+        OPEN_TEST_DOOR = builder.nextAccessor("testdoor", accessor -> new StaticAnimation(0.15F,false, accessor, test_door));
 
-        TEST = builder.nextAccessor("vfx/test", accessor -> new ActionAnimation(0.1F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "entity/vfx/treeking", Armature::new)));
+
+        TEST = builder.nextAccessor("ymds1", accessor -> new ActionAnimation(0.1F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "ymd1", Armature::new)));
 
 
 

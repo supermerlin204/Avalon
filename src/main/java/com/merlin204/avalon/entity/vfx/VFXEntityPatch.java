@@ -26,6 +26,7 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -92,7 +93,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     }
 
     @Nullable
-    private PlayerPatch<?> ownerPatch;
+    private LivingEntityPatch<?> ownerPatch;
 
     @Override
     public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
@@ -134,12 +135,12 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
 
     @Nullable
-    public PlayerPatch<?> getOwnerPatch() {
+    public LivingEntityPatch<?> getOwnerPatch() {
         if (ownerPatch != null) {
             return ownerPatch;
         }
         if (getOriginal().getOwner() != null) {
-            ownerPatch = EpicFightCapabilities.getEntityPatch(getOriginal().getOwner(), PlayerPatch.class);
+            ownerPatch = EpicFightCapabilities.getEntityPatch(getOriginal().getOwner(), LivingEntityPatch.class);
             return ownerPatch;
         }
         return null;
@@ -163,7 +164,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     @Override
     protected void initAnimator(Animator animator) {
         super.initAnimator(animator);
-        animator.addLivingAnimation(LivingMotions.IDLE, Animations.EMPTY_ANIMATION);
+        animator.addLivingAnimation(LivingMotions.IDLE, original.getIdleAnimation());
     }
 
     @Nullable

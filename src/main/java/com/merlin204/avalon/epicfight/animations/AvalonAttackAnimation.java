@@ -35,6 +35,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AvalonAttackAnimation extends BasicAttackAnimation {
 
@@ -177,7 +178,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                         !entitypatch.isTargetInvulnerable(target);
 
                 if (phase instanceof AvalonPhase avalonPhase) {
-                    canAttack = canAttack && avalonPhase.tryAttack(trueEntity);
+                    canAttack = canAttack && avalonPhase.tryAttack(entitypatch, trueEntity);
                 }
 
                 if (canAttack) {
@@ -200,6 +201,18 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Override
+    public void end(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> nextAnimation, boolean isEnd) {
+        super.end(entitypatch, nextAnimation, isEnd);
+
+        int entityId = entitypatch.getOriginal().getId();
+        for (Phase phase : phases) {
+            if (phase instanceof AvalonPhase avalonPhase) {
+                avalonPhase.clearAttackRecord(entityId);
             }
         }
     }
@@ -281,6 +294,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         return extendedSource;
     }
 
+
+
+
     @OnlyIn(Dist.CLIENT)
     public void renderDebugging(PoseStack poseStack, MultiBufferSource buffer, LivingEntityPatch<?> entitypatch, float playbackTime, float partialTicks) {
         AnimationPlayer animPlayer = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
@@ -320,24 +336,32 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         public final float phaseArmorNegationMulti;
 
 
-        private WeakReference<LivingEntityPatch<?>> currentEntityPatch;
-        private Set<Entity> attackedEntities;
+        private final Map<Integer, Set<Integer>> attackedEntitiesMap = new ConcurrentHashMap<>();
 
         public void resetAttackRecord(LivingEntityPatch<?> entitypatch) {
-            if (currentEntityPatch == null || currentEntityPatch.get() != entitypatch) {
-                currentEntityPatch = new WeakReference<>(entitypatch);
-                attackedEntities = new HashSet<>();
-            } else {
-                attackedEntities.clear();
-            }
+            int entityId = entitypatch.getOriginal().getId();
+            attackedEntitiesMap.computeIfAbsent(entityId, k -> Collections.newSetFromMap(new ConcurrentHashMap<>())).clear();
         }
 
-        public boolean tryAttack(Entity entity) {
-            if (attackedEntities == null) {
-                return false;
-            }
-            return attackedEntities.add(entity);
+        public boolean tryAttack(LivingEntityPatch<?> entitypatch, Entity target) {
+            int attackerId = entitypatch.getOriginal().getId();
+            int targetId = target.getId();
+
+            Set<Integer> attackedEntities = attackedEntitiesMap.computeIfAbsent(
+                    attackerId,
+                    k -> Collections.newSetFromMap(new ConcurrentHashMap<>())
+            );
+
+            return attackedEntities.add(targetId);
         }
+
+        // 清理特定实体的攻击记录
+        public void clearAttackRecord(int entityId) {
+            attackedEntitiesMap.remove(entityId);
+        }
+
+
+
 
 
         public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, Joint joint, Collider collider) {

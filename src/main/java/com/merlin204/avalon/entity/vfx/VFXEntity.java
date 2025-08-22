@@ -25,6 +25,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
@@ -45,6 +46,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<Boolean> PLAY_ANIMATION = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.BOOLEAN);
 
     protected static final EntityDataAccessor<String> MESH_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
+    protected static final EntityDataAccessor<String> ARMATURE_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
     protected static final EntityDataAccessor<String> TEXTURE_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
     protected static final EntityDataAccessor<String> LIGHT_TEXTURE_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
 
@@ -82,6 +84,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         MESH = mesh;
         TEXTURE = texture;
         DEFAULT_ANIMATION = defaultAnimation;
+        this.entityData.set(ARMATURE_PATH,ARMATURE_ACCESSOR.registryName().toString());
         this.entityData.set(MESH_PATH,MESH.registryName().toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
@@ -102,6 +105,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         MESH = mesh;
         TEXTURE = texture;
         DEFAULT_ANIMATION = defaultAnimation;
+        this.entityData.set(ARMATURE_PATH,ARMATURE_ACCESSOR.registryName().toString());
         this.entityData.set(MESH_PATH,MESH.registryName().toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
@@ -124,6 +128,8 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     @Override
     public void tick() {
         super.tick();
+
+
         fallDistance = 0;
         this.noPhysics = true;
         setNoGravity(true);
@@ -137,6 +143,9 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         if (this.level().isClientSide){
             if (MESH == null){
                 MESH = Meshes.MeshAccessor.create(ResourceLocation.parse(this.entityData.get(MESH_PATH)).getNamespace(),ResourceLocation.parse(this.entityData.get(MESH_PATH)).getPath(), (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
+            }
+            if (ARMATURE_ACCESSOR == null){
+                ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getNamespace(), ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getPath(), Armature::new);
             }
             if (TEXTURE == null){
                 TEXTURE = ResourceLocation.parse(this.entityData.get(TEXTURE_PATH));
@@ -185,9 +194,11 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     }
 
 
-
-
-
+    @Nullable
+    @Override
+    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getIdleAnimation() {
+        return Animations.EMPTY_ANIMATION;
+    }
 
     @Nullable
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getDefaultAnimation() {
@@ -205,6 +216,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.define(X_ROT_OFFSET,0F);
         this.entityData.define(START_Y_ROT,0F);
         this.entityData.define(PLAY_ANIMATION,false);
+        this.entityData.define(ARMATURE_PATH,"");
         this.entityData.define(MESH_PATH,"");
         this.entityData.define(TEXTURE_PATH,"");
         this.entityData.define(LIGHT_TEXTURE_PATH,"");

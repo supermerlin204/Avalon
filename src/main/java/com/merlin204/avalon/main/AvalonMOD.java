@@ -1,6 +1,7 @@
 package com.merlin204.avalon.main;
 
 
+import com.merlin204.avalon.block.AvalonBlocks;
 import com.merlin204.avalon.entity.AvalonEntities;
 
 import com.merlin204.avalon.epicfight.gameassets.AvalonCategories;
@@ -32,6 +33,8 @@ public class AvalonMOD {
         AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);
+        AvalonBlocks.BLOCKS.register(bus);
+        AvalonBlocks.BLOCK_ENTITIES.register(bus);
         CapabilityItem.WeaponCategories.ENUM_MANAGER.registerEnumCls(AvalonMOD.MOD_ID, AvalonCategories.class);
 
     }

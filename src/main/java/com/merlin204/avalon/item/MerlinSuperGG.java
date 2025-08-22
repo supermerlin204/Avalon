@@ -43,7 +43,8 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
         Level world = player.level();
         LivingEntityPatch livingEntityPatch = EpicFightCapabilities.getEntityPatch(player,LivingEntityPatch.class);
 
-        AvalonVFXManagers.TEST.spawnVFXEntity(player, Vec3f.ZERO,1,0);
+        AvalonVFXManagers.TEST2.spawnVFXEntity(player, Vec3f.ZERO,1,0);
+
 
 
 
