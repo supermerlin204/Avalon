@@ -92,13 +92,22 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    implementation fg.deobf("libs:EpicFight:20.12.4")
-    implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6237015")
-    implementation fg.deobf("curse.maven:selene-499980:6283242")
-    implementation fg.deobf("curse.maven:embeddium-908741:5681725")
-    implementation fg.deobf("curse.maven:oculus-581495:6020952")
-    implementation fg.deobf("curse.maven:photon-871522:6373238")
-    implementation fg.deobf("curse.maven:ldlib-626676:6417175")
+    implementation fg.deobf('libs:epicfight:20.12.5.0')
+//    implementation fg.deobf('libs:zylob:0.2.3')
+    implementation fg.deobf('libs:SmartKeyPrompts-1.20.1-forge-1.1.0-all:1.1.0')
+    implementation fg.deobf('libs:skilltree:20.1.1')
+    implementation fg.deobf('libs:chloride:1.7.2')
+    implementation fg.deobf('libs:invincible:20.12.1.4')
+    implementation fg.deobf('libs:impactful:20.12.1')
+    implementation fg.deobf('libs:dummmmmmy:2.0.6')
+    implementation fg.deobf("curse.maven:embeddium-908741:5556138")
+    implementation fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation fg.deobf('libs:moonlight:2.14.1')
+    implementation fg.deobf('libs:entityculling:1.7.2')
+    implementation fg.deobf('libs:jei:1.20.1')
+    implementation fg.deobf('libs:freecam-forge-1.2.1+1.20:1.20')
+    implementation fg.deobf('libs:rendi-0.1:1.0')
+
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 

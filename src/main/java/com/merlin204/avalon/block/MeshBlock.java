@@ -63,8 +63,11 @@ public class MeshBlock extends Block implements EntityBlock {
     private float yRot = 180.0F;
     public final AssetAccessor<? extends StaticAnimation> animation = Animations.BIPED_WALK;
 
+    @OnlyIn(Dist.CLIENT)
     public MeshBlock.MeshBlockEntityPatch entitypatch;
+    @OnlyIn(Dist.CLIENT)
     public MeshBlock.MeshBlockEntityAnimator animator;
+
     private boolean started = false;
 
     private ResourceLocation TEST = ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/all_black.png");
@@ -85,12 +88,14 @@ public class MeshBlock extends Block implements EntityBlock {
         return Armatures.BIPED;
     }
 
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new MeshBlockEntity(blockPos,blockState);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -112,6 +117,8 @@ public class MeshBlock extends Block implements EntityBlock {
         return super.getShapeForEachState(pShapeGetter);
     }
 
+
+    @OnlyIn(Dist.CLIENT)
     public void _tick() {
         if (getArmature() != null && !started) {
             started = true;
@@ -125,6 +132,7 @@ public class MeshBlock extends Block implements EntityBlock {
     }
 
 
+    @OnlyIn(Dist.CLIENT)
     public void drawMesh(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks){
         Pose pose = this.animator.getPose(partialTicks);
         this.getMesh().get().initialize();

@@ -1,6 +1,7 @@
 package com.merlin204.avalon.entity.vfx;
 
 import com.merlin204.avalon.entity.IAvalonMeshEntity;
+import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -25,6 +26,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -39,11 +41,20 @@ import java.util.UUID;
 public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     protected static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.INT);
+
+
+
+
     protected static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
+
+    protected static final EntityDataAccessor<Float> Y_ROT_OFFSET = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
     protected static final EntityDataAccessor<Float> X_ROT_OFFSET = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
+    protected static final EntityDataAccessor<Float> Z_ROT_OFFSET = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
+
     protected static final EntityDataAccessor<Float> START_Y_ROT = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
 
     protected static final EntityDataAccessor<Boolean> PLAY_ANIMATION = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> SHOULD_RENDER = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.BOOLEAN);
 
     protected static final EntityDataAccessor<String> MESH_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
     protected static final EntityDataAccessor<String> ARMATURE_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
@@ -51,7 +62,9 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<String> LIGHT_TEXTURE_PATH = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.STRING);
 
     protected Armatures.ArmatureAccessor<? extends Armature> ARMATURE_ACCESSOR;
-    protected AssetAccessor<? extends SkinnedMesh> MESH;
+
+
+
     protected ResourceLocation TEXTURE;
     protected ResourceLocation LIGHT_TEXTURE;
     protected AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
@@ -64,53 +77,60 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         super(entityType, owner.level());
         tame(owner);
         this.getEntityData().set(SCALE, scale);
+        this.noCulling = true;
         this.noPhysics = true;
         setNoGravity(true);
         ARMATURE_ACCESSOR = null;
-        MESH = null;
         TEXTURE = null;
         DEFAULT_ANIMATION = null;
         LIGHT_TEXTURE = null;
     }
 
-    public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale, Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, AssetAccessor<? extends SkinnedMesh> mesh, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+    public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale, Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation mesh, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         super(entityType, owner.level());
+        this.noCulling = true;
         LIGHT_TEXTURE = lightTexture;
         tame(owner);
         this.getEntityData().set(SCALE, scale);
         this.noPhysics = true;
         setNoGravity(true);
         ARMATURE_ACCESSOR = armatureAccessor;
-        MESH = mesh;
         TEXTURE = texture;
         DEFAULT_ANIMATION = defaultAnimation;
         this.entityData.set(ARMATURE_PATH,ARMATURE_ACCESSOR.registryName().toString());
-        this.entityData.set(MESH_PATH,MESH.registryName().toString());
+        this.entityData.set(MESH_PATH,mesh.toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
     }
 
-    public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale,float xRotOffset, Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, AssetAccessor<? extends SkinnedMesh> mesh, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+    public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale, Vec3f rotOffset,
+                     Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation mesh,
+                     ResourceLocation texture, ResourceLocation lightTexture,
+
+                     AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         super(entityType, owner.level());
+        this.noCulling = true;
         LIGHT_TEXTURE = lightTexture;
         tame(owner);
         this.getEntityData().set(SCALE, scale);
-        this.getEntityData().set(X_ROT_OFFSET, xRotOffset);
+        this.getEntityData().set(X_ROT_OFFSET, rotOffset.x);
+        this.getEntityData().set(Y_ROT_OFFSET, rotOffset.y);
+        this.getEntityData().set(Z_ROT_OFFSET, rotOffset.z);
         this.noPhysics = true;
         setNoGravity(true);
         ARMATURE_ACCESSOR = armatureAccessor;
-        float ownerYRot = getOwner().getYHeadRot();
+        float ownerYRot = getOwner().getYRot();
         setStartYRot(ownerYRot);
 
-        MESH = mesh;
         TEXTURE = texture;
         DEFAULT_ANIMATION = defaultAnimation;
         this.entityData.set(ARMATURE_PATH,ARMATURE_ACCESSOR.registryName().toString());
-        this.entityData.set(MESH_PATH,MESH.registryName().toString());
+        this.entityData.set(MESH_PATH,mesh.toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
 
     }
+
 
 
     public VFXEntity(EntityType<? extends VFXEntity> entityType, Level level) {
@@ -118,7 +138,6 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.noPhysics = true;
         setNoGravity(true);
         ARMATURE_ACCESSOR = null;
-        MESH = null;
         TEXTURE = null;
         DEFAULT_ANIMATION = null;
         LIGHT_TEXTURE = null;
@@ -141,9 +160,6 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
             this.setYHeadRot(ownerYRot);
         }
         if (this.level().isClientSide){
-            if (MESH == null){
-                MESH = Meshes.MeshAccessor.create(ResourceLocation.parse(this.entityData.get(MESH_PATH)).getNamespace(),ResourceLocation.parse(this.entityData.get(MESH_PATH)).getPath(), (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
-            }
             if (ARMATURE_ACCESSOR == null){
                 ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getNamespace(), ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getPath(), Armature::new);
             }
@@ -166,10 +182,12 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         return ARMATURE_ACCESSOR.get();
     }
 
+
+
     @Nullable
     @Override
     public AssetAccessor<? extends SkinnedMesh> getMesh() {
-        return MESH;
+        return Meshes.MeshAccessor.create(ResourceLocation.parse(this.entityData.get(MESH_PATH)).getNamespace(), ResourceLocation.parse(this.entityData.get(MESH_PATH)).getPath(), (jsonModelLoader) -> jsonModelLoader.loadSkinnedMesh(SkinnedMesh::new));
     }
 
     @Nullable
@@ -192,11 +210,18 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     public float getXRotOffset(){
         return this.entityData.get(X_ROT_OFFSET);
     }
+    public float getZRotOffset(){
+        return this.entityData.get(Z_ROT_OFFSET);
+    }
+    public float getYRotOffset(){
+        return this.entityData.get(Y_ROT_OFFSET);
+    }
 
 
     @Nullable
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getIdleAnimation() {
+
         return Animations.EMPTY_ANIMATION;
     }
 
@@ -213,9 +238,12 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.define(DATA_OWNER_UUID, Optional.empty());
         this.entityData.define(DATA_OWNER_ID, 0);
         this.entityData.define(SCALE,1F);
+        this.entityData.define(Y_ROT_OFFSET,0F);
         this.entityData.define(X_ROT_OFFSET,0F);
+        this.entityData.define(Z_ROT_OFFSET,0F);
         this.entityData.define(START_Y_ROT,0F);
         this.entityData.define(PLAY_ANIMATION,false);
+        this.entityData.define(SHOULD_RENDER,false);
         this.entityData.define(ARMATURE_PATH,"");
         this.entityData.define(MESH_PATH,"");
         this.entityData.define(TEXTURE_PATH,"");
@@ -240,6 +268,8 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     public void setOwnerID(int id) {
         this.entityData.set(DATA_OWNER_ID,id);
     }
+
+
 
     public float getStartYRot(){
         return this.entityData.get(START_Y_ROT);
@@ -292,6 +322,15 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
 
     public void setPlayAnimation(boolean b){
         this.entityData.set(PLAY_ANIMATION,b);
+    }
+
+    public boolean getShouldRender(){
+
+        return this.entityData.get(SHOULD_RENDER);
+    }
+
+    public void setShouldRender(boolean b){
+        this.entityData.set(SHOULD_RENDER,b);
     }
 
 

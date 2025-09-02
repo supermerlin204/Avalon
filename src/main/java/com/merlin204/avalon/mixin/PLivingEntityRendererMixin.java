@@ -82,9 +82,11 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
                 this.renderLayer(renderer, entitypatch, entity, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
             }
 
+            avalonAnimationItem.MANAGER.useAnimationArmature = true;
             if (renderType != null && Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
                 entitypatch.getClientAnimator().renderDebuggingInfoForAllLayers(poseStack, buffer, partialTicks);
             }
+            avalonAnimationItem.MANAGER.useAnimationArmature = false;
 
             if (renderItemBase instanceof RenderAnimationItem renderAnimationItem) {
                 avalonAnimationItem.MANAGER.useAnimationArmature = true;

@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -42,8 +43,10 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player player, @NotNull InteractionHand pUsedHand) {
         Level world = player.level();
         LivingEntityPatch livingEntityPatch = EpicFightCapabilities.getEntityPatch(player,LivingEntityPatch.class);
-
-        AvalonVFXManagers.TEST2.spawnVFXEntity(player, Vec3f.ZERO,1,0);
+        if (world.isClientSide){
+            return super.use(pLevel, player, pUsedHand);
+        }
+        AvalonVFXManagers.TEST3.spawnVFXEntity(player,new Vec3f(1,1,1),new Vec3f(0,0,-60),2);
 
 
 

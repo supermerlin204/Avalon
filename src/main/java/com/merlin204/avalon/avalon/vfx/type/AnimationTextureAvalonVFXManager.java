@@ -1,6 +1,7 @@
 package com.merlin204.avalon.avalon.vfx.type;
 
 import com.merlin204.avalon.entity.AvalonEntities;
+import com.merlin204.avalon.entity.vfx.AnimationTextureVFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,42 +10,55 @@ import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.client.model.Meshes;
+import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Armatures;
 
-public class StaticAvalonVFXManager {
+public class AnimationTextureAvalonVFXManager {
 
     protected final Armatures.ArmatureAccessor<? extends Armature> ARMATURE_ACCESSOR;
-
-
-    protected final ResourceLocation MESH_PATH;
-    protected final ResourceLocation TEXTURE;
-    protected final ResourceLocation LIGHT_TEXTURE;
+    protected final ResourceLocation MESH;
+    protected final String TEXTURE_PACK;
+    protected final String LIGHT_TEXTURE_PACK;
+    protected final int FROM;
+    protected final int TO;
+    protected final float SPEED;
     protected final AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
 
 
-    public StaticAvalonVFXManager(Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation meshPath, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+    public AnimationTextureAvalonVFXManager(Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation mesh, String texture, String lightTexture, int from, int to, float speed, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         ARMATURE_ACCESSOR = armatureAccessor;
-        MESH_PATH = meshPath;
-        TEXTURE = texture;
-        LIGHT_TEXTURE = lightTexture;
+        MESH = mesh;
+        TEXTURE_PACK = texture;
+        LIGHT_TEXTURE_PACK = lightTexture;
+        FROM = from;
+        TO = to;
+        SPEED = speed;
         DEFAULT_ANIMATION = defaultAnimation;
     }
 
-    public StaticAvalonVFXManager(String armaturePath, String meshPath, String texturePath, String lightTexturePath, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+    public AnimationTextureAvalonVFXManager(String armaturePath, String meshPath, String texturePath, String lightTexturePath, int from, int to, float speed, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(ResourceLocation.parse(armaturePath).getNamespace(), ResourceLocation.parse(armaturePath).getPath(), Armature::new);
-        MESH_PATH = ResourceLocation.parse(meshPath);
-        TEXTURE = ResourceLocation.parse(texturePath);
-        LIGHT_TEXTURE = ResourceLocation.parse(lightTexturePath);
+        MESH = ResourceLocation.parse(meshPath);
+        TEXTURE_PACK = texturePath;
+        LIGHT_TEXTURE_PACK =lightTexturePath;
+        FROM = from;
+        TO = to;
+        SPEED = speed;
         DEFAULT_ANIMATION = defaultAnimation;
     }
 
-    public StaticAvalonVFXManager(String armatureAndMeshPath, String texturePath, String lightTexturePath, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+    public AnimationTextureAvalonVFXManager(String armatureAndMeshPath, String texturePath, String lightTexturePath, int from, int to, float speed, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(ResourceLocation.parse(armatureAndMeshPath).getNamespace(), ResourceLocation.parse(armatureAndMeshPath).getPath(), Armature::new);
-        MESH_PATH = ResourceLocation.parse(armatureAndMeshPath);
-        TEXTURE = ResourceLocation.parse(texturePath);
-        LIGHT_TEXTURE = ResourceLocation.parse(lightTexturePath);
+        MESH = ResourceLocation.parse(armatureAndMeshPath);
+        TEXTURE_PACK = texturePath;
+        LIGHT_TEXTURE_PACK = lightTexturePath;
+        FROM = from;
+        TO = to;
+        SPEED = speed;
         DEFAULT_ANIMATION = defaultAnimation;
     }
 
@@ -55,7 +69,7 @@ public class StaticAvalonVFXManager {
             if (entityPatch.getOriginal().level().isClientSide){
 
             }
-            VFXEntity vfxEntity = new VFXEntity(AvalonEntities.VFX.get(),entityPatch.getOriginal(),scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH_PATH,this.TEXTURE,this.LIGHT_TEXTURE,this.DEFAULT_ANIMATION);
+            AnimationTextureVFXEntity vfxEntity = new AnimationTextureVFXEntity(AvalonEntities.ANIMATION_TEXTURE_VFX.get(),entityPatch.getOriginal(),scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH,FROM,TO,SPEED,this.TEXTURE_PACK,this.LIGHT_TEXTURE_PACK,this.DEFAULT_ANIMATION);
             Vec3 pos = entityPatch.getOriginal().position();
             Vec3 totalOffset = getOffset(posOffset, entityPatch.getOriginal());
             Vec3 target = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);
@@ -70,7 +84,7 @@ public class StaticAvalonVFXManager {
         if (owner.level().isClientSide){
             return;
         }
-        VFXEntity vfxEntity = new VFXEntity(AvalonEntities.VFX.get(),owner,scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH_PATH,this.TEXTURE,this.LIGHT_TEXTURE,this.DEFAULT_ANIMATION);
+        AnimationTextureVFXEntity vfxEntity = new AnimationTextureVFXEntity(AvalonEntities.ANIMATION_TEXTURE_VFX.get(),owner,scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH,FROM,TO,SPEED,this.TEXTURE_PACK,this.LIGHT_TEXTURE_PACK,this.DEFAULT_ANIMATION);
 
         vfxEntity.setPos(pos);
         owner.level().addFreshEntity(vfxEntity);
@@ -82,7 +96,7 @@ public class StaticAvalonVFXManager {
         if (owner.level().isClientSide){
             return;
         }
-        VFXEntity vfxEntity = new VFXEntity(AvalonEntities.VFX.get(),owner,scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH_PATH,this.TEXTURE,this.LIGHT_TEXTURE,this.DEFAULT_ANIMATION);
+        AnimationTextureVFXEntity vfxEntity = new AnimationTextureVFXEntity(AvalonEntities.ANIMATION_TEXTURE_VFX.get(),owner,scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH,FROM,TO,SPEED,this.TEXTURE_PACK,this.LIGHT_TEXTURE_PACK,this.DEFAULT_ANIMATION);
         Vec3 pos = owner.position();
         Vec3 totalOffset = getOffset(posOffset, owner);
         Vec3 target = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);

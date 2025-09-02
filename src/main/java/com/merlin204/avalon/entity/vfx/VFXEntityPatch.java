@@ -12,6 +12,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
+import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -57,11 +58,6 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         animator.postInit();
     }
 
-    @Override
-    public void onJoinWorld(T entity, EntityJoinLevelEvent event) {
-        super.onJoinWorld(entity, event);
-
-    }
 
     public VFXEntityPatch(Faction faction) {
         super(faction);
@@ -71,6 +67,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     public void tick(LivingEvent.LivingTickEvent event) {
         super.tick(event);
         float ownerYRot = this.original.getStartYRot();
+        this.original.setYRot(ownerYRot);
         boolean playAnimation = this.getOriginal().getPlayAnimation();
 
 
@@ -86,6 +83,7 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
             }else {
                 playAnimationSynchronized(original.getDefaultAnimation(),0F);
             }
+            this.original.setShouldRender(true);
         }
         if (!this.animator.getEntityState().inaction() && playAnimation){
             this.getOriginal().discard();
@@ -97,13 +95,15 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
     @Override
     public void poseTick(DynamicAnimation animation, Pose pose, float elapsedTime, float partialTick) {
-
         float ownerYRot = this.original.getStartYRot();
         this.setYRot(ownerYRot);
         this.original.setYBodyRot(ownerYRot);
         this.original.setYHeadRot(ownerYRot);
+        if (animation instanceof ActionAnimation){
+            AvalonAnimationUtils.joinRotationInPose(pose,this,"Root",this.getOriginal().getXRotOffset(),this.getOriginal().getYRotOffset(),this.getOriginal().getZRotOffset());
+        }
 
-        AvalonAnimationUtils.joinRotationInPose(pose,this,"Root",this.getOriginal().getXRotOffset(),0,0);
+
     }
 
     @Override

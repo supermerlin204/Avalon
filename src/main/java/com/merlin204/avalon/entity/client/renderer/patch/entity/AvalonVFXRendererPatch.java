@@ -38,6 +38,10 @@ public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntit
         Minecraft mc = Minecraft.getInstance();
 
 
+        if (entityPatch.getAnimator().getPlayerFor(null).getAnimation().get().isLinkAnimation() || entityPatch.getClientAnimator().getPlayerFor(null).getAnimation().get().isLinkAnimation()){
+            return;
+        }
+
         Armature armature = entityPatch.getArmature();
 
         if (entity.getMesh() == null){
@@ -52,6 +56,9 @@ public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntit
         }
 
         ResourceLocation litTexture = entity.getLitTexture();
+        if (!entity.getShouldRender()){
+            return;
+        }
 
         poseStack.pushPose();
         this.mulPoseStack(poseStack, armature, entity, entityPatch, partialTicks);

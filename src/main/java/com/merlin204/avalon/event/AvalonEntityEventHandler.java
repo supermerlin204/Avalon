@@ -3,6 +3,7 @@ package com.merlin204.avalon.event;
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.entity.client.renderer.*;
 import com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonRendererPatch;
+import com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonVFXRendererPatch;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderChangeMeshItem;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderMeshItem;
@@ -28,6 +29,7 @@ public class AvalonEntityEventHandler {
     public static void handleEntityPatchRegistry(EntityPatchRegistryEvent event) {
         event.getTypeEntry().put(AvalonEntities.SHAKE_WAVE.get(), (entity -> VFXEntityPatch::new));
         event.getTypeEntry().put(AvalonEntities.VFX.get(), (entity -> VFXEntityPatch::new));
+        event.getTypeEntry().put(AvalonEntities.ANIMATION_TEXTURE_VFX.get(), (entity -> VFXEntityPatch::new));
     }
     //默认属性
     @SubscribeEvent
@@ -35,6 +37,7 @@ public class AvalonEntityEventHandler {
 
         event.put(AvalonEntities.SHAKE_WAVE.get(), VFXEntity.getDefaultAttribute());
         event.put(AvalonEntities.VFX.get(), VFXEntity.getDefaultAttribute());
+        event.put(AvalonEntities.ANIMATION_TEXTURE_VFX.get(), VFXEntity.getDefaultAttribute());
 
     }
     //绑定空渲染
@@ -43,13 +46,15 @@ public class AvalonEntityEventHandler {
     public static void handleClientSetup(FMLClientSetupEvent event) {
         EntityRenderers.register(AvalonEntities.SHAKE_WAVE.get(), EmptyRenderer::new);
         EntityRenderers.register(AvalonEntities.VFX.get(), EmptyRenderer::new);
+        EntityRenderers.register(AvalonEntities.ANIMATION_TEXTURE_VFX.get(), EmptyRenderer::new);
     }
     //绑定renderPatch
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void handlePatchedRenderers(PatchedRenderersEvent.Add event) {
         event.addPatchedEntityRenderer(AvalonEntities.SHAKE_WAVE.get(),entityType -> new AvalonRendererPatch(event.getContext(),entityType).initLayerLast(event.getContext(),entityType));
-        event.addPatchedEntityRenderer(AvalonEntities.VFX.get(),entityType -> new AvalonRendererPatch(event.getContext(),entityType).initLayerLast(event.getContext(),entityType));
+        event.addPatchedEntityRenderer(AvalonEntities.VFX.get(),entityType -> new AvalonVFXRendererPatch(event.getContext(),entityType).initLayerLast(event.getContext(),entityType));
+        event.addPatchedEntityRenderer(AvalonEntities.ANIMATION_TEXTURE_VFX.get(),entityType -> new AvalonVFXRendererPatch(event.getContext(),entityType).initLayerLast(event.getContext(),entityType));
     }
 
 

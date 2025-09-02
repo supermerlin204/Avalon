@@ -1,5 +1,6 @@
 package com.merlin204.avalon.entity;
 
+import com.merlin204.avalon.entity.vfx.AnimationTextureVFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.shakewave.ShakeWaveEntity;
 import com.merlin204.avalon.main.AvalonMOD;
@@ -22,6 +23,9 @@ public class AvalonEntities {
 
     public static final RegistryObject<EntityType<VFXEntity>> VFX = register("vfx",
             EntityType.Builder.<VFXEntity>of(VFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
+
+    public static final RegistryObject<EntityType<AnimationTextureVFXEntity>> ANIMATION_TEXTURE_VFX = register("animation_texture_vfx",
+            EntityType.Builder.<AnimationTextureVFXEntity>of(AnimationTextureVFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
 
 
 

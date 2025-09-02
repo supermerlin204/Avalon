@@ -1,6 +1,7 @@
 package com.merlin204.avalon.epicfight.gameassets.animations;
 
 import com.merlin204.avalon.epicfight.animations.AutoDiscardActionAnimation;
+import com.merlin204.avalon.epicfight.animations.AutoDiscardAttackAnimation;
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.world.InteractionHand;
@@ -16,7 +17,8 @@ public class VFXAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> SHAKEWAVE_IDLE;
     public static AnimationManager.AnimationAccessor<AutoDiscardActionAnimation> SHAKEWAVE_1;
 
-    public static AnimationManager.AnimationAccessor<ActionAnimation> TEST;
+    public static AnimationManager.AnimationAccessor<AutoDiscardAttackAnimation> TEST;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> TEST_1;
     public static AnimationManager.AnimationAccessor<StaticAnimation> EMPTY;
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> OPEN_TEST_DOOR;
@@ -32,8 +34,9 @@ public class VFXAnimations {
         EMPTY = builder.nextAccessor("vfx/empty", accessor -> new StaticAnimation(0.15F,true, accessor, shake_wave));
         OPEN_TEST_DOOR = builder.nextAccessor("testdoor", accessor -> new StaticAnimation(0.15F,false, accessor, test_door));
 
+        TEST_1 = builder.nextAccessor("test_1", accessor -> new StaticAnimation(0.15F,true, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new)));
 
-        TEST = builder.nextAccessor("ymds1", accessor -> new ActionAnimation(0.1F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "ymd1", Armature::new)));
+        TEST = builder.nextAccessor("test", accessor -> new AutoDiscardAttackAnimation(0.0F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new),createSimplePhase(0,10,30,InteractionHand.MAIN_HAND,Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new).get().rootJoint,null)));
 
 
 
