@@ -5,6 +5,7 @@ import com.merlin204.avalon.entity.vfx.VFXEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -35,7 +36,6 @@ public class HumanoidAvalonVFXManager extends StaticAvalonVFXManager {
         if (owner.level().isClientSide){
             return;
         }
-
         VFXEntity vfxEntity = new VFXEntity(AvalonEntities.VFX.get(),owner,scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH_PATH,this.TEXTURE,this.LIGHT_TEXTURE,this.DEFAULT_ANIMATION);
         if (mainHandItem != null){
             vfxEntity.setItemInHand(InteractionHand.MAIN_HAND,mainHandItem);

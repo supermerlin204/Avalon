@@ -2,6 +2,9 @@ package com.merlin204.avalon.epicfight.animations;
 
 import com.google.common.collect.Sets;
 
+import com.merlin204.avalon.epicfight.api.AnimationAttackEvent;
+import com.merlin204.avalon.epicfight.api.AnimationRenderEvent;
+import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.server.level.ServerLevel;
@@ -16,11 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
-import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.BasicAttackAnimation;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
-import yesman.epicfight.api.animation.types.EntityState;
+import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
@@ -36,6 +37,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public class AvalonAttackAnimation extends BasicAttackAnimation {
 
@@ -186,6 +188,13 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                         EpicFightDamageSource damagesource = this.getEpicFightDamageSource(entitypatch, target, phase);
                         int prevInvulTime = target.invulnerableTime;
                         target.invulnerableTime = 0;
+
+                        this.getProperty(AvalonAnimationProperty.ATTACK_EVENTS).ifPresent(events -> {
+                            for (AnimationAttackEvent<?> event : events) {
+                                event.execute(entitypatch,target,damagesource);
+                            }
+                        });
+
                         AttackResult attackResult = entitypatch.attack(damagesource, target, phase.hand);
                         target.invulnerableTime = prevInvulTime;
 
@@ -203,6 +212,33 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 }
             }
         }
+    }
+
+
+
+
+    @SuppressWarnings("unchecked")
+    public <A extends AvalonAttackAnimation> A addAttackEvents(AnimationAttackEvent<?>... events) {
+        this.properties.computeIfPresent(AvalonAnimationProperty.ATTACK_EVENTS, (k, v) -> {
+            return Stream.concat(((Collection<?>)v).stream(), List.of(events).stream()).toList();
+        });
+
+        this.properties.computeIfAbsent(AvalonAnimationProperty.ATTACK_EVENTS, (k) -> {
+            return List.of(events);
+        });
+        return (A)this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <A extends AvalonAttackAnimation> A addRenderEvents(AnimationRenderEvent<?>... events) {
+        this.properties.computeIfPresent(AvalonAnimationProperty.RENDER_EVENTS, (k, v) -> {
+            return Stream.concat(((Collection<?>)v).stream(), List.of(events).stream()).toList();
+        });
+
+        this.properties.computeIfAbsent(AvalonAnimationProperty.RENDER_EVENTS, (k) -> {
+            return List.of(events);
+        });
+        return (A)this;
     }
 
     @Override
@@ -361,8 +397,10 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
 
 
-
-
+        @Override
+        public <V> AvalonPhase addProperty(AnimationProperty.AttackPhaseProperty<V> propertyType, V value) {
+            return (AvalonPhase) super.addProperty(propertyType, value);
+        }
 
         public AvalonPhase(float start, float antic, float preDelay, float contact, float recovery, float end, InteractionHand hand, float damageMulti, Joint joint, Collider collider) {
             super(start, antic, preDelay, contact, recovery, end, hand, joint, collider);

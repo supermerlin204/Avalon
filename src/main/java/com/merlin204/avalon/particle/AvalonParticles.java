@@ -12,7 +12,6 @@ public class AvalonParticles {
 
 
     public static final RegistryObject<SimpleParticleType> AVALON_TRAIL = PARTICLES.register("avalon_trail", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> AVALON_AD_TRAIL = PARTICLES.register("avalon_ad_trail", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> AVALON_ENTITY_AFTER_IMAGE = PARTICLES.register("avalon_entity_after_image", () -> new SimpleParticleType(true));
 
 

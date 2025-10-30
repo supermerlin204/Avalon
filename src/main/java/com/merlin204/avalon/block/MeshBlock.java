@@ -95,13 +95,11 @@ public class MeshBlock extends Block implements EntityBlock {
         return new MeshBlockEntity(blockPos,blockState);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 
         return (level1, pos, state1, blockEntity) -> {
-            if (blockEntity instanceof MeshBlockEntity meshEntity) {
+            if (blockEntity instanceof MeshBlockEntity meshEntity && level1.isClientSide) {
                 _tick();
             }
         };

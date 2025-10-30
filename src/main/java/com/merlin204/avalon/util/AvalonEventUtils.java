@@ -285,6 +285,19 @@ public class AvalonEventUtils {
     }
 
 
+    /**
+     * 用于阿瓦隆实体的消散启动，仅适用于VFXEntity及其子类,speed 0~1
+     */
+    public static AnimationEvent.InTimeEvent startDispersed(int startFrame,float speed) {
+        float start = startFrame / 60F;
+        return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
+            if (entityPatch.getOriginal() instanceof VFXEntity vfxEntity){
+                vfxEntity.setDisSpeed(speed);
+            }
+        }, AnimationEvent.Side.CLIENT);
+    }
+
+
 
     public static void groundSplit(LivingEntityPatch<?> entityPatch, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
         LivingEntity entity = entityPatch.getOriginal();

@@ -18,26 +18,19 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
+public class MerlinSuperGG extends Item implements IAvalonAnimationItem{
 
 
+    @Override
+    public Armatures.ArmatureAccessor<? extends Armature> getArmature() {
+        return Armatures.BIPED;
+    }
 
     public MerlinSuperGG(Properties pProperties) {
         super(pProperties);
     }
 
 
-    @Override
-    public Armatures.ArmatureAccessor<? extends Armature> getArmature() {
-        return Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new);
-    }
-
-
-
-    @Override
-    public Vec2 getHitBox() {
-        return new Vec2(5,7);
-    }
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, @NotNull Player player, @NotNull InteractionHand pUsedHand) {
@@ -46,7 +39,7 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem {
         if (world.isClientSide){
             return super.use(pLevel, player, pUsedHand);
         }
-        AvalonVFXManagers.TEST3.spawnVFXEntity(player,new Vec3f(1,1,1),new Vec3f(0,0,-60),2);
+        AvalonVFXManagers.TEST2.spawnVFXEntity(player,new Vec3f(1,1,1),new Vec3f(0,0,-60),2);
 
 
 

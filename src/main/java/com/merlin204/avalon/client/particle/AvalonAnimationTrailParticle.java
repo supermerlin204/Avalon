@@ -23,6 +23,7 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
+import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -41,10 +42,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
     protected final Joint joint;
     protected final AssetAccessor<? extends StaticAnimation> animation;
     protected final List<TrailEdge> invisibleTrailEdges;
-    protected Pose lastPose;
-    protected JointTransform lastTransform;
-
-
 
     protected AvalonAnimationTrailParticle(ClientLevel level, LivingEntityPatch<?> owner, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {
         super(level, owner, trailInfo);
@@ -59,10 +56,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         Vec3 posOld = this.owner.getOriginal().getPosition(0.0F);
         Vec3 posMid = this.owner.getOriginal().getPosition(0.5F);
         Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
-
-        this.lastPose = currentPose;
-        this.lastPos = posCur;
-        this.lastTransform = JointTransform.fromMatrix(this.owner.getModelMatrix(1.0F));
 
         OpenMatrix4f prvmodelTf
                 = OpenMatrix4f.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
@@ -137,16 +130,17 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         }
 
         TrailInfo trailInfo = this.trailInfo;
-        Pose prevPose = this.lastPose;
+        Pose prevPose = this.owner.getAnimator().getPose(0.0F);//this.lastPose;
         Pose currentPose = this.owner.getAnimator().getPose(1.0F);
-        Pose middlePose = Pose.interpolatePose(prevPose, currentPose, 0.5F);
+        Pose middlePose = this.owner.getAnimator().getPose(0.5F);//Pose.interpolatePose(prevPose, currentPose, 0.5F);
 
-        Vec3 posOld = this.lastPos;
+        Vec3 posOld = this.owner.getOriginal().getPosition(0.0F);
         Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
         Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 
-        OpenMatrix4f prevModelMatrix = this.lastTransform.toMatrix();
+        OpenMatrix4f prevModelMatrix = this.owner.getModelMatrix(0.0F);
         OpenMatrix4f curModelMatrix = this.owner.getModelMatrix(1.0F);
+        JointTransform lastTransform = JointTransform.fromMatrix(curModelMatrix);
         JointTransform currentTransform = JointTransform.fromMatrix(curModelMatrix);
 
         OpenMatrix4f prvmodelTf
@@ -158,7 +152,7 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 = OpenMatrix4f
                 .createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
-                .mulBack(JointTransform.interpolate(this.lastTransform, currentTransform, 0.5F).toMatrix());
+                .mulBack(JointTransform.interpolate(lastTransform, currentTransform, 0.5F).toMatrix());
         OpenMatrix4f curModelTf
                 = OpenMatrix4f
                 .createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
@@ -226,10 +220,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         }
 
         this.makeTrailEdges(finalStartPositions, finalEndPositions, visibleTrail ? this.trailEdges : this.invisibleTrailEdges);
-
-        this.lastPos = posCur;
-        this.lastPose = currentPose;
-        this.lastTransform = currentTransform;
     }
 
     @OnlyIn(Dist.CLIENT)

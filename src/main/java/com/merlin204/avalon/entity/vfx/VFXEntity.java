@@ -1,5 +1,6 @@
 package com.merlin204.avalon.entity.vfx;
 
+import com.google.common.collect.Maps;
 import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -34,6 +37,8 @@ import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,7 +48,9 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.INT);
 
 
+    protected static final EntityDataAccessor<Float> DIS_RATIO = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
 
+    protected static final EntityDataAccessor<Float> DIS_SPEED = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
 
     protected static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.FLOAT);
 
@@ -69,6 +76,8 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     protected ResourceLocation LIGHT_TEXTURE;
     protected AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
 
+    public float disRatioOld;
+
     
 
 
@@ -84,6 +93,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         TEXTURE = null;
         DEFAULT_ANIMATION = null;
         LIGHT_TEXTURE = null;
+        this.setInvisible(true);
     }
 
     public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale, Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation mesh, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
@@ -101,6 +111,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.set(MESH_PATH,mesh.toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
+        this.setInvisible(true);
     }
 
     public VFXEntity(EntityType<? extends VFXEntity> entityType, LivingEntity owner, float scale, Vec3f rotOffset,
@@ -128,6 +139,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.set(MESH_PATH,mesh.toString());
         this.entityData.set(TEXTURE_PATH,TEXTURE.toString());
         this.entityData.set(LIGHT_TEXTURE_PATH,LIGHT_TEXTURE.toString());
+        this.setInvisible(true);
 
     }
 
@@ -160,6 +172,10 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
             this.setYHeadRot(ownerYRot);
         }
         if (this.level().isClientSide){
+            float speed = this.entityData.get(DIS_SPEED);
+            if (speed >0 && speed<1){
+                this.entityData.set(DIS_RATIO,this.entityData.get(DIS_RATIO)-speed);
+            }
             if (ARMATURE_ACCESSOR == null){
                 ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getNamespace(), ResourceLocation.parse(this.entityData.get(ARMATURE_PATH)).getPath(), Armature::new);
             }
@@ -169,7 +185,12 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
             if (LIGHT_TEXTURE == null){
                 LIGHT_TEXTURE = ResourceLocation.parse(this.entityData.get(LIGHT_TEXTURE_PATH));
             }
+        }else {
+            if (getOwner()!=null && !getOwner().isAlive()){
+                this.discard();
+            }
         }
+        disRatioOld = getDisRatio();
     }
 
 
@@ -238,6 +259,8 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.define(DATA_OWNER_UUID, Optional.empty());
         this.entityData.define(DATA_OWNER_ID, 0);
         this.entityData.define(SCALE,1F);
+        this.entityData.define(DIS_RATIO,1F);
+        this.entityData.define(DIS_SPEED,0F);
         this.entityData.define(Y_ROT_OFFSET,0F);
         this.entityData.define(X_ROT_OFFSET,0F);
         this.entityData.define(Z_ROT_OFFSET,0F);
@@ -250,6 +273,13 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.define(LIGHT_TEXTURE_PATH,"");
     }
 
+    public float getDisRatio() {
+        return this.entityData.get(DIS_RATIO);
+    }
+
+    public void setDisSpeed(float speed){
+        this.entityData.set(DIS_SPEED,speed);
+    }
 
     @Nullable
     public UUID getOwnerUUID() {
@@ -333,8 +363,12 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         this.entityData.set(SHOULD_RENDER,b);
     }
 
+    private final Map<MobEffect, MobEffectInstance> fakeActiveEffects = Maps.newHashMap();
 
-
+    @Override
+    public Collection<MobEffectInstance> getActiveEffects() {
+        return fakeActiveEffects.values();
+    }
 
     public static AttributeSupplier getDefaultAttribute() {
         return Animal.createMobAttributes()

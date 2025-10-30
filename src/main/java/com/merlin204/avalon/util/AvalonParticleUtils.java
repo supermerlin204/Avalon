@@ -72,7 +72,7 @@ public class AvalonParticleUtils {
             double speed = minSpeed + random.nextDouble() * (maxSpeed - minSpeed);
             if (level.isClientSide) {
                 level.addParticle(particleOptions,
-                        x + entity.getX(), y + entity.getY(), z + entity.getZ(),
+                        x, y, z ,
                         offsetX * speed, offsetY * speed, offsetZ * speed);
             }
         }
@@ -116,7 +116,7 @@ public class AvalonParticleUtils {
             double z = vec3.z() + offsetZ * radius;
             double speed = minSpeed + random.nextDouble() * (maxSpeed - minSpeed);
             if (level.isClientSide) {
-                level.addParticle(particleOptions, x + entity.getX(), y + entity.getY(), z + entity.getZ(), offsetX * speed, offsetY * speed, offsetZ * speed);
+                level.addParticle(particleOptions, x, y, z, offsetX * speed, offsetY * speed, offsetZ * speed);
             }
         }
     }
@@ -201,7 +201,7 @@ public class AvalonParticleUtils {
             double speedZ = Math.cos(angle);
             double speed = minSpeed + random.nextDouble() * (maxSpeed - minSpeed);
 
-            level.addParticle(particleOptions, x + entity.getX(), y + entity.getY(), z + entity.getZ(), speedX * speed, 0, speedZ * speed);
+            level.addParticle(particleOptions, x , y , z , speedX * speed, 0, speedZ * speed);
         }
     }
 
@@ -250,7 +250,7 @@ public class AvalonParticleUtils {
             double dirY = Math.sin(dirPitch);
             double dirZ = Math.sin(dirAngle) * Math.cos(dirPitch);
             if (level.isClientSide) {
-                level.addParticle(particleOptions, x + entity.getX(), y + entity.getY(), z + entity.getZ(), dirX * speed, dirY * speed, dirZ * speed);
+                level.addParticle(particleOptions, x , y , z , dirX * speed, dirY * speed, dirZ * speed);
             }
         }
     }
@@ -293,6 +293,8 @@ public class AvalonParticleUtils {
             );
         }
     }
+
+
 
 
 }

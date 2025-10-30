@@ -2,7 +2,6 @@ package com.merlin204.avalon.event;
 
 import com.merlin204.avalon.block.AvalonBlocks;
 import com.merlin204.avalon.block.client.MeshBlockEntityRender;
-import com.merlin204.avalon.client.particle.AvalonADAnimationTrailParticle;
 import com.merlin204.avalon.client.particle.AvalonAnimationTrailParticle;
 import com.merlin204.avalon.client.particle.AvalonEntityAfterImageParticle;
 import com.merlin204.avalon.main.AvalonMOD;
@@ -24,7 +23,6 @@ public class ClientModEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onParticleRegistry(final RegisterParticleProvidersEvent event) {
         event.registerSpecial(AvalonParticles.AVALON_TRAIL.get(), new AvalonAnimationTrailParticle.Provider());
-        event.registerSpecial(AvalonParticles.AVALON_AD_TRAIL.get(), new AvalonADAnimationTrailParticle.Provider());
         event.registerSpecial(AvalonParticles.AVALON_ENTITY_AFTER_IMAGE.get(), new AvalonEntityAfterImageParticle.Provider());
 
 

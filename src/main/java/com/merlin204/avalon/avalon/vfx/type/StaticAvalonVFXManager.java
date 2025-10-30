@@ -23,6 +23,13 @@ public class StaticAvalonVFXManager {
     protected final ResourceLocation LIGHT_TEXTURE;
     protected final AnimationManager.AnimationAccessor<? extends StaticAnimation> DEFAULT_ANIMATION;
 
+    public StaticAvalonVFXManager(String modID,String name, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
+        ARMATURE_ACCESSOR = Armatures.ArmatureAccessor.create(modID, "/avalon/vfx/"+ name, Armature::new);
+        MESH_PATH = ResourceLocation.fromNamespaceAndPath(modID,"/avalon/vfx/"+ name);
+        TEXTURE = ResourceLocation.fromNamespaceAndPath(modID,"animmodels/avalon/vfx/" + name +".png");
+        LIGHT_TEXTURE =  ResourceLocation.fromNamespaceAndPath(modID,"animmodels/avalon/vfx/" + name +"_l.png");
+        DEFAULT_ANIMATION = defaultAnimation;
+    }
 
     public StaticAvalonVFXManager(Armatures.ArmatureAccessor<? extends Armature> armatureAccessor, ResourceLocation meshPath, ResourceLocation texture, ResourceLocation lightTexture, AnimationManager.AnimationAccessor<? extends StaticAnimation> defaultAnimation) {
         ARMATURE_ACCESSOR = armatureAccessor;
@@ -52,16 +59,11 @@ public class StaticAvalonVFXManager {
     public AnimationEvent.InTimeEvent createSpawnVFXEntityEvent (int startFrame, Vec3f rotOffset, Vec3f posOffset, float scale) {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start,(entityPatch, self, params) -> {
-            if (entityPatch.getOriginal().level().isClientSide){
-
-            }
-            VFXEntity vfxEntity = new VFXEntity(AvalonEntities.VFX.get(),entityPatch.getOriginal(),scale,rotOffset,this.ARMATURE_ACCESSOR,this.MESH_PATH,this.TEXTURE,this.LIGHT_TEXTURE,this.DEFAULT_ANIMATION);
             Vec3 pos = entityPatch.getOriginal().position();
             Vec3 totalOffset = getOffset(posOffset, entityPatch.getOriginal());
             Vec3 target = pos.add(totalOffset.x, totalOffset.y, totalOffset.z);
-            vfxEntity.setPos(target);
-            entityPatch.getOriginal().level().addFreshEntity(vfxEntity);
-        }, AnimationEvent.Side.BOTH);
+            spawnVFXEntity(entityPatch.getOriginal(),target,rotOffset,scale);
+        }, AnimationEvent.Side.SERVER);
     }
 
 
