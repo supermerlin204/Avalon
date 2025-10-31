@@ -86,7 +86,6 @@ public class AvalonEntityRegistryManager {
                 EntityRendererProvider<?> rendererProvider = createEntityRendererProvider(annotation.clientRenderer());
 
                 // 关键修复：进行类型转换
-                @SuppressWarnings("unchecked")
                 EntityType<? extends Entity> entityType = (EntityType<? extends Entity>) entity.get();
 
                 @SuppressWarnings("unchecked")
@@ -94,7 +93,7 @@ public class AvalonEntityRegistryManager {
 
                 EntityRenderers.register(entityType, provider);
 
-                AvalonMOD.LOGGER.debug("Avalon自动注册 EntityRender: {} -> {}", entity.getId(), annotation.clientRenderer().getSimpleName());
+                AvalonMOD.LOGGER.debug("Avalon自动注册 EntityRender: {} -> {}", entity.getId(), annotation.clientRenderer());
             }
         });
     }
@@ -114,7 +113,7 @@ public class AvalonEntityRegistryManager {
 
             event.addPatchedEntityRenderer(entity.get(), renderPatchFunction);
 
-            AvalonMOD.LOGGER.debug("Avalon自动注册 RenderPatch: {} -> {}", entity.getId(), annotation.renderPatch().getSimpleName());
+            AvalonMOD.LOGGER.debug("Avalon自动注册 RenderPatch: {} -> {}", entity.getId(), annotation.renderPatch());
         }
     }
 
@@ -145,7 +144,6 @@ public class AvalonEntityRegistryManager {
     /**
      * 获取默认属性 - 使用约定方法名"getDefaultAttributes"
      */
-    @SuppressWarnings("unchecked")
     private static AttributeSupplier getDefaultAttributes(RegistryObject<EntityType<?>> entity) {
         try {
             // 获取实体类
@@ -169,7 +167,6 @@ public class AvalonEntityRegistryManager {
     }
 
 
-    @SuppressWarnings("unchecked")
     private static Function<Entity, Supplier<EntityPatch<?>>> createEntityPatchSupplier(Class<?> patchClass) {
         return entity -> {
             Supplier<EntityPatch<?>> supplier = () -> {
@@ -199,13 +196,14 @@ public class AvalonEntityRegistryManager {
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static EntityRendererProvider<?> createEntityRendererProvider(Class<?> rendererClass) {
+    private static EntityRendererProvider<?> createEntityRendererProvider(String className) {
         return context -> {
             try {
+                Class<?> rendererClass = Class.forName(className);
                 Constructor<?> constructor = rendererClass.getDeclaredConstructor(EntityRendererProvider.Context.class);
                 return (EntityRenderer) constructor.newInstance(context);
             } catch (Exception e) {
-                throw new RuntimeException("Avalon无法创建 EntityRender: " + rendererClass.getName(), e);
+                throw new RuntimeException("Avalon无法创建 EntityRender: " + className, e);
             }
         };
     }
@@ -213,9 +211,11 @@ public class AvalonEntityRegistryManager {
 
     @SuppressWarnings("unchecked")
     private static Function<EntityType<?>, PatchedEntityRenderer> createRenderPatchFunction(
-            Class<?> renderPatchClass, EntityRendererProvider.Context context) {
+            String className, EntityRendererProvider.Context context) {
         return entityType -> {
+
             try {
+                Class<?> renderPatchClass = Class.forName(className);
                 Constructor<?> constructor = renderPatchClass.getDeclaredConstructor(
                         EntityRendererProvider.Context.class, EntityType.class
                 );
@@ -226,12 +226,12 @@ public class AvalonEntityRegistryManager {
                             "initLayerLast", EntityRendererProvider.Context.class, EntityType.class
                     );
                     initLayerLast.invoke(renderer, context, entityType);
-                } catch (NoSuchMethodException e) {
+                } catch (NoSuchMethodException ignored) {
                 }
 
                 return renderer;
             } catch (Exception e) {
-                throw new RuntimeException("Avalon无法创建 RenderPatch: " + renderPatchClass.getName(), e);
+                throw new RuntimeException("Avalon无法创建 RenderPatch: " +className, e);
             }
         };
     }

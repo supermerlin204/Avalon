@@ -36,6 +36,7 @@ import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
@@ -77,6 +78,29 @@ public class AvalonEventUtils {
             }
         }, AnimationEvent.Side.SERVER);
     }
+
+    public static AnimationEvent.InTimeEvent moveToTarget(int startFrame,boolean keepYPos) {
+        float start = startFrame / 60F;
+        return moveToTarget(startFrame,0,keepYPos);
+    }
+
+    public static AnimationEvent.InTimeEvent moveToTarget(int startFrame,float random,boolean keepYPos) {
+        float start = startFrame / 60F;
+        return AnimationEvent.InTimeEvent.create(start,(entityPatch, self, params) -> {
+            if (entityPatch.getTarget() != null){
+                Vec3 randomAdd = new Vec3((entityPatch.getOriginal().getRandom().nextFloat()-0.5F)*random, 0, (entityPatch.getOriginal().getRandom().nextFloat()-0.5F)*random);
+                Vec3 playerPosition = entityPatch.getOriginal().position();
+                Vec3 targetPosition = entityPatch.getTarget().position();
+                Vec3 end;
+                if (keepYPos){
+                    end = new Vec3(targetPosition.x,playerPosition.y,targetPosition.z).add(randomAdd);
+                }else {
+                    end = targetPosition.add(randomAdd);
+                }
+            }
+        }, AnimationEvent.Side.SERVER);
+    }
+
 
     public static AnimationEvent.InTimeEvent simpleGroundSplit(int startFrame, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
         float start = startFrame / 60F;
@@ -125,11 +149,20 @@ public class AvalonEventUtils {
 
         }, AnimationEvent.Side.SERVER);
     }
-
+    /**
+     * 特定时间段内启用裂地攻击
+     * @param timeInterpolation:插值
+     * @param radius:裂地半径
+     */
     public static AnimationEvent.InPeriodEvent groundSplitAtk(int startFrame,int endFrame,Joint joint,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,float radius){
         return groundSplitAtk(startFrame,endFrame,joint,startOffset,endOffset,timeInterpolation,radius,false);
     }
-
+    /**
+     * 特定时间段内启用裂地攻击
+     * @param timeInterpolation:插值
+     * @param radius:裂地半径
+     * @param test:启用调试粒子
+     */
     public static AnimationEvent.InPeriodEvent groundSplitAtk(int startFrame,int endFrame,Joint joint,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,float radius,boolean test){
         float start = startFrame / 60F;
         float end = endFrame / 60F;
@@ -159,21 +192,34 @@ public class AvalonEventUtils {
                     if (entityPatch.getOriginal().level().isClientSide && test){
                         entityPatch.getOriginal().level().addParticle(ParticleTypes.END_ROD, worldPos.x, worldPos.y, worldPos.z, 0, 0, 0);
                     }else {
-                        LevelUtil.circleSlamFracture(entityPatch.getOriginal(), entityPatch.getOriginal().level(), worldPos, radius,true ,false);
+                        LevelUtil.circleSlamFracture(entityPatch.getOriginal(), entityPatch.getOriginal().level(), worldPos, radius,true ,true);
                     }
                 }
             }
         }, AnimationEvent.Side.BOTH);
     }
-
+    /**
+     * 特定时间段内启用粒子刀光
+     * @param timeInterpolation:插值
+     * @param particleCount:粒子数量
+     */
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,float timeInterpolation,int particleCount ,ParticleOptions particleOptions) {
         return particleTrail(startFrame,endFrame,hand,timeInterpolation,particleCount,particleOptions,0);
     }
-
+    /**
+     * 特定时间段内启用粒子刀光
+     * @param timeInterpolation:插值
+     * @param particleCount:粒子数量
+     */
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,int particleCount ,ParticleOptions particleOptions) {
         return particleTrail(startFrame,endFrame,hand,startOffset,endOffset,timeInterpolation,particleCount,particleOptions,0);
     }
-
+    /**
+     * 特定时间段内启用粒子刀光
+     * @param timeInterpolation:插值
+     * @param particleCount:粒子数量
+     * @param random:随机偏移
+     */
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,Vec3 startOffset,Vec3 endOffset,float timeInterpolation,int particleCount, ParticleOptions particleOptions,float random) {
         float start = startFrame / 60F;
         float end = endFrame / 60F;
@@ -215,7 +261,12 @@ public class AvalonEventUtils {
         }, AnimationEvent.Side.CLIENT);
     }
 
-
+    /**
+     * 特定时间段内启用粒子刀光
+     * @param timeInterpolation:插值
+     * @param particleCount:粒子数量
+     * @param random:随机偏移
+     */
     public static AnimationEvent.InPeriodEvent particleTrail(int startFrame, int endFrame, InteractionHand hand,float timeInterpolation,int particleCount, ParticleOptions particleOptions,float random) {
         float start = startFrame / 60F;
         float end = endFrame / 60F;
@@ -262,20 +313,26 @@ public class AvalonEventUtils {
             }
         }, AnimationEvent.Side.CLIENT);
     }
-
+    /**
+     * 播放一次声音
+     * @param soundEvent:对应的soundEvent
+     * @param volume:响度
+     * @param pitch:音高
+     */
     public static AnimationEvent.InTimeEvent simpleSound(int startFrame, SoundEvent soundEvent,float volume,float pitch ) {
         float start = startFrame / 60F;
         return AnimationEvent.InTimeEvent.create(start, (entityPatch, self, params) -> {
-            entityPatch.getOriginal().playSound(soundEvent,volume,pitch);
+            entityPatch.getOriginal().level().playSound(null ,entityPatch.getOriginal().getX(),entityPatch.getOriginal().getY(),entityPatch.getOriginal().getZ(), soundEvent,entityPatch.getOriginal().getSoundSource(),volume,pitch);
         }, AnimationEvent.Side.SERVER);
     }
 
 
     /**
-     * duration:持续tick
-     * intensity:强度
-     * frequency:频率
-     * radius:半径
+     * 启动一次屏幕震动
+     * @param duration:持续tick
+     * @param intensity:强度
+     * @param frequency:频率
+     * @param radius:半径
      */
     public static AnimationEvent.InTimeEvent simpleCameraShake(int startFrame,int duration, float intensity, float frequency, float radius) {
         float start = startFrame / 60F;
@@ -286,7 +343,8 @@ public class AvalonEventUtils {
 
 
     /**
-     * 用于阿瓦隆实体的消散启动，仅适用于VFXEntity及其子类,speed 0~1
+     * 用于阿瓦隆实体的消散启动，仅适用于VFXEntity及其子类
+     * @param speed 每tick消散速度 0~1
      */
     public static AnimationEvent.InTimeEvent startDispersed(int startFrame,float speed) {
         float start = startFrame / 60F;
@@ -299,7 +357,7 @@ public class AvalonEventUtils {
 
 
 
-    public static void groundSplit(LivingEntityPatch<?> entityPatch, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
+    private static void groundSplit(LivingEntityPatch<?> entityPatch, double viewOffset, double xOffset, double yOffset, double zOffset, float radius,boolean teamProtect) {
         LivingEntity entity = entityPatch.getOriginal();
         float damage = getTotalAttackDamage(entityPatch) * 0.5F;
         Vec3 pos = entity.position();
@@ -374,7 +432,7 @@ public class AvalonEventUtils {
 
     }
 
-    public static float getTotalAttackDamage(LivingEntityPatch<?> entityPatch) {
+    private static float getTotalAttackDamage(LivingEntityPatch<?> entityPatch) {
         LivingEntity owner = entityPatch.getOriginal();
         double baseDamage = owner.getAttributeValue(Attributes.ATTACK_DAMAGE);
         return (float) baseDamage;

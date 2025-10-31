@@ -22,8 +22,8 @@ public @interface AvalonAutoRegister {
     String value();
 
     Class<? extends EntityPatch> entityPatch() default LivingEntityPatch.class;
-    Class<? extends EntityRenderer> clientRenderer() default EmptyRenderer.class;
-    Class<? extends PatchedEntityRenderer> renderPatch() default AvalonRendererPatch.class;
+    String clientRenderer() default "com.merlin204.avalon.entity.client.renderer.EmptyRenderer";
+    String renderPatch() default "com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonRendererPatch";
 
     // 是否注册属性，使用约定好的方法名"getDefaultAttributes"
     boolean registerAttributes() default false;

@@ -8,6 +8,7 @@ import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -21,13 +22,16 @@ import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -215,6 +219,36 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
+    public <A extends AvalonAttackAnimation> A noPhysics(){
+        this.addProperty(AnimationProperty.StaticAnimationProperty.NO_PHYSICS,true);
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A noPhysics(int startFrame,int endFrame){
+        this.newTimePair(startFrame/60F,endFrame/60F).addProperty(AnimationProperty.StaticAnimationProperty.NO_PHYSICS,true);
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A noGravity(){
+        this.addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0,9999));
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A noGravity(int startFrame,int endFrame){
+        this.addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(startFrame/60F,endFrame/60F));
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A useVerticalMove(){
+        this.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true);
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A useVerticalMove(int startFrame,int endFrame){
+        this.newTimePair(startFrame/60F,endFrame/60F).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true);
+        return (A)this;
+    }
+    public <A extends AvalonAttackAnimation> A useRawMove(){
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD)
+                .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.RAW_COORD);
+        return (A)this;
+    }
+
 
 
     @SuppressWarnings("unchecked")
@@ -396,6 +430,15 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
             attackedEntitiesMap.remove(entityId);
         }
 
+        public <V> AvalonPhase setHitSound(SoundEvent soundEvent){
+            this.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, soundEvent);
+            return this;
+        }
+
+        public <V> AvalonPhase setSwingSound(SoundEvent soundEvent){
+            this.addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, soundEvent);
+            return this;
+        }
 
         @Override
         public <V> AvalonPhase addProperty(AnimationProperty.AttackPhaseProperty<V> propertyType, V value) {

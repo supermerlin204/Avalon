@@ -3,6 +3,7 @@ package com.merlin204.avalon.item;
 import com.merlin204.avalon.avalon.vfx.AvalonVFXManagers;
 import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.merlin204.avalon.main.AvalonMOD;
+import com.merlin204.avalon.particle.AvalonParticles;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -37,9 +38,11 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem{
         Level world = player.level();
         LivingEntityPatch livingEntityPatch = EpicFightCapabilities.getEntityPatch(player,LivingEntityPatch.class);
         if (world.isClientSide){
+            Vec3 pos = player.position();
+            pLevel.addParticle(AvalonParticles.AVALON_INTERPOLATION_ENTITY_AFTER_IMAGE.get(),pos.x,pos.y,pos.z,Double.longBitsToDouble(player.getId()),0,0);
             return super.use(pLevel, player, pUsedHand);
         }
-        AvalonVFXManagers.TEST2.spawnVFXEntity(player,new Vec3f(1,1,1),new Vec3f(0,0,-60),2);
+
 
 
 

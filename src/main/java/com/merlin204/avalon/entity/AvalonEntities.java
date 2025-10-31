@@ -31,7 +31,7 @@ public class AvalonEntities {
 
     @AvalonAutoRegister(value = "vfx",
             entityPatch = VFXEntityPatch.class,
-            renderPatch = AvalonVFXRendererPatch.class,
+            renderPatch = "com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonVFXRendererPatch",
             registerAttributes = true)
     public static final RegistryObject<EntityType<VFXEntity>> VFX = register("vfx",
             EntityType.Builder.<VFXEntity>of(VFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
@@ -39,7 +39,7 @@ public class AvalonEntities {
 
     @AvalonAutoRegister(value = "animation_texture_vfx",
             entityPatch = VFXEntityPatch.class,
-            renderPatch = AvalonVFXRendererPatch.class,
+            renderPatch = "com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonVFXRendererPatch",
             registerAttributes = true)
     public static final RegistryObject<EntityType<AnimationTextureVFXEntity>> ANIMATION_TEXTURE_VFX = register("animation_texture_vfx",
             EntityType.Builder.<AnimationTextureVFXEntity>of(AnimationTextureVFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
