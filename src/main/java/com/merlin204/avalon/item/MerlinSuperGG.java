@@ -1,6 +1,7 @@
 package com.merlin204.avalon.item;
 
 import com.merlin204.avalon.avalon.vfx.AvalonVFXManagers;
+import com.merlin204.avalon.item.animationitem.AvalonAnimationItemManager;
 import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import com.merlin204.avalon.main.AvalonMOD;
 import com.merlin204.avalon.particle.AvalonParticles;
@@ -26,6 +27,8 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem{
     public Armatures.ArmatureAccessor<? extends Armature> getArmature() {
         return Armatures.BIPED;
     }
+
+
 
     public MerlinSuperGG(Properties pProperties) {
         super(pProperties);

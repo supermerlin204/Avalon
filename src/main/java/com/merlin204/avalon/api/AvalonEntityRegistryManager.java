@@ -169,7 +169,7 @@ public class AvalonEntityRegistryManager {
 
     private static Function<Entity, Supplier<EntityPatch<?>>> createEntityPatchSupplier(Class<?> patchClass) {
         return entity -> {
-            Supplier<EntityPatch<?>> supplier = () -> {
+            return () -> {
                 try {
                     try {
                         Constructor<?> constructor = patchClass.getDeclaredConstructor(Entity.class);
@@ -190,7 +190,6 @@ public class AvalonEntityRegistryManager {
                     throw new RuntimeException("Avalon无法创建 EntityPatch: " + patchClass.getName(), e);
                 }
             };
-            return supplier;
         };
     }
 
@@ -209,7 +208,6 @@ public class AvalonEntityRegistryManager {
     }
 
 
-    @SuppressWarnings("unchecked")
     private static Function<EntityType<?>, PatchedEntityRenderer> createRenderPatchFunction(
             String className, EntityRendererProvider.Context context) {
         return entityType -> {

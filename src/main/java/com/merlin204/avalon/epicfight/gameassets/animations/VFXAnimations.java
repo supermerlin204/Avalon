@@ -36,7 +36,8 @@ public class VFXAnimations {
 
         TEST_1 = builder.nextAccessor("test_1", accessor -> new StaticAnimation(0.15F,true, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new)));
 
-        TEST = builder.nextAccessor("test", accessor -> new AutoDiscardAttackAnimation(0.0F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new),createSimplePhase(0,10,30,InteractionHand.MAIN_HAND,Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new).get().rootJoint,null)));
+        TEST = builder.nextAccessor("test", accessor -> new AutoDiscardAttackAnimation(0.0F, accessor, Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new),createSimplePhase(0,10,30,
+                InteractionHand.MAIN_HAND,Armatures.ArmatureAccessor.create(AvalonMOD.MOD_ID, "test", Armature::new).get().rootJoint,null)));
 
 
 

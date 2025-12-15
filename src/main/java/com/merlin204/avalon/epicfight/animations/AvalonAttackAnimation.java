@@ -2,9 +2,7 @@ package com.merlin204.avalon.epicfight.animations;
 
 import com.google.common.collect.Sets;
 
-import com.merlin204.avalon.epicfight.api.AnimationAttackEvent;
-import com.merlin204.avalon.epicfight.api.AnimationRenderEvent;
-import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
+import com.merlin204.avalon.epicfight.api.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -35,8 +34,11 @@ import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
+import yesman.epicfight.world.entity.eventlistener.AttackPhaseEndEvent;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -140,6 +142,10 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 }
 
                 this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
+
+                if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch playerpatch) {
+                    playerpatch.getEventListener().triggerEvents(PlayerEventListener.EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+                }
             }
         }
     }
@@ -202,6 +208,12 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                         AttackResult attackResult = entitypatch.attack(damagesource, target, phase.hand);
                         target.invulnerableTime = prevInvulTime;
 
+                        this.getProperty(AvalonAnimationProperty.ATTACK_RESULT_EVENTS).ifPresent(events -> {
+                            for (AnimationAttackResultEvent<?> event : events) {
+                                event.execute(entitypatch,target,attackResult);
+                            }
+                        });
+
                         if (attackResult.resultType.dealtDamage()) {
                             target.level().playSound(null, target.getX(), target.getY(), target.getZ(),
                                     this.getHitSound(entitypatch, phase), target.getSoundSource(), 1.0F, 1.0F);
@@ -263,15 +275,39 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         return (A)this;
     }
 
-    @SuppressWarnings("unchecked")
-    public <A extends AvalonAttackAnimation> A addRenderEvents(AnimationRenderEvent<?>... events) {
-        this.properties.computeIfPresent(AvalonAnimationProperty.RENDER_EVENTS, (k, v) -> {
+    public <A extends AvalonAttackAnimation> A addAttackResultEvents(AnimationAttackResultEvent<?>... events) {
+        this.properties.computeIfPresent(AvalonAnimationProperty.ATTACK_RESULT_EVENTS, (k, v) -> {
             return Stream.concat(((Collection<?>)v).stream(), List.of(events).stream()).toList();
         });
 
-        this.properties.computeIfAbsent(AvalonAnimationProperty.RENDER_EVENTS, (k) -> {
+        this.properties.computeIfAbsent(AvalonAnimationProperty.ATTACK_RESULT_EVENTS, (k) -> {
             return List.of(events);
         });
+        return (A)this;
+    }
+
+    public <A extends AvalonAttackAnimation> A addBeAttackEvents(AnimationBeAttackEvent<?>... events) {
+        this.properties.computeIfPresent(AvalonAnimationProperty.BE_ATTACK_EVENTS, (k, v) -> {
+            return Stream.concat(((Collection<?>)v).stream(), List.of(events).stream()).toList();
+        });
+
+        this.properties.computeIfAbsent(AvalonAnimationProperty.BE_ATTACK_EVENTS, (k) -> {
+            return List.of(events);
+        });
+        return (A)this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <A extends AvalonAttackAnimation> A addRenderEvents(AnimationRenderEvent<?>... events) {
+        if (FMLEnvironment.dist == Dist.CLIENT){
+            this.properties.computeIfPresent(AvalonAnimationProperty.RENDER_EVENTS, (k, v) -> {
+                return Stream.concat(((Collection<?>)v).stream(), List.of(events).stream()).toList();
+            });
+
+            this.properties.computeIfAbsent(AvalonAnimationProperty.RENDER_EVENTS, (k) -> {
+                return List.of(events);
+            });
+        }
         return (A)this;
     }
 

@@ -45,19 +45,8 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
                             livingEntity.getX() + width/2, livingEntity.getY(), livingEntity.getZ() + width/2,
                             livingEntity.getX() - width/2, livingEntity.getY() + height, livingEntity.getZ() - width/2));
                 }
-                if (avalonAnimationItem.MANAGER.useAnimationArmature){
-                    cir.setReturnValue(avalonAnimationItem.getArmature().get());
-                    cir.cancel();
-                }else {
-                    if (((LivingEntityPatch<?>) (Object) this).getOriginal().level().isClientSide){
-                        cir.setReturnValue(avalonAnimationItem.BIPED);
-                        cir.cancel();
-                    }else {
-                        cir.setReturnValue(avalonAnimationItem.getArmature().get());
-                        cir.cancel();
-                    }
-
-                }
+                cir.setReturnValue(avalonAnimationItem.getArmature().get());
+                cir.cancel();
 
             }
         }

@@ -396,6 +396,21 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     }
 
     @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
+    public boolean isNoGravity() {
+        return true;
+    }
+
+    @Override
+    public boolean canCollideWith(@NotNull Entity pEntity) {
+        return false;
+    }
+
+    @Override
     public boolean hurt(@NotNull DamageSource source, float p_21017_) {
         return false;
     }

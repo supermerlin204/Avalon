@@ -6,9 +6,7 @@ import yesman.epicfight.gameasset.Armatures;
 
 public interface IAvalonAnimationItem {
 
-    Armature BIPED = Armatures.BIPED.get();
-    AvalonAnimationItemManager MANAGER = new AvalonAnimationItemManager();
-
+    Armatures.ArmatureAccessor<? extends Armature> BIPED = Armatures.BIPED;
 
 
     default Armatures.ArmatureAccessor<? extends Armature> getArmature(){
@@ -18,5 +16,6 @@ public interface IAvalonAnimationItem {
     default Vec2 getHitBox(){
         return null;
     }
+
 
 }

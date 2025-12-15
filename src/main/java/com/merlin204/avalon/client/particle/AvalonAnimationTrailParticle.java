@@ -1,6 +1,7 @@
 package com.merlin204.avalon.client.particle;
 
 import com.google.common.collect.Lists;
+import com.merlin204.avalon.entity.api.patch.IAvalonPatch;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -265,7 +266,14 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 }
             }
             TrailInfo timeChange = TrailInfo.builder().time(result.startTime()/60F, result.endTime()/60F).create();
+
+
+
             result = result.overwrite(timeChange);
+
+            if (entitypatch instanceof IAvalonPatch avalonPatch && avalonPatch.modifierTrailInfo(result) != null){
+                result = result.overwrite(avalonPatch.modifierTrailInfo(result));
+            }
 
             if (result.playable()) {
                 return new AvalonAnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, result);
