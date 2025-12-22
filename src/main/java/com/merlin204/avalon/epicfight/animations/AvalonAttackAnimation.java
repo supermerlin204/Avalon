@@ -108,6 +108,8 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
     }
 
+
+
     @Override
     protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
         AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
@@ -261,6 +263,20 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         return (A)this;
     }
 
+    public <A extends AvalonAttackAnimation> A turningLocked(){
+        this.newTimePair(0,999).addState(EntityState.TURNING_LOCKED,true);
+        return (A)this;
+    }
+
+    public <A extends AvalonAttackAnimation> A damageMiss(){
+        this.newTimePair(0,999) .addState(EntityState.ATTACK_RESULT, (damageSource) -> {return AttackResult.ResultType.MISSED;});
+        return (A)this;
+    }
+
+    public <A extends AvalonAttackAnimation> A damageBlock(){
+        this.newTimePair(0,999) .addState(EntityState.ATTACK_RESULT, (damageSource) -> {return AttackResult.ResultType.BLOCKED;});
+        return (A)this;
+    }
 
 
     @SuppressWarnings("unchecked")
@@ -562,6 +578,16 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
     public List<Phase> getActivePhases(float elapsedTime) {
+        List<Phase> activePhases = new ArrayList<>();
+        for (Phase phase : this.phases) {
+            if (elapsedTime >= phase.start && elapsedTime < phase.end) {
+                activePhases.add(phase);
+            }
+        }
+        return activePhases;
+    }
+
+    public List<Phase> getAttackingPhases(float elapsedTime) {
         List<Phase> activePhases = new ArrayList<>();
         for (Phase phase : this.phases) {
             if (elapsedTime >= phase.start && elapsedTime < phase.end) {

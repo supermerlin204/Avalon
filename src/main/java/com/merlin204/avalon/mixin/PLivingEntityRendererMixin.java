@@ -3,16 +3,14 @@ package com.merlin204.avalon.mixin;
 
 import com.merlin204.avalon.entity.api.collider.EntityOBBCollider;
 import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
+import com.merlin204.avalon.entity.api.patch.IAvalonPatch;
 import com.merlin204.avalon.entity.client.renderer.patch.item.AbstractRenderAnimationItem;
-import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderChangeMeshItem;
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
-import com.merlin204.avalon.epicfight.api.AnimationAttackEvent;
 import com.merlin204.avalon.epicfight.api.AnimationRenderEvent;
 import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
 import com.merlin204.avalon.item.IChangeArmatureItem;
 import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
-import com.merlin204.avalon.main.AvalonMOD;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -22,7 +20,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,14 +32,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
-import yesman.epicfight.api.client.model.Mesh;
-import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.LayerRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
@@ -80,13 +74,16 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
     @Inject(method = "renderLayer", at = @At("TAIL"), cancellable = true, remap = false)
     private void avalon$renderLayer(LivingEntityRenderer<E, M> renderer, T entitypatch, E entity, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks, CallbackInfo ci){
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
-
         if (entitypatch.getClientAnimator().getPlayerFor(null).getAnimation() instanceof AvalonAttackAnimation avalonAttackAnimation){
             avalonAttackAnimation.getProperty(AvalonAnimationProperty.RENDER_EVENTS).ifPresent(events -> {
                 for (AnimationRenderEvent<?> event : events) {
                     event.execute(entity,entitypatch,buffer,poseStack,packedLight,partialTicks);
                 }
             });
+        }
+
+        if (entitypatch instanceof IAvalonPatch avalonPatch){
+            avalonPatch.extraRender(poses,buffer,poseStack,packedLight,partialTicks);
         }
 
     }
