@@ -5,6 +5,7 @@ import com.merlin204.avalon.entity.api.collider.EntityOBBCollider;
 import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
 import com.merlin204.avalon.entity.api.patch.IAvalonPatch;
 import com.merlin204.avalon.entity.client.renderer.patch.item.AbstractRenderAnimationItem;
+import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderChangeMeshItem;
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
 import com.merlin204.avalon.epicfight.api.AnimationRenderEvent;
@@ -21,12 +22,14 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -49,9 +52,12 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 @Mixin(value = PatchedLivingEntityRenderer.class, remap = false)
 public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T extends LivingEntityPatch<E>, M extends EntityModel<E>, R extends LivingEntityRenderer<E, M>, AM extends SkinnedMesh> extends PatchedEntityRenderer<E, T, R, AM> implements LayerRenderer<E, T, M> {
+
+
 
     @Shadow
     @Final
@@ -80,6 +86,16 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
                     event.execute(entity,entitypatch,buffer,poseStack,packedLight,partialTicks);
                 }
             });
+        }
+        if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IAvalonAnimationItem avalonAnimationItem) {
+            if (renderItemBase instanceof AbstractRenderAnimationItem renderAnimationItem) {
+                avalonAnimationItem.setUseAnimationArmature(entity.getId(),true);;
+                Armature realArmature = entitypatch.getArmature();
+
+                this.setArmaturePose(entitypatch, realArmature, partialTicks);
+                renderAnimationItem.renderAnimationItem(entitypatch,realArmature.getPoseMatrices(),buffer,poseStack,packedLight,partialTicks);
+            }
+            avalonAnimationItem.setUseAnimationArmature(entity.getId(),true);;
         }
 
         if (entitypatch instanceof IAvalonPatch avalonPatch){
@@ -110,63 +126,7 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
 
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
         if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IAvalonAnimationItem avalonAnimationItem) {
-            if (renderItemBase instanceof AbstractRenderAnimationItem renderAnimationItem) {
-                Minecraft mc = Minecraft.getInstance();
-                MixinLivingEntityRenderer livingEntityRendererAccessor = (MixinLivingEntityRenderer)renderer;
-                boolean isVisible = livingEntityRendererAccessor.invokeIsBodyVisible(entity);
-                boolean isVisibleToPlayer = !isVisible && !entity.isInvisibleTo(mc.player);
-                boolean isGlowing = mc.shouldEntityAppearGlowing(entity);
-
-                RenderType renderType = livingEntityRendererAccessor.invokeGetRenderType(entity, isVisible, isVisibleToPlayer, isGlowing);
-                Armature armature = Armatures.BIPED.get();
-                poseStack.pushPose();
-                this.mulPoseStack(poseStack, armature, entity, entitypatch, partialTicks);
-                this.prepareVanillaModel(entity, renderer.getModel(), renderer, partialTicks);
-                this.setArmaturePose(entitypatch, armature, partialTicks);
-                this.setArmaturePose(entitypatch, entitypatch.getArmature(), partialTicks);
-
-                if (renderType != null) {
-                    AM mesh = this.getMeshProvider(entitypatch).get();
-                    this.prepareModel(mesh, entity, entitypatch, renderer);
-
-                    PrepareModelEvent prepareModelEvent = new PrepareModelEvent(this, mesh, entitypatch, buffer, poseStack, packedLight, partialTicks);
-
-                    if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
-                        Vector4f color = new Vector4f(1.0F, 1.0F, 1.0F, isVisibleToPlayer ? 0.15F : 1.0F);
-                        entitypatch.getEntityDecorations().modifyColor(color, partialTicks);
-
-                        int blockLight = (packedLight & 0xF0) >> 4;
-                        int skyLight = (packedLight & 0xF00000) >> 20;
-                        Vec2i lightUv = new Vec2i(blockLight, skyLight);
-                        entitypatch.getEntityDecorations().modifyLight(lightUv, partialTicks);
-                        int modifiedLight = LightTexture.pack(lightUv.x, lightUv.y);
-
-                        renderAnimationItem.renderAnimationItem(entitypatch,entitypatch.getArmature().getPoseMatrices(),buffer,poseStack,packedLight,partialTicks);
-
-                        mesh.draw(poseStack, buffer, renderType, modifiedLight, color.x(), color.y(), color.z(), color.w(), this.getOverlayCoord(entity, entitypatch, partialTicks), armature, armature.getPoseMatrices());
-
-                        entitypatch.getEntityDecorations().listDecorationOverlays().forEach(decorationOverlay -> {
-                            if (!decorationOverlay.shouldRemove() && decorationOverlay.shouldRender()) {
-                                Vector4f overlayColor = decorationOverlay.color(partialTicks);
-                                mesh.draw(poseStack, buffer, decorationOverlay.getRenderType(), modifiedLight, overlayColor.x(), overlayColor.y(), overlayColor.z(), overlayColor.w(), OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
-                            }
-                        });
-                    }
-                }
-
-                if (!entity.isSpectator()) {
-                    this.renderLayer(renderer, entitypatch, entity, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
-                }
-
-                if (renderType != null) {
-                    if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
-                        entitypatch.getClientAnimator().renderDebuggingInfoForAllLayers(poseStack, buffer, partialTicks);
-                    }
-                }
-
-                poseStack.popPose();
-                ci.cancel();
-            }
+            avalonAnimationItem.setUseAnimationArmature(entity.getId(),false);;
         }
 
 

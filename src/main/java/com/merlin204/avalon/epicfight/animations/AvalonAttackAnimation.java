@@ -108,7 +108,15 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
         }
     }
 
+    @Override
+    protected Vec3 getCoordVector(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> dynamicAnimation) {
+        return super.getCoordVector(entitypatch, dynamicAnimation);
+    }
 
+    @Override
+    protected void move(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
+        super.move(entitypatch, animation);
+    }
 
     @Override
     protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {

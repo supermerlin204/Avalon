@@ -58,7 +58,116 @@ public class EntityOBBCollider extends OBBCollider {
 
     }
 
+    public boolean intersectSegment(Vec3 start, Vec3 end) {
+        //不知道为什么所有obb的世界坐标xy都是TM反的，所以这里也需要反一下（yesman我*****）
+        start = new Vec3(-start.x,start.y,-start.z);
+        end = new Vec3(-end.x,end.y,-end.z);
+        Vec3 segmentDirection = end.subtract(start);
+        double segmentLength = segmentDirection.length();
+        if (segmentLength < 1e-10) {
+            //线段为点的情况
+            Vec3[] axes = getAxes();
+            Vec3 halfExtents = getHalfExtents();
+            Vec3 relative = start.subtract(this.worldCenter);
+            for (int i = 0; i < 3; i++) {
+                double projection = relative.dot(axes[i]);
+                double halfExtent = (i == 0) ? halfExtents.x : (i == 1) ? halfExtents.y : halfExtents.z;
+                if (Math.abs(projection) > halfExtent + 1e-6) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        segmentDirection = segmentDirection.scale(1.0 / segmentLength);
 
+        Vec3[] axes = getAxes();
+        Vec3 halfExtents = getHalfExtents();
+
+        Vec3 centerToStart = start.subtract(this.worldCenter);
+
+        double tMin = 0.0;
+        double tMax = segmentLength;
+
+        for (int i = 0; i < 3; i++) {
+            Vec3 axis = axes[i];
+            double segProj = segmentDirection.dot(axis);
+            double centerProj = centerToStart.dot(axis);
+            double halfExtent = (i == 0) ? halfExtents.x : (i == 1) ? halfExtents.y : halfExtents.z;
+            if (Math.abs(segProj) > 1e-10) {
+                double t1 = (-halfExtent - centerProj) / segProj;
+                double t2 = (halfExtent - centerProj) / segProj;
+                if (t1 > t2) {
+                    double temp = t1;
+                    t1 = t2;
+                    t2 = temp;
+                }
+                // 更新相交区间
+                tMin = Math.max(tMin, t1);
+                tMax = Math.min(tMax, t2);
+                // 无相交
+                if (tMin > tMax) {
+                    return false;
+                }
+                // 相交点在线段范围外
+                if (tMax < 0 || tMin > segmentLength) {
+                    return false;
+                }
+            } else {
+                // 线段平行于此轴，检查是否在OBB范围内
+                if (Math.abs(centerProj) > halfExtent) {
+                    return false;
+                }
+            }
+        }
+        return tMin <= segmentLength && tMax >= 0;
+    }
+
+    private Vec3[] getAxes() {
+        // 获取OBB的三个轴（单位向量）
+        Vec3[] axes = new Vec3[3];
+        if (rotatedNormals != null && rotatedNormals.length >= 3) {
+            axes[0] = rotatedNormals[0].normalize();
+            axes[1] = rotatedNormals[1].normalize();
+            axes[2] = rotatedNormals[2].normalize();
+        } else {
+            // 默认轴
+            axes[0] = new Vec3(1, 0, 0);
+            axes[1] = new Vec3(0, 1, 0);
+            axes[2] = new Vec3(0, 0, 1);
+        }
+
+        return axes;
+    }
+
+    private Vec3 getHalfExtents() {
+        // 获取OBB的半长（考虑缩放）
+        if (modelVertices != null && modelVertices.length > 0) {
+            Vec3 baseExtent;
+
+            // 根据不同的构造函数选择不同的顶点
+            if (modelVertices.length >= 4) {
+                baseExtent = modelVertices[0];
+            } else if (modelVertices.length >= 2) {
+                baseExtent = modelVertices[1];
+            } else {
+                baseExtent = new Vec3(0.5, 0.5, 0.5);
+            }
+
+            // 应用缩放
+            if (scale != null) {
+                return new Vec3(
+                        Math.abs(baseExtent.x) * scale.x,
+                        Math.abs(baseExtent.y) * scale.y,
+                        Math.abs(baseExtent.z) * scale.z
+                );
+            }
+
+            return new Vec3(Math.abs(baseExtent.x), Math.abs(baseExtent.y), Math.abs(baseExtent.z));
+        }
+
+        // 默认值
+        return new Vec3(0.5, 0.5, 0.5);
+    }
     /**
      * Transform the bounding box
      **/
@@ -80,7 +189,7 @@ public class EntityOBBCollider extends OBBCollider {
     }
 
     @Override
-    protected AABB getHitboxAABB() {
+    public AABB getHitboxAABB() {
         return this.outerAABB.inflate((this.outerAABB.maxX - this.outerAABB.minX) * this.scale.x,
                 (this.outerAABB.maxY - this.outerAABB.minY) * this.scale.y,
                 (this.outerAABB.maxZ - this.outerAABB.minZ) * this.scale.z).move(-this.worldCenter.x, this.worldCenter.y, -this.worldCenter.z);

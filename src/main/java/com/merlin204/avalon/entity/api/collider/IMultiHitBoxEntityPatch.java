@@ -1,5 +1,6 @@
 package com.merlin204.avalon.entity.api.collider;
 
+import net.minecraft.world.entity.LivingEntity;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -32,6 +33,20 @@ public interface IMultiHitBoxEntityPatch {
             }
         }
 
+    }
+
+    default boolean shouldRenderAABBHitBox(){
+        return false;
+    }
+
+
+    default boolean isColling(LivingEntity livingEntity){
+        for (Joint joint : this.getColliderManager().getColliderMap().keySet()) {
+           if ( this.getColliderManager().getColliderMap().get(joint).isCollide(livingEntity)){
+               return true;
+           }
+        }
+        return false;
     }
 
 
