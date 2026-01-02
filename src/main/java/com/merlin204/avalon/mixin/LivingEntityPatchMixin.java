@@ -22,7 +22,7 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
         if (((LivingEntityPatch<?>) (Object) this).getOriginal() != null){
             ItemStack mainHandItem = ((LivingEntityPatch<?>) (Object) this).getOriginal().getItemInHand(InteractionHand.MAIN_HAND);
 
-            if (mainHandItem.getItem() instanceof IChangeArmatureItem changeArmatureItem ) {
+            if (mainHandItem.getItem() instanceof IChangeArmatureItem changeArmatureItem && changeArmatureItem.change(((LivingEntityPatch<?>) (Object) this)) ) {
                 if (changeArmatureItem.getHitBox() != null){
                     float width = changeArmatureItem.getHitBox().x;
                     float height = changeArmatureItem.getHitBox().y;
@@ -45,12 +45,12 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
                             livingEntity.getX() + width/2, livingEntity.getY(), livingEntity.getZ() + width/2,
                             livingEntity.getX() - width/2, livingEntity.getY() + height, livingEntity.getZ() - width/2));
                 }
-                if (avalonAnimationItem.MANAGER.useAnimationArmature){
+                if (avalonAnimationItem.useAnimationArmature(((LivingEntityPatch<?>) (Object) this).getOriginal().getId())){
                     cir.setReturnValue(avalonAnimationItem.getArmature().get());
                     cir.cancel();
                 }else {
                     if (((LivingEntityPatch<?>) (Object) this).getOriginal().level().isClientSide){
-                        cir.setReturnValue(avalonAnimationItem.BIPED);
+                        cir.setReturnValue(avalonAnimationItem.BIPED.get());
                         cir.cancel();
                     }else {
                         cir.setReturnValue(avalonAnimationItem.getArmature().get());

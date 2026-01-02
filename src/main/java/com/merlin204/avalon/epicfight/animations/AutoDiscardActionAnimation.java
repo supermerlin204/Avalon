@@ -1,5 +1,6 @@
 package com.merlin204.avalon.epicfight.animations;
 
+import org.antlr.v4.codegen.model.Action;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;

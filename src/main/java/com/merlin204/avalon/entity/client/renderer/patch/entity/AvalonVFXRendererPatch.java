@@ -4,6 +4,7 @@ import com.merlin204.avalon.entity.IAvalonMeshEntity;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
+import com.merlin204.avalon.main.AvalonMOD;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,20 +13,28 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
+import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(Dist.CLIENT)
 public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntity, VFXEntityPatch<VFXEntity>, EmptyEntityModel<VFXEntity>, LivingEntityRenderer<VFXEntity, EmptyEntityModel<VFXEntity>>, SkinnedMesh> {
 
+
+    public static final ResourceLocation NOISE_TEX = ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID,"textures/noise.png");
     private AssetAccessor<? extends SkinnedMesh> meshAssetAccessor = null;
 
     public AvalonVFXRendererPatch(EntityRendererProvider.Context context, EntityType<?> entityType) {
@@ -37,6 +46,10 @@ public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntit
     public void render(VFXEntity entity, VFXEntityPatch entityPatch, LivingEntityRenderer renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
 
+
+        if (entityPatch.getAnimator().getPlayerFor(null).getAnimation().get().isLinkAnimation() || entityPatch.getClientAnimator().getPlayerFor(null).getAnimation().get().isLinkAnimation()){
+            return;
+        }
 
         Armature armature = entityPatch.getArmature();
 
@@ -52,18 +65,42 @@ public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntit
         }
 
         ResourceLocation litTexture = entity.getLitTexture();
+        if (!entity.getShouldRender()){
+            return;
+        }
 
         poseStack.pushPose();
         this.mulPoseStack(poseStack, armature, entity, entityPatch, partialTicks);
         this.setArmaturePose(entityPatch, armature, partialTicks);
 
+        if (entity.getDisRatio() < 1){
+            mesh.draw(poseStack, buffer, RenderType.dragonExplosionAlpha(NOISE_TEX), packedLight, 1.0F, 1.0F, 1.0F, 1-entity.getDisRatio(), OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
+            mesh.draw(poseStack, buffer, RenderType.entityDecal(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
 
-
-        mesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
-
-        if (litTexture != null){
-            mesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(litTexture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
+        }else {
+            mesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
+            if (litTexture != null){
+                mesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(litTexture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, entityPatch.getArmature(), armature.getPoseMatrices());
+            }
         }
+
+        if (armature instanceof HumanoidArmature){
+            ItemStack offHandStack = entity.getOffhandItem();
+            ItemStack mainHandStack = entity.getMainHandItem();
+            RenderEngine renderEngine = ClientEngine.getInstance().renderEngine;
+
+            if (mainHandStack.getItem() != Items.AIR) {
+                renderEngine.getItemRenderer(mainHandStack).renderItemInHand(mainHandStack, entityPatch, InteractionHand.MAIN_HAND, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
+            }
+
+            if (entityPatch.isOffhandItemValid()) {
+                if (offHandStack.getItem() != Items.AIR) {
+                    renderEngine.getItemRenderer(offHandStack).renderItemInHand(offHandStack, entityPatch, InteractionHand.OFF_HAND, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);
+                }
+            }
+        }
+
+
 
 
 

@@ -1,6 +1,7 @@
 package com.merlin204.avalon.client.particle;
 
 import com.google.common.collect.Lists;
+import com.merlin204.avalon.entity.api.patch.IAvalonPatch;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -13,9 +14,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import yesman.epicfight.api.animation.*;
@@ -24,12 +24,12 @@ import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
+import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.physics.bezier.CubicBezierCurve;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.particle.AbstractTrailParticle;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -43,10 +43,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
     protected final Joint joint;
     protected final AssetAccessor<? extends StaticAnimation> animation;
     protected final List<TrailEdge> invisibleTrailEdges;
-    protected Pose lastPose;
-    protected JointTransform lastTransform;
-
-
 
     protected AvalonAnimationTrailParticle(ClientLevel level, LivingEntityPatch<?> owner, Joint joint, AssetAccessor<? extends StaticAnimation> animation, TrailInfo trailInfo) {
         super(level, owner, trailInfo);
@@ -62,10 +58,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         Vec3 posMid = this.owner.getOriginal().getPosition(0.5F);
         Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
 
-        this.lastPose = currentPose;
-        this.lastPos = posCur;
-        this.lastTransform = JointTransform.fromMatrix(this.owner.getModelMatrix(1.0F));
-
         OpenMatrix4f prvmodelTf
                 = OpenMatrix4f.createTranslation((float)posOld.x, (float)posOld.y, (float)posOld.z)
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
@@ -79,9 +71,9 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(this.owner.getModelMatrix(1.0F));
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
 
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
@@ -139,16 +131,17 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         }
 
         TrailInfo trailInfo = this.trailInfo;
-        Pose prevPose = this.lastPose;
+        Pose prevPose = this.owner.getAnimator().getPose(0.0F);//this.lastPose;
         Pose currentPose = this.owner.getAnimator().getPose(1.0F);
-        Pose middlePose = Pose.interpolatePose(prevPose, currentPose, 0.5F);
+        Pose middlePose = this.owner.getAnimator().getPose(0.5F);//Pose.interpolatePose(prevPose, currentPose, 0.5F);
 
-        Vec3 posOld = this.lastPos;
+        Vec3 posOld = this.owner.getOriginal().getPosition(0.0F);
         Vec3 posCur = this.owner.getOriginal().getPosition(1.0F);
         Vec3 posMid = MathUtils.lerpVector(posOld, posCur, 0.5F);
 
-        OpenMatrix4f prevModelMatrix = this.lastTransform.toMatrix();
+        OpenMatrix4f prevModelMatrix = this.owner.getModelMatrix(0.0F);
         OpenMatrix4f curModelMatrix = this.owner.getModelMatrix(1.0F);
+        JointTransform lastTransform = JointTransform.fromMatrix(curModelMatrix);
         JointTransform currentTransform = JointTransform.fromMatrix(curModelMatrix);
 
         OpenMatrix4f prvmodelTf
@@ -160,16 +153,16 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
                 = OpenMatrix4f
                 .createTranslation((float)posMid.x, (float)posMid.y, (float)posMid.z)
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
-                .mulBack(JointTransform.interpolate(this.lastTransform, currentTransform, 0.5F).toMatrix());
+                .mulBack(JointTransform.interpolate(lastTransform, currentTransform, 0.5F).toMatrix());
         OpenMatrix4f curModelTf
                 = OpenMatrix4f
                 .createTranslation((float)posCur.x, (float)posCur.y, (float)posCur.z)
                 .rotateDeg(180.0F, Vec3f.Y_AXIS)
                 .mulBack(curModelMatrix);
 
-        OpenMatrix4f prevJointTf = this.owner.getArmature().getBindedTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
-        OpenMatrix4f middleJointTf = this.owner.getArmature().getBindedTransformFor(middlePose, this.joint).mulFront(middleModelTf);
-        OpenMatrix4f currentJointTf = this.owner.getArmature().getBindedTransformFor(currentPose, this.joint).mulFront(curModelTf);
+        OpenMatrix4f prevJointTf = this.owner.getArmature().getBoundTransformFor(prevPose, this.joint).mulFront(prvmodelTf);
+        OpenMatrix4f middleJointTf = this.owner.getArmature().getBoundTransformFor(middlePose, this.joint).mulFront(middleModelTf);
+        OpenMatrix4f currentJointTf = this.owner.getArmature().getBoundTransformFor(currentPose, this.joint).mulFront(curModelTf);
         Vec3 prevStartPos = OpenMatrix4f.transform(prevJointTf, trailInfo.start());
         Vec3 prevEndPos = OpenMatrix4f.transform(prevJointTf, trailInfo.end());
         Vec3 middleStartPos = OpenMatrix4f.transform(middleJointTf, trailInfo.start());
@@ -228,10 +221,6 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
         }
 
         this.makeTrailEdges(finalStartPositions, finalEndPositions, visibleTrail ? this.trailEdges : this.invisibleTrailEdges);
-
-        this.lastPos = posCur;
-        this.lastPose = currentPose;
-        this.lastTransform = currentTransform;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -270,14 +259,21 @@ public class AvalonAnimationTrailParticle extends AbstractTrailParticle<LivingEn
 
             if (result.hand() != null) {
                 ItemStack stack = entitypatch.getOriginal().getItemInHand(result.hand());
-                RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
+                RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
 
                 if (renderItemBase != null && renderItemBase.trailInfo() != null) {
                     result = renderItemBase.trailInfo().overwrite(result);
                 }
             }
             TrailInfo timeChange = TrailInfo.builder().time(result.startTime()/60F, result.endTime()/60F).create();
+
+
+
             result = result.overwrite(timeChange);
+
+            if (entitypatch instanceof IAvalonPatch avalonPatch && avalonPatch.modifierTrailInfo(result) != null){
+                result = result.overwrite(avalonPatch.modifierTrailInfo(result));
+            }
 
             if (result.playable()) {
                 return new AvalonAnimationTrailParticle(level, entitypatch, entitypatch.getArmature().searchJointById(jointId), animation, result);

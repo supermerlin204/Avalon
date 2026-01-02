@@ -71,7 +71,6 @@ public class RenderMeshItem extends RenderItemBase {
 
     @Override
     public void renderItemInHand(ItemStack stack, LivingEntityPatch<?> entitypatch, InteractionHand hand, OpenMatrix4f[] poses, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
-
         SkinnedMesh renderMesh = null;
         if (hand == InteractionHand.MAIN_HAND){
             renderMesh = mesh_main.get();
@@ -89,7 +88,7 @@ public class RenderMeshItem extends RenderItemBase {
         }
         armature.setPose(entitypatch.getAnimator().getPose(partialTicks));
         if (renderMesh != null) {
-            renderMesh.draw(poseStack, buffer, RenderType.entityTranslucent(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
+            renderMesh.draw(poseStack, buffer, RenderType.entityCutout(texture), packedLight, 1.0F, 1.0F, 1.0F, 1.0F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
             if (texture_l != null){
                 renderMesh.draw(poseStack, buffer, RenderType.entityTranslucentEmissive(texture_l), packedLight, 1.0F, 1.0F, 1.0F, 0.9F, OverlayTexture.NO_OVERLAY, armature, armature.getPoseMatrices());
             }
