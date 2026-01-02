@@ -1,31 +1,23 @@
 package com.merlin204.avalon.event;
 
-import com.merlin204.avalon.block.AvalonBlocks;
-import com.merlin204.avalon.block.client.MeshBlockEntityRender;
-import com.merlin204.avalon.client.particle.AvalonAnimationTrailParticle;
-import com.merlin204.avalon.client.particle.AvalonEntityAfterImageParticle;
-import com.merlin204.avalon.client.particle.AvalonInterpolationEntityAfterImageParticle;
+
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
 import com.merlin204.avalon.epicfight.api.AnimationBeAttackEvent;
 import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
 import com.merlin204.avalon.main.AvalonMOD;
 import com.merlin204.avalon.particle.AvalonParticles;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-@Mod.EventBusSubscriber(modid = AvalonMOD.MOD_ID)
+@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
 public class ForgeEvents {
 
     @SubscribeEvent
-    public static void attackEvent(LivingAttackEvent event) {
+    public static void attackEvent(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide()) {
             return;
         }

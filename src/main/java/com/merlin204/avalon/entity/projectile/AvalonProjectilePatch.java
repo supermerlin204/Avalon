@@ -1,7 +1,7 @@
 package com.merlin204.avalon.entity.projectile;
 
 import com.merlin204.avalon.entity.vfx.VFXEntity;
-import com.merlin204.avalon.epicfight.AvalonFctions;
+import com.merlin204.avalon.epicfight.AvalonFactions;
 import com.merlin204.avalon.util.AvalonAnimationUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -13,9 +13,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.living.LivingEvent;
+
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
@@ -27,7 +26,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
@@ -41,6 +39,11 @@ import java.util.List;
 
 public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends MobPatch<T> {
     private @Nullable LivingEntityPatch<?> ownerPatch;
+
+    public AvalonProjectilePatch(T entity) {
+        super(entity);
+    }
+
     @Override
     public boolean applyStun(StunType stunType, float stunTime) {
         return false;
@@ -53,7 +56,7 @@ public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends Mob
 
     @Override
     public Faction getFaction() {
-        return AvalonFctions.EMPTY;
+        return AvalonFactions.EMPTY;
     }
 
     public void onConstructed(T entityIn) {
@@ -75,9 +78,10 @@ public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends Mob
         }
     }
 
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
 
+    @Override
+    public void preTick(EntityTickEvent.Pre event) {
+        super.preTick(event);
         boolean playAnimation = (this.getOriginal()).getPlayAnimation();
         if ((!this.isLogicalClient() || (this.original).getDefaultAnimation() != null || playAnimation) && !playAnimation) {
 
@@ -88,9 +92,8 @@ public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends Mob
                 this.playAnimationSynchronized((this.original).getDefaultAnimation(), 0.0F);
             }
         }
-
-
     }
+
 
 
     public @Nullable LivingEntityPatch<?> getOwnerPatch() {
@@ -240,10 +243,5 @@ public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends Mob
         return false;
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean flashTargetIndicator(LocalPlayerPatch playerPatch) {
-        return false;
-    }
 
 }

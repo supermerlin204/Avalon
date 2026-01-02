@@ -12,10 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -33,10 +30,10 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Collection;
 import java.util.Map;
@@ -44,7 +41,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
+public class VFXEntity extends Mob implements IAvalonMeshEntity {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     protected static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(VFXEntity.class, EntityDataSerializers.INT);
 
@@ -260,23 +257,23 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
 
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_OWNER_UUID, Optional.empty());
-        this.entityData.define(DATA_OWNER_ID, 0);
-        this.entityData.define(SCALE,1F);
-        this.entityData.define(DIS_RATIO,1F);
-        this.entityData.define(DIS_SPEED,0F);
-        this.entityData.define(Y_ROT_OFFSET,0F);
-        this.entityData.define(X_ROT_OFFSET,0F);
-        this.entityData.define(Z_ROT_OFFSET,0F);
-        this.entityData.define(START_Y_ROT,0F);
-        this.entityData.define(PLAY_ANIMATION,false);
-        this.entityData.define(SHOULD_RENDER,false);
-        this.entityData.define(ARMATURE_PATH,"");
-        this.entityData.define(MESH_PATH,"");
-        this.entityData.define(TEXTURE_PATH,"");
-        this.entityData.define(LIGHT_TEXTURE_PATH,"");
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_OWNER_UUID, Optional.empty());
+        builder.define(DATA_OWNER_ID, 0);
+        builder.define(SCALE,1F);
+        builder.define(DIS_RATIO,1F);
+        builder.define(DIS_SPEED,0F);
+        builder.define(Y_ROT_OFFSET,0F);
+        builder.define(X_ROT_OFFSET,0F);
+        builder.define(Z_ROT_OFFSET,0F);
+        builder.define(START_Y_ROT,0F);
+        builder.define(PLAY_ANIMATION,false);
+        builder.define(SHOULD_RENDER,false);
+        builder.define(ARMATURE_PATH,"");
+        builder.define(MESH_PATH,"");
+        builder.define(TEXTURE_PATH,"");
+        builder.define(LIGHT_TEXTURE_PATH,"");
     }
 
     public float getDisRatio() {
@@ -372,7 +369,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
     private final Map<MobEffect, MobEffectInstance> fakeActiveEffects = Maps.newHashMap();
 
     @Override
-    public Collection<MobEffectInstance> getActiveEffects() {
+    public @NotNull Collection<MobEffectInstance> getActiveEffects() {
         return fakeActiveEffects.values();
     }
 
@@ -380,7 +377,7 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
         return Animal.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 19.9F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0f)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 10.0F)
+                .add(EpicFightAttributes.MAX_STRIKES, 10.0F)
                 .build();
     }
 
@@ -421,6 +418,16 @@ public class VFXEntity extends PathfinderMob implements IAvalonMeshEntity {
 
     @Override
     public boolean causeFallDamage(float pFallDistance, float pMultiplier, @NotNull DamageSource pSource) {
+        return false;
+    }
+
+    @Override
+    public boolean isPickable() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCollidedWith() {
         return false;
     }
 

@@ -17,8 +17,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import yesman.epicfight.api.animation.Pose;
@@ -30,6 +31,7 @@ import yesman.epicfight.api.utils.EntitySnapshot;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.particle.CustomModelParticle;
 import yesman.epicfight.client.particle.EpicFightParticleRenderTypes;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
@@ -84,34 +86,11 @@ public class AvalonEntityAfterImageParticle extends CustomModelParticle<SkinnedM
 
 
     protected void setupPoseStack(PoseStack poseStack, Camera camera, float partialTicks) {
-        poseStack.pushPose();
-        poseStack.mulPoseMatrix(RenderSystem.getModelViewStack().last().pose());
-        RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().setIdentity();
-        RenderSystem.applyModelViewMatrix();
-        Vec3 cameraPosition = camera.getPosition();
-        float x = (float)(Mth.lerp((double)partialTicks, this.xo, this.x) - cameraPosition.x());
-        float y = (float)(Mth.lerp((double)partialTicks, this.yo, this.y) - cameraPosition.y());
-        float z = (float)(Mth.lerp((double)partialTicks, this.zo, this.z) - cameraPosition.z());
-        poseStack.translate(x, y, z);
-        Quaternionf rotation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
-        float roll = Mth.rotLerp(partialTicks, this.oRoll, this.roll);
-        float pitch = Mth.rotLerp(partialTicks, this.pitchO, this.pitch);
-        float yaw = Mth.rotLerp(partialTicks, this.yawO, this.yaw);
-        rotation.mul(QuaternionUtils.YP.rotationDegrees(180.0F - yaw));
-        rotation.mul(QuaternionUtils.XP.rotationDegrees(pitch));
-        rotation.mul(QuaternionUtils.ZP.rotationDegrees(roll));
-        poseStack.mulPose(rotation);
-        float scale = Mth.lerp(partialTicks, this.scaleO, this.scale);
-        poseStack.translate(0.0F, this.entitySnapshot.getHeightHalf(), 0.0F);
-        poseStack.scale(scale, scale, scale);
-        poseStack.translate(0.0F, -this.entitySnapshot.getHeightHalf(), 0.0F);
+        //TODO 待修复
     }
 
     protected void revert(PoseStack poseStack) {
-        poseStack.popPose();
-        RenderSystem.getModelViewStack().popPose();
-        RenderSystem.applyModelViewMatrix();
+        //TODO 待修复
     }
 
     @Override
@@ -127,7 +106,7 @@ public class AvalonEntityAfterImageParticle extends CustomModelParticle<SkinnedM
             Entity entity = level.getEntity((int)Double.doubleToLongBits(xSpeed));
             LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
-            if (entitypatch != null && ClientEngine.getInstance().renderEngine.hasRendererFor(entitypatch.getOriginal())) {
+            if (entitypatch != null && RenderEngine.getInstance().hasRendererFor(entitypatch.getOriginal())) {
                 EntitySnapshot<?> entitySnapshot = entitypatch.captureEntitySnapshot();
                 if (entitySnapshot != null){
                     return  new AvalonEntityAfterImageParticle(level, x, y, z, xSpeed, ySpeed, zSpeed,entitySnapshot);

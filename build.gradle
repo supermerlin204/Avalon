@@ -95,10 +95,9 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation "curse.maven:epic-fight-mod-405076:6816063"
-    implementation "libs:ldlib2:2.0.3"
-    implementation "libs:photon:2.0.4"
-    implementation "libs:epicvfx:1.0.0"
+    implementation "curse.maven:epic-fight-mod-405076:7345490"
+
+
 }
 
 repositories {

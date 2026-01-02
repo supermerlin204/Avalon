@@ -16,25 +16,13 @@ import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
 import com.merlin204.avalon.main.AvalonMOD;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
-import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
 
-@Mod.EventBusSubscriber(modid = AvalonMOD.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
 public class AvalonEntityEventHandler {
 
     //绑定Patch

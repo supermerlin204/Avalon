@@ -1,15 +1,11 @@
 package com.merlin204.avalon.entity.vfx;
 
-import com.merlin204.avalon.epicfight.AvalonFctions;
-import com.merlin204.avalon.epicfight.gameassets.animations.VFXAnimations;
+import com.merlin204.avalon.epicfight.AvalonFactions;
 import com.merlin204.avalon.util.AvalonAnimationUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.ActionAnimation;
@@ -19,31 +15,24 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.QuaternionUtils;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 
 public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
 
-    public VFXEntityPatch() {
-        super();
+    public VFXEntityPatch(T entity) {
+        super(entity);
     }
-
 
     @Override
     public Faction getFaction() {
-        return AvalonFctions.EMPTY;
+        return AvalonFactions.EMPTY;
     }
 
     public void onConstructed(T entityIn) {
@@ -59,13 +48,9 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
     }
 
 
-    public VFXEntityPatch(Faction faction) {
-        super(faction);
-    }
-
     @Override
-    public void tick(LivingEvent.LivingTickEvent event) {
-        super.tick(event);
+    public void preTick(EntityTickEvent.Pre event) {
+        super.preTick(event);
         float ownerYRot = this.original.getStartYRot();
         this.original.setYRot(ownerYRot);
         boolean playAnimation = this.getOriginal().getPlayAnimation();
@@ -89,6 +74,8 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
             this.getOriginal().discard();
         }
     }
+
+
 
     @Nullable
     private LivingEntityPatch<?> ownerPatch;
@@ -212,10 +199,5 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         return false;
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean flashTargetIndicator(LocalPlayerPatch playerPatch) {
-        return false;
-    }
 
 }

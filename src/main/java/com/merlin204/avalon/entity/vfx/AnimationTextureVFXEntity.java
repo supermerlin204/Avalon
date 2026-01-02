@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -83,14 +84,14 @@ public class AnimationTextureVFXEntity extends VFXEntity{
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(ANIMATION_TIME, 0F);
-        this.entityData.define(ANIMATION_SPEED, 0F);
-        this.entityData.define(ANIMATION_TICK_FROM, 0);
-        this.entityData.define(ANIMATION_TICK_TO, 0);
-        this.entityData.define(TEXTURE_PACK_PATH, "");
-        this.entityData.define(LIGHT_TEXTURE_PACK_PATH, "");
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(ANIMATION_TIME, 0F);
+        builder.define(ANIMATION_SPEED, 0F);
+        builder.define(ANIMATION_TICK_FROM, 0);
+        builder.define(ANIMATION_TICK_TO, 0);
+        builder.define(TEXTURE_PACK_PATH, "");
+        builder.define(LIGHT_TEXTURE_PACK_PATH, "");
 
     }
 

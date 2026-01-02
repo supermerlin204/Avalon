@@ -1,22 +1,12 @@
 package com.merlin204.avalon.entity.api.collider;
 
-import com.merlin204.avalon.network.NetworkHandler;
-import com.merlin204.avalon.network.server.SyncHitJointPacket;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+
+import com.merlin204.avalon.network.client.common.CPSyncHitJointList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.network.PacketDistributor;
 import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +36,10 @@ public class ColliderManager {
     public void syncHitJointToClient(List<Integer> hitList){
         CompoundTag tag = new CompoundTag();
         tag.putIntArray("hit",hitList);
-        NetworkHandler.sendToAllClient(new SyncHitJointPacket(tag,owner.getId()));
+        if (owner.level() instanceof ServerLevel serverLevel){
+            PacketDistributor.sendToAllPlayers(new CPSyncHitJointList(owner.getId(),tag));
+        }
+
     }
 
     public LivingEntity getOwner() {

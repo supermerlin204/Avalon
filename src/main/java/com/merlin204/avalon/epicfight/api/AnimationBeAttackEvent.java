@@ -1,9 +1,8 @@
 package com.merlin204.avalon.epicfight.api;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -12,16 +11,16 @@ public abstract class AnimationBeAttackEvent<T extends AnimationBeAttackEvent<T>
 
     protected AnimationBeAttackEvent() {}
 
-    protected abstract boolean checkCondition(LivingEntityPatch<?> owner,LivingAttackEvent event);
+    protected abstract boolean checkCondition(LivingEntityPatch<?> owner, LivingIncomingDamageEvent event);
 
-    public void execute(LivingEntityPatch<?> owner,LivingAttackEvent event) {
+    public void execute(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event) {
         if (this.checkCondition(owner,event)) {
             this.fire(owner,event);
         }
 
     }
 
-    protected abstract void fire(LivingEntityPatch<?> owner,LivingAttackEvent event);
+    protected abstract void fire(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event);
 
 
     public static class InPeriodEvent extends AnimationBeAttackEvent<SimpleEvent> {
@@ -36,13 +35,13 @@ public abstract class AnimationBeAttackEvent<T extends AnimationBeAttackEvent<T>
         }
 
         @Override
-        protected boolean checkCondition(LivingEntityPatch<?> owner,LivingAttackEvent event) {
+        protected boolean checkCondition(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event) {
             float elapsed = owner.getAnimator().getPlayerFor(null).getElapsedTime();
             return this.start <= elapsed && this.end > elapsed;
         }
 
         @Override
-        protected void fire(LivingEntityPatch<?> owner,LivingAttackEvent event) {
+        protected void fire(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event) {
             handler.handle(owner,event);
         }
 
@@ -53,7 +52,7 @@ public abstract class AnimationBeAttackEvent<T extends AnimationBeAttackEvent<T>
 
         @FunctionalInterface
         public interface AttackHandler {
-            void handle(LivingEntityPatch<?> owner,LivingAttackEvent event);
+            void handle(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event);
         }
     }
 
@@ -65,12 +64,12 @@ public abstract class AnimationBeAttackEvent<T extends AnimationBeAttackEvent<T>
         }
 
         @Override
-        protected boolean checkCondition(LivingEntityPatch<?> owner,LivingAttackEvent event) {
+        protected boolean checkCondition(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event) {
             return true;
         }
 
         @Override
-        protected void fire(LivingEntityPatch<?> owner,LivingAttackEvent event) {
+        protected void fire(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event) {
              handler.handle(owner,event);
         }
 
@@ -81,7 +80,7 @@ public abstract class AnimationBeAttackEvent<T extends AnimationBeAttackEvent<T>
 
         @FunctionalInterface
         public interface AttackHandler {
-            void handle(LivingEntityPatch<?> owner,LivingAttackEvent event);
+            void handle(LivingEntityPatch<?> owner,LivingIncomingDamageEvent event);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.merlin204.avalon.entity.condition;
+package com.merlin204.avalon.ai.condition;
 
 
 
@@ -7,18 +7,20 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TargetInGirdCondition<T extends LivingEntityPatch> implements Condition<T> {
+public class TargetInGirdCondition<T extends MobPatch<?>> implements Condition<T> {
 
     public static class Rectangle {
         public final int xMin, xMax;

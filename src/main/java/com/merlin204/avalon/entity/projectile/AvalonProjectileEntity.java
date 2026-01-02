@@ -25,8 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.registry.entries.EpicFightAttributes;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -99,14 +99,14 @@ public abstract class AvalonProjectileEntity extends Mob implements IAvalonMeshE
 
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_OWNER_UUID, Optional.empty());
-        this.entityData.define(DATA_OWNER_ID, 0);
-        this.entityData.define(SYNC_X_ROT, 0F);
-        this.entityData.define(SCALE, 1F);
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_OWNER_UUID, Optional.empty());
+        builder.define(DATA_OWNER_ID, 0);
+        builder.define(SYNC_X_ROT, 0F);
+        builder.define(SCALE, 1F);
 
-        this.entityData.define(PLAY_ANIMATION,false);
+        builder.define(PLAY_ANIMATION,false);
 
     }
 
@@ -196,7 +196,7 @@ public abstract class AvalonProjectileEntity extends Mob implements IAvalonMeshE
         return Animal.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 19.9F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0f)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 10.0F)
+                .add(EpicFightAttributes.MAX_STRIKES, 10.0F)
                 .build();
     }
 

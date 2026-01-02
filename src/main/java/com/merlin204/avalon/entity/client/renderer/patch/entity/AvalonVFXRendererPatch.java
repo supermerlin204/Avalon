@@ -18,8 +18,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -87,7 +87,7 @@ public class AvalonVFXRendererPatch extends PatchedLivingEntityRenderer<VFXEntit
         if (armature instanceof HumanoidArmature){
             ItemStack offHandStack = entity.getOffhandItem();
             ItemStack mainHandStack = entity.getMainHandItem();
-            RenderEngine renderEngine = ClientEngine.getInstance().renderEngine;
+            RenderEngine renderEngine = RenderEngine.getInstance();
 
             if (mainHandStack.getItem() != Items.AIR) {
                 renderEngine.getItemRenderer(mainHandStack).renderItemInHand(mainHandStack, entityPatch, InteractionHand.MAIN_HAND, armature.getPoseMatrices(), buffer, poseStack, packedLight, partialTicks);

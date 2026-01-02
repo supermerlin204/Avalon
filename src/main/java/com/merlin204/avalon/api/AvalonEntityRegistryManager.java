@@ -9,15 +9,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
-import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
-import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.neoevent.EntityPatchRegistryEvent;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 
@@ -25,15 +25,14 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 实体注解自动注册器
  */
-@Mod.EventBusSubscriber(modid = AvalonMOD.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
 public class AvalonEntityRegistryManager {
 
-    private static final Map<RegistryObject<EntityType<?>>, AvalonAutoRegister> ENTITY_REGISTRY = new HashMap<>();
+    private static final Map<DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> ENTITY_REGISTRY = new HashMap<>();
 
     /**
      * 扫描并注册所有带有注解的实体
@@ -41,9 +40,9 @@ public class AvalonEntityRegistryManager {
     public static void scanAndRegisterEntities(Class<?> entitiesClass) {
         try {
             for (java.lang.reflect.Field field : entitiesClass.getDeclaredFields()) {
-                if (field.getType().equals(RegistryObject.class) && field.isAnnotationPresent(AvalonAutoRegister.class)) {
+                if (field.getType().equals(DeferredHolder.class) && field.isAnnotationPresent(AvalonAutoRegister.class)) {
                     field.setAccessible(true);
-                    RegistryObject<EntityType<?>> entityRegistry = (RegistryObject<EntityType<?>>) field.get(null);
+                    DeferredHolder<EntityType<?>,EntityType<?>> entityRegistry = (DeferredHolder<EntityType<?>,EntityType<?>>) field.get(null);
                     AvalonAutoRegister annotation = field.getAnnotation(AvalonAutoRegister.class);
 
                     ENTITY_REGISTRY.put(entityRegistry, annotation);
@@ -60,14 +59,22 @@ public class AvalonEntityRegistryManager {
      */
     @SubscribeEvent
     public static void handleEntityPatchRegistry(EntityPatchRegistryEvent event) {
-        for (Map.Entry<RegistryObject<EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
-            RegistryObject<EntityType<?>> entity = entry.getKey();
+        for (Map.Entry<DeferredHolder<EntityType<?>, EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
+            DeferredHolder<EntityType<?>, EntityType<?>> entity = entry.getKey();
             AvalonAutoRegister annotation = entry.getValue();
 
-            Function<Entity, Supplier<EntityPatch<?>>> patchSupplier = createEntityPatchSupplier(annotation.entityPatch());
-            event.getTypeEntry().put(entity.get(), patchSupplier);
+            try {
+                Function<Entity, EntityPatch<?>> patchFunction = createSimpleEntityPatchFunction(
+                        annotation.entityClass(),
+                        annotation.entityPatch()
+                );
 
-            AvalonMOD.LOGGER.debug("Avalon自动注册 EntityPatch: {} -> {}", entity.getId(), annotation.entityPatch().getSimpleName());
+                event.getTypeEntry().put(entity.get(), patchFunction);
+//                TDEMOD.LOGGER.debug("Avalon自动注册 EntityPatch: {} -> {}", entity.getId(), annotation.entityPatch().getSimpleName());
+
+            } catch (Exception e) {
+                AvalonMOD.LOGGER.error("注册 EntityPatch 失败: {} -> {}", entity.getId(), annotation.entityPatch().getSimpleName(), e);
+            }
         }
     }
 
@@ -78,15 +85,14 @@ public class AvalonEntityRegistryManager {
     @OnlyIn(Dist.CLIENT)
     public static void handleClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            for (Map.Entry<RegistryObject<EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
-                RegistryObject<EntityType<?>> entity = entry.getKey();
+            for (Map.Entry< DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
+                DeferredHolder<EntityType<?>,EntityType<?>> entity = entry.getKey();
                 AvalonAutoRegister annotation = entry.getValue();
 
-                // 使用未经检查的类型转换来解决泛型问题
                 EntityRendererProvider<?> rendererProvider = createEntityRendererProvider(annotation.clientRenderer());
 
-                // 关键修复：进行类型转换
-                EntityType<? extends Entity> entityType = (EntityType<? extends Entity>) entity.get();
+
+                EntityType<? extends Entity> entityType = entity.get();
 
                 @SuppressWarnings("unchecked")
                 EntityRendererProvider<Entity> provider = (EntityRendererProvider<Entity>) rendererProvider;
@@ -104,8 +110,8 @@ public class AvalonEntityRegistryManager {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void handlePatchedRenderers(PatchedRenderersEvent.Add event) {
-        for (Map.Entry<RegistryObject<EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
-            RegistryObject<EntityType<?>> entity = entry.getKey();
+        for (Map.Entry< DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
+            DeferredHolder<EntityType<?>,EntityType<?>> entity = entry.getKey();
             AvalonAutoRegister annotation = entry.getValue();
 
             Function<EntityType<?>, PatchedEntityRenderer> renderPatchFunction =
@@ -118,23 +124,22 @@ public class AvalonEntityRegistryManager {
     }
 
     /**
-     * 处理实体属性注册 - 使用约定方式
+     * 处理实体属性注册
      */
     @SubscribeEvent
     public static void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
-        for (Map.Entry<RegistryObject<EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
-            RegistryObject<EntityType<?>> entity = entry.getKey();
+        for (Map.Entry<DeferredHolder<EntityType<?>, EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
+            DeferredHolder<EntityType<?>, EntityType<?>> entity = entry.getKey();
             AvalonAutoRegister annotation = entry.getValue();
 
-            // 如果不注册属性，跳过
             if (!annotation.registerAttributes()) {
                 continue;
             }
 
             try {
-                AttributeSupplier attributeSupplier = getDefaultAttributes(entity);
+                AttributeSupplier attributeSupplier = getDefaultAttributes(annotation.entityClass());
                 event.put((EntityType<? extends LivingEntity>) entity.get(), attributeSupplier);
-                AvalonMOD.LOGGER.debug("成功注册实体属性: {}", entity.getId());
+                AvalonMOD.LOGGER.debug("成功注册实体属性: {} -> {}", entity.getId(), annotation.entityClass().getSimpleName());
             } catch (Exception e) {
                 AvalonMOD.LOGGER.error("注册实体属性失败: {}", entity.getId(), e);
             }
@@ -144,55 +149,39 @@ public class AvalonEntityRegistryManager {
     /**
      * 获取默认属性 - 使用约定方法名"getDefaultAttributes"
      */
-    private static AttributeSupplier getDefaultAttributes(RegistryObject<EntityType<?>> entity) {
+    private static AttributeSupplier getDefaultAttributes(Class<?> entityClass) {
         try {
-            // 获取实体类
-            Class<?> entityClass = entity.get().getBaseClass();
-
-            // 尝试调用 getDefaultAttributes 方法
             java.lang.reflect.Method method = entityClass.getDeclaredMethod("getDefaultAttributes");
             method.setAccessible(true);
             return (AttributeSupplier) method.invoke(null);
-
         } catch (NoSuchMethodException e) {
-            // 如果实体类没有 getDefaultAttributes 方法，使用 VFXEntity 的默认属性
             try {
+                AvalonMOD.LOGGER.warn("实体类 {} 没有 getDefaultAttributes 方法，使用 VFXEntity 的默认属性", entityClass.getSimpleName());
                 return VFXEntity.getDefaultAttribute();
             } catch (Exception ex) {
                 throw new RuntimeException("无法获取默认属性", ex);
             }
         } catch (Exception e) {
-            throw new RuntimeException("无法获取实体属性: " + entity.getId(), e);
+            throw new RuntimeException("无法获取实体属性: " + entityClass.getName(), e);
         }
     }
 
 
-    private static Function<Entity, Supplier<EntityPatch<?>>> createEntityPatchSupplier(Class<?> patchClass) {
+    @SuppressWarnings("unchecked")
+    private static Function<Entity, EntityPatch<?>> createSimpleEntityPatchFunction(Class<?> entityClass,Class<?> patchClass) {
         return entity -> {
-            return () -> {
-                try {
-                    try {
-                        Constructor<?> constructor = patchClass.getDeclaredConstructor(Entity.class);
-                        return (EntityPatch<?>) constructor.newInstance(entity);
-                    } catch (NoSuchMethodException e) {
-                        Constructor<?> constructor = patchClass.getDeclaredConstructor();
-                        EntityPatch<?> patch = (EntityPatch<?>) constructor.newInstance();
-                        // 如果有 setCustomData 方法，设置实体
-                        try {
-                            java.lang.reflect.Method setCustomData = patchClass.getMethod("setCustomData", Object.class);
-                            setCustomData.invoke(patch, entity);
-                        } catch (NoSuchMethodException e2) {
-                            // 忽略，使用默认方式
-                        }
-                        return patch;
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException("Avalon无法创建 EntityPatch: " + patchClass.getName(), e);
-                }
-            };
+            try {
+//                TDEMOD.LOGGER.debug("创建 EntityPatch: {} for entity: {}", patchClass.getSimpleName(), entity.getClass().getSimpleName());
+
+                Constructor<?> constructor = patchClass.getDeclaredConstructor(entityClass);
+                return (EntityPatch<?>) constructor.newInstance(entityClass.cast(entity));
+
+            } catch (Exception e) {
+                AvalonMOD.LOGGER.error("创建 EntityPatch 失败", e);
+                throw new RuntimeException("Avalon无法创建 EntityPatch: " + patchClass.getName(), e);
+            }
         };
     }
-
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static EntityRendererProvider<?> createEntityRendererProvider(String className) {
@@ -211,26 +200,34 @@ public class AvalonEntityRegistryManager {
     private static Function<EntityType<?>, PatchedEntityRenderer> createRenderPatchFunction(
             String className, EntityRendererProvider.Context context) {
         return entityType -> {
-
             try {
                 Class<?> renderPatchClass = Class.forName(className);
                 Constructor<?> constructor = renderPatchClass.getDeclaredConstructor(
                         EntityRendererProvider.Context.class, EntityType.class
                 );
 
+                constructor.setAccessible(true);
                 PatchedEntityRenderer renderer = (PatchedEntityRenderer) constructor.newInstance(context, entityType);
+
+                // 尝试调用 initLayerLast 方法（如果有）
                 try {
                     java.lang.reflect.Method initLayerLast = renderPatchClass.getMethod(
                             "initLayerLast", EntityRendererProvider.Context.class, EntityType.class
                     );
                     initLayerLast.invoke(renderer, context, entityType);
                 } catch (NoSuchMethodException ignored) {
+                    // 方法不存在是正常情况，忽略
                 }
 
                 return renderer;
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                // 类或构造函数不存在，返回 null
+                return null;
             } catch (Exception e) {
-                throw new RuntimeException("Avalon无法创建 RenderPatch: " +className, e);
+                // 其他异常也返回 null
+                return null;
             }
         };
     }
+
 }

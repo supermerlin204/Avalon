@@ -2,7 +2,7 @@ package com.merlin204.avalon.mixin;
 
 import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.entity.PartEntity;
+import net.neoforged.neoforge.entity.PartEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

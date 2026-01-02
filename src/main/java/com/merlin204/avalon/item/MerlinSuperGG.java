@@ -41,13 +41,9 @@ public class MerlinSuperGG extends Item implements IAvalonAnimationItem{
         Level world = player.level();
         LivingEntityPatch livingEntityPatch = EpicFightCapabilities.getEntityPatch(player,LivingEntityPatch.class);
         if (world.isClientSide){
-            Vec3 pos = player.position();
-            pLevel.addParticle(AvalonParticles.AVALON_INTERPOLATION_ENTITY_AFTER_IMAGE.get(),pos.x,pos.y,pos.z,Double.longBitsToDouble(player.getId()),0,0);
+
             return super.use(pLevel, player, pUsedHand);
         }
-
-
-
 
 
 

@@ -19,7 +19,7 @@ public class EntityRenderDispatcherMixin {
      * 取消掉原版的碰撞箱渲染
      */
     @Inject(at = @At("HEAD"), method = "renderHitbox", cancellable = true)
-    private static void avalon$renderHitbox(PoseStack poseStack, VertexConsumer vertexConsumer, Entity entity, float p_114445_, CallbackInfo ci) {
+    private static void avalon$renderHitbox(PoseStack poseStack, VertexConsumer buffer, Entity entity, float red, float green, float blue, float alpha, CallbackInfo ci) {
         if (EpicFightCapabilities.getEntityPatch(entity, EntityPatch.class) instanceof IMultiHitBoxEntityPatch iMultiHitBoxEntityPatch && !iMultiHitBoxEntityPatch.shouldRenderAABBHitBox()){
             ci.cancel();
         }

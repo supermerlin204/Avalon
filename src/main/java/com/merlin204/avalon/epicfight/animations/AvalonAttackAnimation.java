@@ -12,9 +12,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -26,31 +27,32 @@ import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.neoevent.playerpatch.AttackPhaseEndEvent;
+import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.gameasset.EpicFightSounds;
+
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
-import yesman.epicfight.world.entity.eventlistener.AttackPhaseEndEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
+
 
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class AvalonAttackAnimation extends BasicAttackAnimation {
+public class AvalonAttackAnimation extends ComboAttackAnimation {
 
     private final float play_speed;
     private final float damageMulti;
 
-    public AvalonAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti) {
+    public AvalonAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
         this.play_speed = play_speed;
         this.damageMulti = damageMulti;
@@ -59,7 +61,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.play_speed = play_speed;
         this.damageMulti = damageMulti;
@@ -68,7 +70,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float damageMulti, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float damageMulti, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.damageMulti = damageMulti;
         this.play_speed = 1;
@@ -77,7 +79,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     }
 
 
-    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, AvalonPhase... phases) {
+    public AvalonAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends ComboAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, AvalonPhase... phases) {
         super(transitionTime, accessor, armature, phases);
         this.damageMulti = 1;
         this.play_speed = 1;
@@ -154,7 +156,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
 
                 if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch playerpatch) {
-                    playerpatch.getEventListener().triggerEvents(PlayerEventListener.EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+                    PlayerPatchEvent.postAndFireSkillListeners(new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
                 }
             }
         }
@@ -362,11 +364,11 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     protected void bindPhaseState(Phase phase) {
         float preDelay = phase.preDelay;
         this.stateSpectrumBlueprint.newTimePair(0, preDelay).addState(EntityState.PHASE_LEVEL, 1)
-                .newTimePair(phase.start, phase.recovery).addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .newTimePair(phase.start, phase.recovery).addState(EntityState.SKILL_EXECUTABLE, false)
                 .newTimePair(phase.start, phase.recovery + 0.1F).addState(EntityState.MOVEMENT_LOCKED, true)
                 .addState(EntityState.UPDATE_LIVING_MOTION, false)
                 .newTimePair(phase.start, phase.recovery)
-                .addState(EntityState.CAN_BASIC_ATTACK, false)
+                .addState(EntityState.COMBO_ATTACKS_DOABLE, false)
                 .newTimePair(phase.start, phase.end).addState(EntityState.INACTION, true)
                 .newTimePair(phase.antic, phase.end).addState(EntityState.TURNING_LOCKED, true)
                 .newTimePair(preDelay, phase.contact).addState(EntityState.ATTACKING, true).addState(EntityState.PHASE_LEVEL, 2)

@@ -4,8 +4,7 @@ package com.merlin204.avalon.util;
 import com.merlin204.avalon.client.CameraShake;
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
-import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
-import com.merlin204.avalon.entity.vfx.shakewave.ShakeWaveEntity;
+
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -33,11 +32,11 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
+
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
@@ -284,7 +283,7 @@ public class AvalonEventUtils {
             float step = (elapsedTime - prevElapsedTime) / timeInterpolation;
 
             ItemStack stack = entityPatch.getOriginal().getItemInHand(hand);
-            RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(stack);
+            RenderItemBase renderItemBase = RenderEngine.getInstance().getItemRenderer(stack);
 
             if (renderItemBase == null){
                 return;

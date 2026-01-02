@@ -1,10 +1,6 @@
 package com.merlin204.avalon.api;
 
-import com.merlin204.avalon.entity.client.renderer.EmptyRenderer;
-import com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonRendererPatch;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
+import net.minecraft.world.entity.Entity;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -21,6 +17,7 @@ import java.lang.annotation.Target;
 public @interface AvalonAutoRegister {
     String value();
 
+    Class<? extends Entity> entityClass();
     Class<? extends EntityPatch> entityPatch() default LivingEntityPatch.class;
     String clientRenderer() default "com.merlin204.avalon.entity.client.renderer.EmptyRenderer";
     String renderPatch() default "com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonRendererPatch";
