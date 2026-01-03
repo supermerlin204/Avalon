@@ -5,6 +5,7 @@ import com.merlin204.avalon.api.collider.AvalonColliderUtil;
 import com.merlin204.avalon.api.collider.IAvalonOBBCollier;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -22,6 +23,8 @@ import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
+import java.awt.*;
 
 public class AvalonEntityOBBCollider extends OBBCollider implements IAvalonOBBCollier {
 
@@ -62,15 +65,11 @@ public class AvalonEntityOBBCollider extends OBBCollider implements IAvalonOBBCo
     }
 
 
-
-
-
     //使用更精确的碰撞检测
     public boolean isCollide(Entity entity) {
         AvalonEntityOBBCollider obb = new AvalonEntityOBBCollider(entity.getBoundingBox());
         return AvalonColliderUtil.isColliding(this,obb);
     }
-
 
     @Override
     public Vector3f[] getAxes() {
@@ -114,37 +113,11 @@ public class AvalonEntityOBBCollider extends OBBCollider implements IAvalonOBBCo
         return new Vec3(0.5, 0.5, 0.5).toVector3f();
     }
 
-    @Override
-    public void setHalfExtents(Vector3f halfExtents) {
-        //无需实现
-    }
 
     @Override
     public Vector3f getCenter() {
         return new Vector3f((float) worldCenter.x, (float) worldCenter.y, (float) worldCenter.z);
     }
-
-    @Override
-    public void setCenter(Vector3f center) {
-        //无需实现
-    }
-
-    @Override
-    public Quaternionf getRotation() {
-        //无需实现
-        return null;
-    }
-
-    @Override
-    public void setRotation(Quaternionf rotation) {
-        //无需实现
-    }
-
-    @Override
-    public Vector3f[] getVertices() {
-        return new Vector3f[0];
-    }
-
 
 
     @OnlyIn(Dist.CLIENT)

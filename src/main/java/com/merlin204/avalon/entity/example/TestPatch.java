@@ -10,6 +10,7 @@ import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -71,17 +72,17 @@ public class TestPatch extends MobPatch<TestEntity> implements IMultiHitBoxEntit
     public ColliderManager getColliderManager() {
         if (colliderManager == null){
             HashMap<Joint, AvalonEntityOBBCollider> map = new HashMap<>();
-            map.put(getArmature().searchJointByName("Head"),new AvalonEntityOBBCollider(0.3,0.3,0.3,0,0.3,0));
-            map.put(getArmature().searchJointByName("Chest"),new AvalonEntityOBBCollider(0.3,0.2,0.2,0,0.2,0));
-            map.put(getArmature().searchJointByName("Torso"),new AvalonEntityOBBCollider(0.3,0.15,0.2,0,0.15,0));
-            map.put(getArmature().searchJointByName("Arm_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.1,0));
-            map.put(getArmature().searchJointByName("Hand_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
-            map.put(getArmature().searchJointByName("Arm_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.1,0));
-            map.put(getArmature().searchJointByName("Hand_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
-            map.put(getArmature().searchJointByName("Thigh_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.15,0));
-            map.put(getArmature().searchJointByName("Leg_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
-            map.put(getArmature().searchJointByName("Thigh_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.15,0));
-            map.put(getArmature().searchJointByName("Leg_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
+//            map.put(getArmature().searchJointByName("Head"),new AvalonEntityOBBCollider(0.3,0.3,0.3,0,0.3,0));
+//            map.put(getArmature().searchJointByName("Chest"),new AvalonEntityOBBCollider(0.3,0.2,0.2,0,0.2,0));
+//            map.put(getArmature().searchJointByName("Torso"),new AvalonEntityOBBCollider(0.3,0.15,0.2,0,0.15,0));
+//            map.put(getArmature().searchJointByName("Arm_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.1,0));
+//            map.put(getArmature().searchJointByName("Hand_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
+//            map.put(getArmature().searchJointByName("Arm_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.1,0));
+//            map.put(getArmature().searchJointByName("Hand_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
+//            map.put(getArmature().searchJointByName("Thigh_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.15,0));
+//            map.put(getArmature().searchJointByName("Leg_L"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
+//            map.put(getArmature().searchJointByName("Thigh_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.15,0));
+//            map.put(getArmature().searchJointByName("Leg_R"),new AvalonEntityOBBCollider(0.15,0.2,0.15,0,0.2,0));
             colliderManager = new ColliderManager(this.original,map);
         }
         return colliderManager;

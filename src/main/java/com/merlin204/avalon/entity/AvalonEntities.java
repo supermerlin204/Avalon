@@ -35,7 +35,7 @@ public class AvalonEntities {
             entityPatch = TestPatch.class,
             registerAttributes = true)
     public static final DeferredHolder<EntityType<?>,EntityType<TestEntity>> TEST = register("test",
-            EntityType.Builder.<TestEntity>of(TestEntity::new, MobCategory.MISC).sized(1, 2).clientTrackingRange(64).updateInterval(1).noSave());
+            EntityType.Builder.<TestEntity>of(TestEntity::new, MobCategory.MISC).sized(1, 2).clientTrackingRange(64).updateInterval(1));
 
     @AvalonAutoRegister(value = "animation_texture_vfx",
             entityClass = AnimationTextureVFXEntity.class,
