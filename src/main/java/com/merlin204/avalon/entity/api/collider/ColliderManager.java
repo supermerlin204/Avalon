@@ -13,13 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ColliderManager {
-    private final HashMap<Joint, EntityOBBCollider> map;
+    private final HashMap<Joint, AvalonEntityOBBCollider> map;
     private final LivingEntity owner;
     private List<Integer> hitList = new ArrayList<>();
 
+    //动画播放的时间(由客户端单方面同步至服务端,因为需要同步Living状态下的Pose)
+    private float time;
 
 
-    public ColliderManager(LivingEntity owner,HashMap<Joint, EntityOBBCollider> map) {
+
+    public ColliderManager(LivingEntity owner,HashMap<Joint, AvalonEntityOBBCollider> map) {
         this.map = map;
         this.owner = owner;
     }
@@ -46,7 +49,7 @@ public class ColliderManager {
         return owner;
     }
 
-    public HashMap<Joint, EntityOBBCollider> getColliderMap() {
+    public HashMap<Joint, AvalonEntityOBBCollider> getColliderMap() {
         return map;
     }
 

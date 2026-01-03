@@ -1,4 +1,4 @@
-package com.merlin204.avalon.api;
+package com.merlin204.avalon.api.register;
 
 public class AvalonAPI {
     /**

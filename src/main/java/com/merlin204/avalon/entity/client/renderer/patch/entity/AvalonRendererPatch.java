@@ -1,7 +1,7 @@
 package com.merlin204.avalon.entity.client.renderer.patch.entity;
 
 import com.merlin204.avalon.entity.IAvalonMeshEntity;
-import com.merlin204.avalon.entity.api.collider.EntityOBBCollider;
+import com.merlin204.avalon.entity.api.collider.AvalonEntityOBBCollider;
 import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -22,6 +22,9 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.math.MathUtils;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -41,17 +44,7 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
     public void render(LivingEntity entity, LivingEntityPatch entitypatch, LivingEntityRenderer renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
 
-        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && entitypatch instanceof IMultiHitBoxEntityPatch multiHitBoxEntityPatch) {
-            multiHitBoxEntityPatch.updateAllCollider();
-            for (Joint joint : multiHitBoxEntityPatch.getColliderManager().getColliderMap().keySet()) {
-                EntityOBBCollider collider = multiHitBoxEntityPatch.getColliderManager().getColliderMap().get(joint);
-                Color color = new Color(0, 255, 249);
-                if (multiHitBoxEntityPatch.getColliderManager().getHitList().contains(joint.getId())){
-                    color = new Color(255, 0, 0);
-                }
-                collider.drawInstantly(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), color.getRGB(), entity.position());
-            }
-        }
+
 
         if (entity instanceof IAvalonMeshEntity avalonMeshEntity){
             Armature armature = entitypatch.getArmature();
@@ -96,6 +89,26 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
 
             poseStack.popPose();
         }
+
+        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && entitypatch instanceof IMultiHitBoxEntityPatch multiHitBoxEntityPatch) {
+            OpenMatrix4f modelMatrix = entitypatch.getModelMatrix(partialTicks);
+            poseStack.mulPose(QuaternionUtils.YP.rotationDegrees(180.0F));
+            MathUtils.mulStack(poseStack, modelMatrix);
+            if (LivingEntityRenderer.isEntityUpsideDown(entity)) {
+                poseStack.translate(0.0, (entity.getBbHeight() + 0.1F), 0.0);
+                poseStack.mulPose(QuaternionUtils.ZP.rotationDegrees(180.0F));
+            }
+            multiHitBoxEntityPatch.updateAllCollider();
+            for (Joint joint : multiHitBoxEntityPatch.getColliderManager().getColliderMap().keySet()) {
+                AvalonEntityOBBCollider collider = multiHitBoxEntityPatch.getColliderManager().getColliderMap().get(joint);
+                Color color = new Color(0, 255, 249);
+                if (multiHitBoxEntityPatch.getColliderManager().getHitList().contains(joint.getId())){
+                    color = new Color(255, 0, 0);
+                }
+                collider.drawInternal(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(),joint, entitypatch,partialTicks,color.getRGB());
+            }
+        }
+
 
     }
 

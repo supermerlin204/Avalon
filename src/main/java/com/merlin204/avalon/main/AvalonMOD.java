@@ -3,6 +3,7 @@ package com.merlin204.avalon.main;
 
 
 
+import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.epicfight.gameassets.AvalonCategories;
 import com.merlin204.avalon.item.AvalonItems;
 import com.merlin204.avalon.particle.AvalonParticles;
@@ -35,6 +36,7 @@ public class AvalonMOD {
             System.out.println("Running in development environment");
         }
 
+        AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);
         CapabilityItem.WeaponCategories.ENUM_MANAGER.registerEnumCls(AvalonMOD.MOD_ID, AvalonCategories.class);

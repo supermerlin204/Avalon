@@ -1,9 +1,9 @@
 package com.merlin204.avalon.entity;
 
-import com.merlin204.avalon.api.AvalonAutoRegister;
-import com.merlin204.avalon.api.AvalonEntityRegistryManager;
-import com.merlin204.avalon.entity.client.renderer.EmptyRenderer;
-import com.merlin204.avalon.entity.client.renderer.patch.entity.AvalonVFXRendererPatch;
+import com.merlin204.avalon.api.register.AvalonAutoRegister;
+import com.merlin204.avalon.api.register.AvalonEntityRegistryManager;
+import com.merlin204.avalon.entity.example.TestEntity;
+import com.merlin204.avalon.entity.example.TestPatch;
 import com.merlin204.avalon.entity.vfx.AnimationTextureVFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntity;
 import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
@@ -30,6 +30,12 @@ public class AvalonEntities {
     public static final DeferredHolder<EntityType<?>,EntityType<VFXEntity>> VFX = register("vfx",
             EntityType.Builder.<VFXEntity>of(VFXEntity::new, MobCategory.MISC).sized(0, 0).clientTrackingRange(64).updateInterval(1).noSave());
 
+    @AvalonAutoRegister(value = "test",
+            entityClass = TestEntity.class,
+            entityPatch = TestPatch.class,
+            registerAttributes = true)
+    public static final DeferredHolder<EntityType<?>,EntityType<TestEntity>> TEST = register("test",
+            EntityType.Builder.<TestEntity>of(TestEntity::new, MobCategory.MISC).sized(1, 2).clientTrackingRange(64).updateInterval(1).noSave());
 
     @AvalonAutoRegister(value = "animation_texture_vfx",
             entityClass = AnimationTextureVFXEntity.class,

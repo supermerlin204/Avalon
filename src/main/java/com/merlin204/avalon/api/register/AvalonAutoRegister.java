@@ -1,4 +1,4 @@
-package com.merlin204.avalon.api;
+package com.merlin204.avalon.api.register;
 
 import net.minecraft.world.entity.Entity;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
