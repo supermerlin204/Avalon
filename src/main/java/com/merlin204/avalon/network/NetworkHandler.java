@@ -3,7 +3,6 @@ package com.merlin204.avalon.network;
 
 import com.merlin204.avalon.main.AvalonMOD;
 import com.merlin204.avalon.network.server.ShakeCameraPacket;
-import com.merlin204.avalon.network.server.SyncHitJointPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +28,6 @@ public class NetworkHandler {
 
     public static void registerPackets() {
         registerPacket(ShakeCameraPacket.class, ShakeCameraPacket::encode, ShakeCameraPacket::decode, ShakeCameraPacket::handle);
-        registerPacket(SyncHitJointPacket.class, SyncHitJointPacket::encode, SyncHitJointPacket::decode, SyncHitJointPacket::handle);
     }
 
     private static <T> void registerPacket(Class<T> packetClass,

@@ -1,8 +1,6 @@
 package com.merlin204.avalon.entity.client.renderer.patch.entity;
 
 import com.merlin204.avalon.entity.IAvalonMeshEntity;
-import com.merlin204.avalon.entity.api.collider.EntityOBBCollider;
-import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
 import com.merlin204.avalon.entity.client.model.EmptyEntityModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -40,17 +38,6 @@ public class AvalonRendererPatch extends PatchedLivingEntityRenderer<LivingEntit
     public void render(LivingEntity entity, LivingEntityPatch entitypatch, LivingEntityRenderer renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
 
-        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() && entitypatch instanceof IMultiHitBoxEntityPatch multiHitBoxEntityPatch) {
-            multiHitBoxEntityPatch.updateAllCollider();
-            for (Joint joint : multiHitBoxEntityPatch.getColliderManager().getColliderMap().keySet()) {
-                EntityOBBCollider collider = multiHitBoxEntityPatch.getColliderManager().getColliderMap().get(joint);
-                Color color = new Color(0, 255, 249);
-                if (multiHitBoxEntityPatch.getColliderManager().getHitList().contains(joint.getId())){
-                    color = new Color(255, 0, 0);
-                }
-                collider.drawInstantly(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), color.getRGB(), entity.position());
-            }
-        }
 
         if (entity instanceof IAvalonMeshEntity avalonMeshEntity){
             Armature armature = entitypatch.getArmature();

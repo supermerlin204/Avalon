@@ -1,8 +1,5 @@
 package com.merlin204.avalon.mixin;
 
-
-import com.merlin204.avalon.entity.api.collider.EntityOBBCollider;
-import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
 import com.merlin204.avalon.entity.api.patch.IAvalonPatch;
 import com.merlin204.avalon.entity.client.renderer.patch.item.AbstractRenderAnimationItem;
 import com.merlin204.avalon.entity.client.renderer.patch.item.RenderAnimationItem;
@@ -109,20 +106,7 @@ public abstract class PLivingEntityRendererMixin<E extends LivingEntity, T exten
 
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;Lyesman/epicfight/world/capabilities/entitypatch/LivingEntityPatch;Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/PoseStack;IF)V", at = @At("HEAD"), cancellable = true, remap = false)
     private void avalon$replaceMesh(E entity, T entitypatch, R renderer, MultiBufferSource buffer, PoseStack poseStack, int packedLight, float partialTicks, CallbackInfo ci) {
-        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
 
-            if (entitypatch instanceof IMultiHitBoxEntityPatch multiHitBoxEntityPatch){
-                multiHitBoxEntityPatch.updateAllCollider();
-                for (Joint joint : multiHitBoxEntityPatch.getColliderManager().getColliderMap().keySet()) {
-                    EntityOBBCollider collider = multiHitBoxEntityPatch.getColliderManager().getColliderMap().get(joint);
-                    Color color = new Color(0, 255, 249);
-                    if (multiHitBoxEntityPatch.getColliderManager().getHitList().contains(joint.getId())){
-                        color = new Color(255, 0, 0);
-                    }
-                    collider.drawInstantly(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), color.getRGB(), entity.position());
-                }
-            }
-        }
 
         RenderItemBase renderItemBase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND));
         if (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof IAvalonAnimationItem avalonAnimationItem) {
