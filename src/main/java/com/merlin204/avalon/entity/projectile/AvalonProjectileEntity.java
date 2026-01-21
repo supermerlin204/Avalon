@@ -64,7 +64,7 @@ public abstract class AvalonProjectileEntity extends Mob implements IAvalonMeshE
 
 
     @Override
-    public boolean addEffect(MobEffectInstance pEffectInstance, @Nullable Entity pEntity) {
+    public boolean addEffect(@NotNull MobEffectInstance pEffectInstance, @Nullable Entity pEntity) {
         return false;
     }
 

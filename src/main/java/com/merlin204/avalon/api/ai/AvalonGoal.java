@@ -1,18 +1,13 @@
-package com.merlin204.avalon.ai;
+package com.merlin204.avalon.api.ai;
 
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import yesman.epicfight.api.animation.types.EntityState;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
-import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  AvalonGoal的核心类

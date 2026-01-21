@@ -1,4 +1,4 @@
-package com.merlin204.avalon.ai.condition;
+package com.merlin204.avalon.api.ai.condition;
 
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
 import net.minecraft.client.gui.screens.Screen;

@@ -1,4 +1,4 @@
-package com.merlin204.avalon.ai.node;
+package com.merlin204.avalon.api.ai.node;
 
 
 import yesman.epicfight.data.conditions.Condition;

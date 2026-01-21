@@ -44,6 +44,7 @@ public abstract class OBBColliderMixin {
                 }
             }
             if (!list.isEmpty()){
+                multiHitBoxEntity.getColliderManager().setHitList(list);
                 multiHitBoxEntity.getColliderManager().syncHitJointToClient(list);
             }
             cir.setReturnValue(flag);

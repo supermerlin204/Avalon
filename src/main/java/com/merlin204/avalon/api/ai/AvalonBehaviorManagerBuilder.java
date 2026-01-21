@@ -1,4 +1,4 @@
-package com.merlin204.avalon.ai;
+package com.merlin204.avalon.api.ai;
 
 
 

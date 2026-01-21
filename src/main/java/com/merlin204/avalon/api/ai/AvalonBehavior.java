@@ -1,6 +1,6 @@
-package com.merlin204.avalon.ai;
+package com.merlin204.avalon.api.ai;
 
-import com.merlin204.avalon.ai.node.BasicBehaviorNode;
+import com.merlin204.avalon.api.ai.node.BasicBehaviorNode;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.List;

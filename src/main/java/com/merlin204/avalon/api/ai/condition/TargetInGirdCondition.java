@@ -1,4 +1,4 @@
-package com.merlin204.avalon.ai.condition;
+package com.merlin204.avalon.api.ai.condition;
 
 
 

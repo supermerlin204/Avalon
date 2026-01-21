@@ -22,7 +22,8 @@ public interface IMultiHitBoxEntityPatch {
             if (!parentEntityPatch.isLogicalClient() && nowAnimation == Animations.EMPTY_ANIMATION) {
                 LivingMotion livingMotion = parentEntityPatch.getCurrentLivingMotion();
                 nowAnimation = parentEntityPatch.getAnimator().getLivingAnimation(livingMotion, Animations.EMPTY_ANIMATION).get();
-                elapsedTime = 0;
+                elapsedTime = getColliderManager().getElapsedTime();
+                System.out.println(elapsedTime);
             }
 
             Pose pose;
