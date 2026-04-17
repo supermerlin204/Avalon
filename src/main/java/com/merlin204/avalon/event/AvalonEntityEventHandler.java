@@ -18,12 +18,14 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
+import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
 
-@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
 public class AvalonEntityEventHandler {
+
+    public static void registerEpicFightHooks() {
+        EpicFightClientEventHooks.Registry.PATCHED_ITEM.registerEvent(AvalonEntityEventHandler::registerRenderers);
+    }
 
     //绑定Patch
 //    @SubscribeEvent
@@ -59,9 +61,8 @@ public class AvalonEntityEventHandler {
 
 
 
-    @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void registerRenderers(PatchedRenderersEvent.RegisterItemRenderer event) {
+    public static void registerRenderers(RegisterPatchedRenderersEvent.Item event) {
         event.addItemRenderer(
                 ResourceLocation.fromNamespaceAndPath(AvalonMOD.MOD_ID, "mesh_item"),
                 RenderMeshItem::new

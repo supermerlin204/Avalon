@@ -11,13 +11,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import yesman.epicfight.api.client.neoevent.PatchedRenderersEvent;
-import yesman.epicfight.api.neoevent.EntityPatchRegistryEvent;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
+import yesman.epicfight.api.client.event.types.registry.RegisterPatchedRenderersEvent;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.types.registry.EntityPatchRegistryEvent;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 
@@ -33,6 +35,14 @@ import java.util.function.Function;
 public class AvalonEntityRegistryManager {
 
     private static final Map<DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> ENTITY_REGISTRY = new HashMap<>();
+
+    public static void registerEpicFightHooks() {
+        EpicFightEventHooks.Registry.ENTITY_PATCH.registerEvent(AvalonEntityRegistryManager::handleEntityPatchRegistry);
+
+        if (FMLEnvironment.dist.isClient()) {
+            EpicFightClientEventHooks.Registry.ADD_PATCHED_ENTITY.registerEvent(AvalonEntityRegistryManager::handlePatchedRenderers);
+        }
+    }
 
     /**
      * 扫描并注册所有带有注解的实体
@@ -57,7 +67,6 @@ public class AvalonEntityRegistryManager {
     /**
      * 处理 EntityPatch 注册
      */
-    @SubscribeEvent
     public static void handleEntityPatchRegistry(EntityPatchRegistryEvent event) {
         for (Map.Entry<DeferredHolder<EntityType<?>, EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
             DeferredHolder<EntityType<?>, EntityType<?>> entity = entry.getKey();
@@ -81,8 +90,8 @@ public class AvalonEntityRegistryManager {
     /**
      * 处理 EntityRender 注册
      */
-    @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
+    @net.neoforged.bus.api.SubscribeEvent
     public static void handleClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             for (Map.Entry< DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
@@ -107,9 +116,8 @@ public class AvalonEntityRegistryManager {
     /**
      * 处理 RenderPatch 注册
      */
-    @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public static void handlePatchedRenderers(PatchedRenderersEvent.Add event) {
+    public static void handlePatchedRenderers(RegisterPatchedRenderersEvent.AddEntity event) {
         for (Map.Entry< DeferredHolder<EntityType<?>,EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
             DeferredHolder<EntityType<?>,EntityType<?>> entity = entry.getKey();
             AvalonAutoRegister annotation = entry.getValue();
@@ -126,7 +134,7 @@ public class AvalonEntityRegistryManager {
     /**
      * 处理实体属性注册
      */
-    @SubscribeEvent
+    @net.neoforged.bus.api.SubscribeEvent
     public static void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         for (Map.Entry<DeferredHolder<EntityType<?>, EntityType<?>>, AvalonAutoRegister> entry : ENTITY_REGISTRY.entrySet()) {
             DeferredHolder<EntityType<?>, EntityType<?>> entity = entry.getKey();
