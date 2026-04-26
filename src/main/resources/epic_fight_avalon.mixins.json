@@ -6,12 +6,12 @@
   "mixins": [
     "ArmaturesMixin",
     "LivingEntityPatchMixin",
-    "OBBColliderMixin",
-    "SkinnedMeshMixin"
+    "OBBColliderMixin"
   ],
   "client": [
     "EntityRenderDispatcherMixin",
-    "PLivingEntityRendererMixin"
+    "PLivingEntityRendererMixin",
+    "SkinnedMeshMixin"
   ],
   "injectors": {
     "defaultRequire": 1

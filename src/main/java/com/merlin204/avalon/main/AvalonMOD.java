@@ -3,6 +3,7 @@ package com.merlin204.avalon.main;
 
 
 
+import com.merlin204.avalon.api.register.AvalonClientEntityRegistryManager;
 import com.merlin204.avalon.api.register.AvalonEntityRegistryManager;
 import com.merlin204.avalon.event.AvalonEntityEventHandler;
 import com.merlin204.avalon.entity.AvalonEntities;
@@ -45,6 +46,7 @@ public class AvalonMOD {
         AvalonEntityRegistryManager.registerEpicFightHooks();
 
         if (FMLEnvironment.dist.isClient()) {
+            AvalonClientEntityRegistryManager.init(bus);
             AvalonEntityEventHandler.registerEpicFightHooks();
         }
     }
