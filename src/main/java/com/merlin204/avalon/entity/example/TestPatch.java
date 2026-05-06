@@ -3,16 +3,12 @@ package com.merlin204.avalon.entity.example;
 import com.merlin204.avalon.entity.api.collider.AvalonEntityOBBCollider;
 import com.merlin204.avalon.entity.api.collider.ColliderManager;
 import com.merlin204.avalon.entity.api.collider.IMultiHitBoxEntityPatch;
-import net.minecraft.world.entity.Mob;
-import net.neoforged.neoforge.event.entity.EntityEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.damagesource.StunType;
@@ -30,7 +26,8 @@ public class TestPatch extends MobPatch<TestEntity> implements IMultiHitBoxEntit
     }
 
     @Override
-    public void onConstructed(EntityEvent.EntityConstructing event) {
+    public void onConstructed(TestEntity entity) {
+        this.original = entity;
         this.armature = original.getArmature();
         Animator animator = EpicFightSharedConstants.getAnimator(this);
         this.animator = animator;

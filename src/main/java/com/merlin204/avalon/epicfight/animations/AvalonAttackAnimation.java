@@ -26,9 +26,9 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.types.animation.AttackPhaseEndEvent;
 import yesman.epicfight.api.model.Armature;
-import yesman.epicfight.api.neoevent.playerpatch.AttackPhaseEndEvent;
-import yesman.epicfight.api.neoevent.playerpatch.PlayerPatchEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
@@ -153,8 +153,11 @@ public class AvalonAttackAnimation extends ComboAttackAnimation {
 
                 this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
 
-                if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch playerpatch) {
-                    PlayerPatchEvent.postAndFireSkillListeners(new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+                if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch) {
+                    EpicFightEventHooks.Animation.ATTACK_PHASE_END.postWithListener(
+                            new AttackPhaseEndEvent(entitypatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime), false),
+                            entitypatch.getEventListener()
+                    );
                 }
             }
         }

@@ -10,10 +10,11 @@ import com.merlin204.avalon.particle.AvalonParticles;
 
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
-@EventBusSubscriber(modid = AvalonMOD.MOD_ID)
+@EventBusSubscriber(modid = AvalonMOD.MOD_ID, value = Dist.CLIENT)
 public class ClientModEvents {
 
 

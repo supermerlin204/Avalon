@@ -14,7 +14,6 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Animator;
@@ -80,8 +79,8 @@ public class AvalonProjectilePatch<T extends AvalonProjectileEntity> extends Mob
 
 
     @Override
-    public void preTick(EntityTickEvent.Pre event) {
-        super.preTick(event);
+    public void preTick() {
+        super.preTick();
         boolean playAnimation = (this.getOriginal()).getPlayAnimation();
         if ((!this.isLogicalClient() || (this.original).getDefaultAnimation() != null || playAnimation) && !playAnimation) {
 

@@ -3,6 +3,9 @@ package com.merlin204.avalon.main;
 
 
 
+import com.merlin204.avalon.api.register.AvalonClientEntityRegistryManager;
+import com.merlin204.avalon.api.register.AvalonEntityRegistryManager;
+import com.merlin204.avalon.event.AvalonEntityEventHandler;
 import com.merlin204.avalon.entity.AvalonEntities;
 import com.merlin204.avalon.epicfight.gameassets.AvalonCategories;
 import com.merlin204.avalon.item.AvalonItems;
@@ -40,6 +43,12 @@ public class AvalonMOD {
         AvalonItems.ITEMS.register(bus);
         AvalonParticles.PARTICLES.register(bus);
         CapabilityItem.WeaponCategories.ENUM_MANAGER.registerEnumCls(AvalonMOD.MOD_ID, AvalonCategories.class);
+        AvalonEntityRegistryManager.registerEpicFightHooks();
+
+        if (FMLEnvironment.dist.isClient()) {
+            AvalonClientEntityRegistryManager.init(bus);
+            AvalonEntityEventHandler.registerEpicFightHooks();
+        }
     }
 
 

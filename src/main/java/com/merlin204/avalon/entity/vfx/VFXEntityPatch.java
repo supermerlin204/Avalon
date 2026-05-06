@@ -5,7 +5,6 @@ import com.merlin204.avalon.util.AvalonAnimationUtils;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.types.ActionAnimation;
@@ -49,8 +48,8 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
 
 
     @Override
-    public void preTick(EntityTickEvent.Pre event) {
-        super.preTick(event);
+    public void preTick() {
+        super.preTick();
         float ownerYRot = this.original.getStartYRot();
         this.original.setYRot(ownerYRot);
         boolean playAnimation = this.getOriginal().getPlayAnimation();
