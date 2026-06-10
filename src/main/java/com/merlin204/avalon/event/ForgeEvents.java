@@ -5,6 +5,7 @@ import com.merlin204.avalon.block.client.MeshBlockEntityRender;
 import com.merlin204.avalon.client.particle.AvalonAnimationTrailParticle;
 import com.merlin204.avalon.client.particle.AvalonEntityAfterImageParticle;
 import com.merlin204.avalon.client.particle.AvalonInterpolationEntityAfterImageParticle;
+import com.merlin204.avalon.entity.vfx.VFXEntityPatch;
 import com.merlin204.avalon.epicfight.animations.AvalonAttackAnimation;
 import com.merlin204.avalon.epicfight.api.AnimationBeAttackEvent;
 import com.merlin204.avalon.epicfight.api.AvalonAnimationProperty;
@@ -42,11 +43,18 @@ public class ForgeEvents {
             return;
         }
 
+        if (EpicFightCapabilities.getEntityPatch(event.getSource().getEntity(),LivingEntityPatch.class) instanceof VFXEntityPatch<?> vfxEntityPatch && vfxEntityPatch.getOriginal().getOwner() == event.getEntity()){
+            event.setCanceled(true);
+        }
 
+        if (EpicFightCapabilities.getEntityPatch(event.getSource().getDirectEntity(),LivingEntityPatch.class) instanceof VFXEntityPatch<?> vfxEntityPatch && vfxEntityPatch.getOriginal().getOwner() == event.getEntity()){
+            event.setCanceled(true);
+        }
         LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LivingEntityPatch.class);
         if (entityPatch == null){
             return;
         }
+
         if (entityPatch.getAnimator().getPlayerFor(null).getRealAnimation().get() instanceof AvalonAttackAnimation avalonAttackAnimation){
             avalonAttackAnimation.getProperty(AvalonAnimationProperty.BE_ATTACK_EVENTS).ifPresent(events -> {
                 for (AnimationBeAttackEvent<?> beAttackEvent : events) {
@@ -54,6 +62,7 @@ public class ForgeEvents {
                 }
             });
         }
+
     }
 
 

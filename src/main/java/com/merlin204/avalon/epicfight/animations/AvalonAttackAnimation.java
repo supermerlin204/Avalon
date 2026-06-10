@@ -50,6 +50,10 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
     private final float play_speed;
     private final float damageMulti;
 
+    private float moveScale = 1;
+    private boolean shouldAutoRot = true;
+
+
     public AvalonAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature, float play_speed, float damageMulti) {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
         this.play_speed = play_speed;
@@ -110,13 +114,9 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
 
     @Override
     protected Vec3 getCoordVector(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> dynamicAnimation) {
-        return super.getCoordVector(entitypatch, dynamicAnimation);
+        return super.getCoordVector(entitypatch, dynamicAnimation).scale(moveScale);
     }
 
-    @Override
-    protected void move(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
-        super.move(entitypatch, animation);
-    }
 
     @Override
     protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
@@ -140,7 +140,7 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 (mobpatch.getOriginal()).getNavigation().stop();
                 ((LivingEntity) entitypatch.getOriginal()).attackAnim = 2.0F;
                 LivingEntity target = entitypatch.getTarget();
-                if (target != null) {
+                if (target != null && shouldAutoRot) {
                     entitypatch.rotateTo(target, entitypatch.getYRotLimit(), false);
                 }
             }
@@ -238,6 +238,16 @@ public class AvalonAttackAnimation extends BasicAttackAnimation {
                 }
             }
         }
+    }
+
+    public <A extends AvalonAttackAnimation> A setShouldAutoRot(boolean shouldAutoRot){
+        this.shouldAutoRot = shouldAutoRot;
+        return (A)this;
+    }
+
+    public <A extends AvalonAttackAnimation> A setMoveScale(float scale){
+        this.moveScale = scale;
+        return (A)this;
     }
 
 

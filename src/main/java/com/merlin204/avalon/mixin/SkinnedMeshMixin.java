@@ -28,8 +28,6 @@ import javax.annotation.Nullable;
 @Mixin(SkinnedMesh.class)
 public abstract class SkinnedMeshMixin {
 
-    @Shadow
-    public abstract void draw(PoseStack poseStack, MultiBufferSource bufferSources, RenderType renderType, Mesh.DrawingFunction drawingFunction, int packedLight, float r, float g, float b, float a, int overlay, @Nullable Armature armature, OpenMatrix4f[] poses);
     /**
      * 人模就应该用人骨！！！
      */

@@ -43,6 +43,7 @@ public class AvalonMOD {
         IEventBus bus = context.getModEventBus();
         AvalonEntities.ENTITIES.register(bus);
         AvalonItems.ITEMS.register(bus);
+        AvalonItems.AVALON_TAB.register(bus);
         AvalonParticles.PARTICLES.register(bus);
         AvalonBlocks.BLOCKS.register(bus);
         AvalonBlocks.BLOCK_ENTITIES.register(bus);

@@ -4,6 +4,7 @@ import com.merlin204.avalon.item.IChangeArmatureItem;
 import com.merlin204.avalon.item.animationitem.IAvalonAnimationItem;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +20,12 @@ public abstract class LivingEntityPatchMixin<T extends LivingEntity> {
 
     @Inject(method = "getArmature", at = @At("HEAD"), cancellable = true, remap = false)
     private void avalon$getArmature(CallbackInfoReturnable<Armature> cir) {
-        if (((LivingEntityPatch<?>) (Object) this).getOriginal() != null){
+        LivingEntity entity = ((LivingEntityPatch<?>) (Object) this).getOriginal();
+        if (entity == null || entity.level() == null || !entity.isAddedToWorld()) {
+            return;
+        }
+        if (entity instanceof Player player && player.getInventory() == null)return;
+        if (entity != null){
             ItemStack mainHandItem = ((LivingEntityPatch<?>) (Object) this).getOriginal().getItemInHand(InteractionHand.MAIN_HAND);
 
             if (mainHandItem.getItem() instanceof IChangeArmatureItem changeArmatureItem && changeArmatureItem.change(((LivingEntityPatch<?>) (Object) this)) ) {

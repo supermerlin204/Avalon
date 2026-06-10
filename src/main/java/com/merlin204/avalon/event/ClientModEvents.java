@@ -26,7 +26,6 @@ public class ClientModEvents {
         event.registerSpecial(AvalonParticles.AVALON_TRAIL.get(), new AvalonAnimationTrailParticle.Provider());
         event.registerSpecial(AvalonParticles.AVALON_ENTITY_AFTER_IMAGE.get(), new AvalonEntityAfterImageParticle.Provider());
         event.registerSpecial(AvalonParticles.AVALON_INTERPOLATION_ENTITY_AFTER_IMAGE.get(), new AvalonInterpolationEntityAfterImageParticle.Provider());
-
     }
 
     @SubscribeEvent

@@ -133,7 +133,6 @@ public class VFXEntityPatch<T extends VFXEntity> extends MobPatch<T> {
         return null;
     }
 
-
     @Nullable
     public LivingEntityPatch<?> getOwnerPatch() {
         if (ownerPatch != null) {
